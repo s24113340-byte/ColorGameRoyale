@@ -4,6 +4,7 @@ import ChampionSelect from '@/components/game/ChampionSelect';
 import GameBoard from '@/components/game/GameBoard';
 import GameHUD from '@/components/game/GameHUD';
 import UmbraOverlay from '@/components/game/UmbraOverlay';
+import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
@@ -31,6 +32,8 @@ const INITIAL_STATE = {
   elementalBalance: { fire: 25, water: 25, nature: 25, light: 25 },
   umbraActive: false,
   umbraAbility: null,
+  umbraRageMode: false,
+  umbraFinalBoss: false,
   poisonedSquares: [],
   frozen: false,
   round: 1,
@@ -195,25 +198,102 @@ export default function ColorGameRoyale() {
       }
     });
 
-    // Umbra interference chance
+    // Umbra SOPHISTICATED AI interference
     let umbraAbility = null;
     let poisoned = [];
     let frozen = false;
+    let isRageMode = false;
+    let isFinalBoss = false;
     
-    if (gameState.gameMode === 'normal' && Math.random() < 0.2 && gameState.round > 2) {
-      const abilities = ['score-drain', 'freeze', 'poison'];
-      umbraAbility = abilities[Math.floor(Math.random() * abilities.length)];
-      playSound('umbra');
+    if (gameState.gameMode === 'normal' && gameState.round > 2) {
+      const shadowPercent = gameState.shadowMeter;
+      const champion = gameState.champion;
       
-      if (umbraAbility === 'score-drain') {
-        totalWin = Math.floor(totalWin * 0.5);
-      } else if (umbraAbility === 'freeze') {
-        frozen = true;
-        setTimeout(() => {
-          setGameState(prev => ({ ...prev, frozen: false }));
-        }, 3000);
-      } else if (umbraAbility === 'poison') {
-        poisoned = [COLORS[Math.floor(Math.random() * COLORS.length)].id];
+      // RAGE MODE: Shadow Meter below 30%
+      isRageMode = shadowPercent <= 30;
+      
+      // FINAL BOSS MODE: Last 2 rounds
+      isFinalBoss = gameState.round >= gameState.maxRounds - 1;
+      
+      // Base attack chance
+      let attackChance = 0.2;
+      
+      // Rage Mode increases frequency
+      if (isRageMode) {
+        attackChance = 0.5;
+      }
+      
+      // Final Boss always attacks
+      if (isFinalBoss) {
+        attackChance = 0.8;
+      }
+      
+      if (Math.random() < attackChance) {
+        // AI ADAPTATION: Choose ability based on player behavior
+        const abilities = [];
+        
+        // Against high-speed champions (Rei) or high streak - use Freeze
+        if ((champion?.stats?.speed > 70 || gameState.streak >= 3) && !frozen) {
+          abilities.push('freeze', 'freeze'); // Higher weight
+        }
+        
+        // Against high-scoring players - use Score Drain
+        if (gameState.score > 200 && totalWin > 30) {
+          abilities.push('score-drain', 'score-drain', 'score-drain'); // Higher weight
+        }
+        
+        // Against faction-focused players - use Poison
+        const dominantFaction = Object.entries(newBalance).sort((a, b) => b[1] - a[1])[0];
+        if (dominantFaction[1] > 35) {
+          abilities.push('poison', 'poison');
+        }
+        
+        // Default abilities
+        abilities.push('score-drain', 'freeze', 'poison');
+        
+        // FINAL BOSS MECHANICS: Special abilities
+        if (isFinalBoss) {
+          abilities.push('shadow-surge', 'elemental-drain', 'corruption');
+        }
+        
+        umbraAbility = abilities[Math.floor(Math.random() * abilities.length)];
+        playSound('umbra');
+        
+        // Execute ability with Rage Mode power boost
+        const ragePower = isRageMode ? 1.5 : 1;
+        
+        if (umbraAbility === 'score-drain') {
+          const drainPercent = isRageMode ? 0.7 : 0.5;
+          totalWin = Math.floor(totalWin * (1 - drainPercent));
+          pointsEarned = Math.floor(pointsEarned * (1 - drainPercent));
+        } else if (umbraAbility === 'freeze') {
+          frozen = true;
+          const freezeDuration = isRageMode ? 5000 : 3000;
+          setTimeout(() => {
+            setGameState(prev => ({ ...prev, frozen: false }));
+          }, freezeDuration);
+        } else if (umbraAbility === 'poison') {
+          const poisonCount = isRageMode ? 2 : 1;
+          for (let i = 0; i < poisonCount; i++) {
+            poisoned.push(COLORS[Math.floor(Math.random() * COLORS.length)].id);
+          }
+        } else if (umbraAbility === 'shadow-surge') {
+          // FINAL BOSS: Massive score drain + time penalty
+          totalWin = Math.floor(totalWin * 0.3);
+          pointsEarned = Math.floor(pointsEarned * 0.3);
+          bonusTimeEarned -= 10;
+        } else if (umbraAbility === 'elemental-drain') {
+          // FINAL BOSS: Drains all elemental balance
+          Object.keys(newBalance).forEach(key => {
+            newBalance[key] = Math.max(15, newBalance[key] - 15);
+          });
+        } else if (umbraAbility === 'corruption') {
+          // FINAL BOSS: All squares poisoned briefly
+          poisoned = COLORS.map(c => c.id);
+          setTimeout(() => {
+            setGameState(prev => ({ ...prev, poisonedSquares: [] }));
+          }, 2000);
+        }
       }
     }
 
@@ -234,7 +314,7 @@ export default function ColorGameRoyale() {
         ...prev,
         score: prev.score + pointsEarned,
         coins: prev.coins + totalWin,
-        timer: prev.timer + bonusTimeEarned,
+        timer: Math.max(0, prev.timer + bonusTimeEarned),
         streak: newStreak,
         bets: {},
         droppedBalls: [],
@@ -245,6 +325,8 @@ export default function ColorGameRoyale() {
         payoutMultiplier: multiplier,
         umbraActive: !!umbraAbility,
         umbraAbility,
+        umbraRageMode: isRageMode,
+        umbraFinalBoss: isFinalBoss,
         poisonedSquares: poisoned,
         frozen,
         round: newRound,
@@ -260,6 +342,17 @@ export default function ColorGameRoyale() {
           payoutMultiplier: 1,
         }));
       }, 3000);
+    }
+    
+    // Clear Umbra ability after 1 second
+    if (umbraAbility) {
+      setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          umbraActive: false,
+          umbraAbility: null,
+        }));
+      }, 1000);
     }
   };
 
@@ -338,7 +431,11 @@ export default function ColorGameRoyale() {
               active={gameState.umbraActive}
               ability={gameState.umbraAbility}
               shadowMeter={gameState.shadowMeter}
+              rageMode={gameState.umbraRageMode}
+              finalBoss={gameState.umbraFinalBoss}
             />
+
+            <UmbraAIIndicator gameState={gameState} />
           </motion.div>
         )}
 

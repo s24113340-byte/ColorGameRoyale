@@ -12,7 +12,7 @@ const UMBRA_ABILITIES = {
   'freeze': {
     icon: Snowflake,
     title: 'FREEZE TURN',
-    description: 'Time is frozen for 3 seconds!',
+    description: 'Time is frozen!',
     color: '#3B82F6',
   },
   'poison': {
@@ -21,121 +21,182 @@ const UMBRA_ABILITIES = {
     description: 'A color square has been cursed!',
     color: '#10B981',
   },
+  'shadow-surge': {
+    icon: Skull,
+    title: 'SHADOW SURGE',
+    description: 'Devastating attack drains score and time!',
+    color: '#6B21A8',
+  },
+  'elemental-drain': {
+    icon: AlertTriangle,
+    title: 'ELEMENTAL DRAIN',
+    description: 'All elemental balance weakened!',
+    color: '#DC2626',
+  },
+  'corruption': {
+    icon: Biohazard,
+    title: 'TOTAL CORRUPTION',
+    description: 'All squares temporarily poisoned!',
+    color: '#059669',
+  },
 };
 
-export default function UmbraOverlay({ active, ability, shadowMeter }) {
+export default function UmbraOverlay({ active, ability, shadowMeter, rageMode, finalBoss }) {
   const abilityData = ability ? UMBRA_ABILITIES[ability] : null;
 
   return (
     <>
-      {/* Umbra warning indicator */}
+      {/* Umbra warning indicator - COMPACT VERSION (1 second duration) */}
       <AnimatePresence>
         {active && abilityData && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-1/2 right-4 -translate-y-1/2 z-50 pointer-events-none"
           >
-            {/* Dark overlay */}
+            {/* Compact Umbra attack card */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.7 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-purple-950"
-            />
-
-            {/* Umbra dragon silhouette */}
-            <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 50 }}
-              className="relative z-10"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              className={`
+                relative p-4 rounded-xl border-2 backdrop-blur-xl
+                ${rageMode ? 'animate-pulse' : ''}
+                ${finalBoss ? 'shadow-2xl' : 'shadow-lg'}
+              `}
+              style={{ 
+                background: `${abilityData.color}30`,
+                borderColor: rageMode ? '#DC2626' : abilityData.color,
+                boxShadow: rageMode 
+                  ? `0 0 40px ${abilityData.color}80, 0 0 20px #DC262680` 
+                  : `0 0 20px ${abilityData.color}50`,
+                maxWidth: '280px',
+              }}
             >
-              {/* Dragon pixelated form */}
-              <div className="relative mb-8">
+              {/* Rage/Final Boss indicator */}
+              {(rageMode || finalBoss) && (
+                <div className="absolute -top-2 -left-2 px-2 py-1 rounded-lg text-xs font-black bg-red-600 text-white">
+                  {finalBoss ? '⚡ FINAL BOSS' : '🔥 RAGE MODE'}
+                </div>
+              )}
+
+              <div className="flex items-start gap-3">
+                {/* Dragon avatar - smaller */}
                 <motion.div
                   animate={{ 
-                    filter: ['hue-rotate(0deg)', 'hue-rotate(30deg)', 'hue-rotate(0deg)'],
+                    rotate: rageMode ? [0, -5, 5, 0] : 0,
+                    scale: rageMode ? [1, 1.1, 1] : 1,
                   }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-9xl md:text-[12rem] leading-none"
-                  style={{
-                    textShadow: '0 0 50px rgba(168, 85, 247, 0.8), 0 0 100px rgba(168, 85, 247, 0.5)',
-                  }}
+                  transition={{ duration: 0.5 }}
+                  className="relative"
                 >
-                  🐉
+                  <div className="text-4xl leading-none">🐉</div>
+                  {/* Glowing eyes */}
+                  <motion.div
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 0.3, repeat: 2 }}
+                    className="absolute top-1 left-1 w-1.5 h-1.5 rounded-full bg-red-500 blur-[1px]"
+                  />
+                  <motion.div
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 0.3, repeat: 2, delay: 0.15 }}
+                    className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500 blur-[1px]"
+                  />
                 </motion.div>
-                
-                {/* Glowing eyes effect */}
-                <motion.div
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                  className="absolute top-1/4 left-1/3 w-4 h-4 rounded-full bg-red-500 blur-sm"
-                />
-                <motion.div
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: 0.25 }}
-                  className="absolute top-1/4 right-1/3 w-4 h-4 rounded-full bg-red-500 blur-sm"
-                />
+
+                {/* Ability info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <abilityData.icon className="w-5 h-5 flex-shrink-0" style={{ color: abilityData.color }} />
+                    <h3 
+                      className="text-sm font-black uppercase leading-tight"
+                      style={{ color: abilityData.color }}
+                    >
+                      {abilityData.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-tight">
+                    {abilityData.description}
+                  </p>
+                </div>
               </div>
 
-              {/* Name */}
-              <motion.h2
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-4xl md:text-5xl font-black text-purple-400 tracking-widest mb-4"
-                style={{
-                  textShadow: '0 0 20px rgba(168, 85, 247, 0.8)',
-                }}
-              >
-                UMBRA
-              </motion.h2>
-              <p className="text-center text-purple-300 text-sm mb-8 tracking-wider">
-                THE CHROMATIC SHADOW
-              </p>
-
-              {/* Ability announcement */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center p-6 rounded-2xl bg-slate-900/80 border-2 max-w-md mx-auto"
-                style={{ borderColor: abilityData.color }}
-              >
-                <div 
-                  className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
-                  style={{ background: `${abilityData.color}30` }}
-                >
-                  <abilityData.icon className="w-8 h-8" style={{ color: abilityData.color }} />
+              {/* Power indicator for rage/final boss */}
+              {(rageMode || finalBoss) && (
+                <div className="mt-2 pt-2 border-t border-white/20">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="flex-1 h-1.5 bg-black/30 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: 0.8 }}
+                        className="h-full bg-gradient-to-r from-red-600 to-orange-500"
+                      />
+                    </div>
+                    <span className="text-red-400 font-bold">
+                      {rageMode && !finalBoss ? '+50%' : '+100%'}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2">{abilityData.title}</h3>
-                <p className="text-slate-400">{abilityData.description}</p>
-              </motion.div>
+              )}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Low shadow meter warning */}
+      {/* Rage Mode warning indicator */}
       <AnimatePresence>
-        {shadowMeter <= 30 && shadowMeter > 0 && !active && (
+        {rageMode && shadowMeter > 0 && !active && (
           <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            className="fixed bottom-24 right-4 z-40"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="fixed top-1/2 right-4 -translate-y-1/2 z-40"
           >
             <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-900/80 border border-purple-500/50 backdrop-blur"
+              animate={{ 
+                scale: [1, 1.08, 1],
+                boxShadow: [
+                  '0 0 20px rgba(220, 38, 38, 0.5)',
+                  '0 0 40px rgba(220, 38, 38, 0.8)',
+                  '0 0 20px rgba(220, 38, 38, 0.5)',
+                ],
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-950/90 border-2 border-red-500 backdrop-blur"
             >
-              <AlertTriangle className="w-5 h-5 text-purple-400" />
+              <motion.div
+                animate={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+              >
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+              </motion.div>
               <div>
-                <p className="text-purple-300 font-bold text-sm">UMBRA WEAKENING!</p>
-                <p className="text-purple-400 text-xs">Keep attacking!</p>
+                <p className="text-red-300 font-black text-sm">⚠️ RAGE MODE</p>
+                <p className="text-red-400 text-xs">Umbra's power increased!</p>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+        
+        {/* Final Boss warning */}
+        {finalBoss && !active && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-40"
+          >
+            <motion.div
+              animate={{ 
+                scale: [1, 1.05, 1],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-900/90 to-red-900/90 border-2 border-purple-500 backdrop-blur"
+            >
+              <p className="text-center font-black text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-red-300">
+                ⚡ FINAL ARC - UMBRA UNLEASHED ⚡
+              </p>
             </motion.div>
           </motion.div>
         )}
