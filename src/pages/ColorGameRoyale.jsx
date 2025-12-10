@@ -10,7 +10,7 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
-import { saveGame, loadGame, getDefaultSaveData, updateCampaignProgress, applyUpgrade, hasSaveData } from '@/utils/saveSystem';
+import { saveGame, loadGame, getDefaultSaveData, updateCampaignProgress, applyUpgrade, hasSaveData } from '@/components/utils/saveSystem';
 
 const COLORS = [
   { id: 'red', name: 'Fire', hex: '#FF3B3B', faction: 'fire', emoji: '🔥' },
