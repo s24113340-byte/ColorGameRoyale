@@ -1,0 +1,437 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ChampionSelect from '@/components/game/ChampionSelect';
+import GameBoard from '@/components/game/GameBoard';
+import GameHUD from '@/components/game/GameHUD';
+import UmbraOverlay from '@/components/game/UmbraOverlay';
+import EndingCinematic from '@/components/game/EndingCinematic';
+import ModeSelect from '@/components/game/ModeSelect';
+import PVPMode from '@/components/game/PVPMode';
+
+const COLORS = [
+  { id: 'red', name: 'Fire', hex: '#FF3B3B', faction: 'fire', emoji: '🔥' },
+  { id: 'blue', name: 'Water', hex: '#3B82F6', faction: 'water', emoji: '💧' },
+  { id: 'green', name: 'Nature', hex: '#10B981', faction: 'nature', emoji: '🌿' },
+  { id: 'yellow', name: 'Light', hex: '#FBBF24', faction: 'light', emoji: '✨' },
+];
+
+const INITIAL_STATE = {
+  phase: 'title', // title, mode-select, champion-select, playing, ending
+  gameMode: null, // normal, time-attack, pvp
+  champion: null,
+  score: 0,
+  coins: 100,
+  timer: 60,
+  bonusTime: 0,
+  streak: 0,
+  bets: {},
+  droppedBalls: [],
+  isDropping: false,
+  shadowMeter: 100,
+  elementalBalance: { fire: 25, water: 25, nature: 25, light: 25 },
+  umbraActive: false,
+  umbraAbility: null,
+  poisonedSquares: [],
+  frozen: false,
+  round: 1,
+  maxRounds: 10,
+  factionBuffActive: null,
+  payoutMultiplier: 1,
+  ending: null,
+};
+
+export default function ColorGameRoyale() {
+  const [gameState, setGameState] = useState(INITIAL_STATE);
+  const timerRef = useRef(null);
+  const audioContextRef = useRef(null);
+
+  const playSound = useCallback((type) => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = audioContextRef.current;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    const sounds = {
+      bet: { freq: 440, duration: 0.1 },
+      drop: { freq: 220, duration: 0.3 },
+      win: { freq: 880, duration: 0.5 },
+      jackpot: { freq: 1200, duration: 0.8 },
+      umbra: { freq: 110, duration: 0.6 },
+    };
+    
+    const s = sounds[type] || sounds.bet;
+    osc.frequency.value = s.freq;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + s.duration);
+    osc.start();
+    osc.stop(ctx.currentTime + s.duration);
+  }, []);
+
+  // Timer logic
+  useEffect(() => {
+    if (gameState.phase === 'playing' && !gameState.frozen && !gameState.isDropping) {
+      timerRef.current = setInterval(() => {
+        setGameState(prev => {
+          const newTimer = prev.timer - 1;
+          if (newTimer <= 0) {
+            return { ...prev, phase: 'ending', ending: determineEnding(prev) };
+          }
+          return { ...prev, timer: newTimer };
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [gameState.phase, gameState.frozen, gameState.isDropping]);
+
+  const determineEnding = (state) => {
+    if (state.shadowMeter <= 0) {
+      const dominant = Object.entries(state.elementalBalance)
+        .sort((a, b) => b[1] - a[1])[0][0];
+      return dominant;
+    }
+    return 'chaos';
+  };
+
+  const selectChampion = (champion) => {
+    setGameState(prev => ({
+      ...prev,
+      champion,
+      phase: 'playing',
+    }));
+  };
+
+  const selectMode = (mode) => {
+    setGameState(prev => ({
+      ...prev,
+      gameMode: mode,
+      phase: mode === 'pvp' ? 'pvp' : 'champion-select',
+      timer: mode === 'time-attack' ? 30 : 60,
+      maxRounds: mode === 'time-attack' ? 999 : 10,
+    }));
+  };
+
+  const placeBet = (colorId, amount) => {
+    if (gameState.coins < amount || gameState.frozen || gameState.isDropping) return;
+    playSound('bet');
+    
+    setGameState(prev => ({
+      ...prev,
+      coins: prev.coins - amount,
+      bets: {
+        ...prev.bets,
+        [colorId]: (prev.bets[colorId] || 0) + amount,
+      },
+    }));
+  };
+
+  const dropBalls = async () => {
+    if (Object.keys(gameState.bets).length === 0 || gameState.isDropping) return;
+    
+    playSound('drop');
+    setGameState(prev => ({ ...prev, isDropping: true }));
+
+    // Simulate 3 ball drops
+    const results = [];
+    for (let i = 0; i < 3; i++) {
+      await new Promise(r => setTimeout(r, 800));
+      const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+      results.push(randomColor);
+      setGameState(prev => ({
+        ...prev,
+        droppedBalls: [...prev.droppedBalls, randomColor],
+      }));
+    }
+
+    // Calculate results
+    setTimeout(() => {
+      calculateResults(results);
+    }, 500);
+  };
+
+  const calculateResults = (results) => {
+    let totalWin = 0;
+    let pointsEarned = 0;
+    let bonusTimeEarned = 0;
+    let newStreak = gameState.streak;
+    let factionBuff = null;
+    let multiplier = 1;
+    let shadowDamage = 0;
+    const newBalance = { ...gameState.elementalBalance };
+
+    // Count matches per color
+    const colorCounts = {};
+    results.forEach(r => {
+      colorCounts[r.id] = (colorCounts[r.id] || 0) + 1;
+    });
+
+    // Check each bet
+    Object.entries(gameState.bets).forEach(([colorId, betAmount]) => {
+      const matches = colorCounts[colorId] || 0;
+      if (matches > 0) {
+        const payoutRates = { 1: 1, 2: 2, 3: 3 };
+        const payout = betAmount * payoutRates[matches] * multiplier;
+        totalWin += payout;
+        pointsEarned += matches === 3 ? 30 : 10 * matches;
+        newStreak++;
+
+        // Faction buff activation on streak or jackpot
+        if (matches === 3 || newStreak >= 3) {
+          const color = COLORS.find(c => c.id === colorId);
+          factionBuff = color.faction;
+          multiplier = 3;
+          shadowDamage = 20;
+          bonusTimeEarned = matches === 3 ? 15 : 5;
+          newBalance[color.faction] = Math.min(100, newBalance[color.faction] + 10);
+          playSound('jackpot');
+        } else {
+          playSound('win');
+        }
+      } else {
+        newStreak = 0;
+      }
+    });
+
+    // Umbra interference chance
+    let umbraAbility = null;
+    let poisoned = [];
+    let frozen = false;
+    
+    if (gameState.gameMode === 'normal' && Math.random() < 0.2 && gameState.round > 2) {
+      const abilities = ['score-drain', 'freeze', 'poison'];
+      umbraAbility = abilities[Math.floor(Math.random() * abilities.length)];
+      playSound('umbra');
+      
+      if (umbraAbility === 'score-drain') {
+        totalWin = Math.floor(totalWin * 0.5);
+      } else if (umbraAbility === 'freeze') {
+        frozen = true;
+        setTimeout(() => {
+          setGameState(prev => ({ ...prev, frozen: false }));
+        }, 3000);
+      } else if (umbraAbility === 'poison') {
+        poisoned = [COLORS[Math.floor(Math.random() * COLORS.length)].id];
+      }
+    }
+
+    setGameState(prev => {
+      const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
+      const newRound = prev.round + 1;
+      
+      // Check for ending conditions
+      if (newShadow <= 0 || (prev.gameMode === 'normal' && newRound > prev.maxRounds)) {
+        return {
+          ...prev,
+          phase: 'ending',
+          ending: newShadow <= 0 ? determineEnding({ ...prev, shadowMeter: 0 }) : 'chaos',
+        };
+      }
+
+      return {
+        ...prev,
+        score: prev.score + pointsEarned,
+        coins: prev.coins + totalWin,
+        timer: prev.timer + bonusTimeEarned,
+        streak: newStreak,
+        bets: {},
+        droppedBalls: [],
+        isDropping: false,
+        shadowMeter: newShadow,
+        elementalBalance: newBalance,
+        factionBuffActive: factionBuff,
+        payoutMultiplier: multiplier,
+        umbraActive: !!umbraAbility,
+        umbraAbility,
+        poisonedSquares: poisoned,
+        frozen,
+        round: newRound,
+      };
+    });
+
+    // Clear faction buff after delay
+    if (factionBuff) {
+      setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          factionBuffActive: null,
+          payoutMultiplier: 1,
+        }));
+      }, 3000);
+    }
+  };
+
+  const resetGame = () => {
+    setGameState(INITIAL_STATE);
+  };
+
+  const startGame = () => {
+    setGameState(prev => ({ ...prev, phase: 'mode-select' }));
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 overflow-hidden">
+      {/* Animated background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxNDcsNTEsMjM0LDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-purple-400 rounded-full"
+            initial={{ 
+              x: Math.random() * window.innerWidth, 
+              y: Math.random() * window.innerHeight,
+              opacity: 0.3 
+            }}
+            animate={{ 
+              y: [null, Math.random() * window.innerHeight],
+              opacity: [0.3, 0.8, 0.3]
+            }}
+            transition={{ 
+              duration: 5 + Math.random() * 5, 
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {gameState.phase === 'title' && (
+          <TitleScreen onStart={startGame} />
+        )}
+
+        {gameState.phase === 'mode-select' && (
+          <ModeSelect onSelectMode={selectMode} onBack={resetGame} />
+        )}
+
+        {gameState.phase === 'champion-select' && (
+          <ChampionSelect onSelect={selectChampion} onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))} />
+        )}
+
+        {gameState.phase === 'pvp' && (
+          <PVPMode onBack={resetGame} colors={COLORS} />
+        )}
+
+        {gameState.phase === 'playing' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="relative z-10"
+          >
+            <GameHUD 
+              gameState={gameState}
+              colors={COLORS}
+            />
+            
+            <GameBoard 
+              gameState={gameState}
+              colors={COLORS}
+              onPlaceBet={placeBet}
+              onDrop={dropBalls}
+            />
+
+            <UmbraOverlay 
+              active={gameState.umbraActive}
+              ability={gameState.umbraAbility}
+              shadowMeter={gameState.shadowMeter}
+            />
+          </motion.div>
+        )}
+
+        {gameState.phase === 'ending' && (
+          <EndingCinematic 
+            ending={gameState.ending}
+            score={gameState.score}
+            champion={gameState.champion}
+            onRestart={resetGame}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function TitleScreen({ onStart }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen flex flex-col items-center justify-center px-4"
+    >
+      {/* Logo */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
+          COLOR GAME
+        </h1>
+        <h2 className="text-3xl md:text-5xl font-black text-white mt-2 tracking-widest">
+          ROYALE
+        </h2>
+        <p className="text-purple-300 text-sm md:text-base mt-4 tracking-wider">
+          ⚔️ THE CHROMATIC KINGDOM AWAITS ⚔️
+        </p>
+      </motion.div>
+
+      {/* Floating orbs */}
+      <div className="relative w-64 h-64 mb-8">
+        {['#FF3B3B', '#3B82F6', '#10B981', '#FBBF24'].map((color, i) => (
+          <motion.div
+            key={color}
+            className="absolute w-16 h-16 rounded-full blur-sm"
+            style={{ 
+              background: `radial-gradient(circle, ${color}, transparent)`,
+              left: '50%',
+              top: '50%',
+            }}
+            animate={{
+              x: Math.cos((i * Math.PI) / 2) * 80 - 32,
+              y: Math.sin((i * Math.PI) / 2) * 80 - 32,
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              scale: { duration: 2, repeat: Infinity, delay: i * 0.5 },
+            }}
+          />
+        ))}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="w-32 h-32 border-2 border-purple-500/30 rounded-full" />
+        </motion.div>
+      </div>
+
+      {/* Start button */}
+      <motion.button
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={onStart}
+        className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white text-xl font-bold shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-shadow"
+      >
+        START GAME
+      </motion.button>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-8 text-slate-500 text-sm"
+      >
+        Press to Enter the Chromatic Kingdom
+      </motion.p>
+    </motion.div>
+  );
+}
