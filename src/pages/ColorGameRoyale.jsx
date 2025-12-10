@@ -10,7 +10,78 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
-import { saveGame, loadGame, getDefaultSaveData, updateCampaignProgress, applyUpgrade, hasSaveData } from '@/components/utils/saveSystem';
+
+// Save/Load system
+const SAVE_KEY = 'colorGameRoyale_save';
+
+const saveGame = (saveData) => {
+  try {
+    const dataToSave = {
+      ...saveData,
+      lastSaved: new Date().toISOString(),
+      version: '1.0',
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave));
+    return true;
+  } catch (error) {
+    console.error('Failed to save game:', error);
+    return false;
+  }
+};
+
+const loadGame = () => {
+  try {
+    const savedData = localStorage.getItem(SAVE_KEY);
+    if (!savedData) return null;
+    const parsed = JSON.parse(savedData);
+    return parsed;
+  } catch (error) {
+    console.error('Failed to load game:', error);
+    return null;
+  }
+};
+
+const getDefaultSaveData = () => {
+  return {
+    campaignProgress: {
+      highestLevelUnlocked: 1,
+      completedLevels: [],
+      upgradePoints: 0,
+      totalScore: 0,
+    },
+    championUpgrades: {
+      ren: { power: 0, defense: 0, speed: 0, magic: 0 },
+      rei: { power: 0, defense: 0, speed: 0, magic: 0 },
+    },
+    settings: {
+      soundEnabled: true,
+      musicEnabled: true,
+    },
+  };
+};
+
+const updateCampaignProgress = (currentSave, levelCompleted, scoreEarned) => {
+  const newSave = { ...currentSave };
+  if (levelCompleted >= newSave.campaignProgress.highestLevelUnlocked) {
+    newSave.campaignProgress.highestLevelUnlocked = levelCompleted + 1;
+  }
+  if (!newSave.campaignProgress.completedLevels.includes(levelCompleted)) {
+    newSave.campaignProgress.completedLevels.push(levelCompleted);
+  }
+  newSave.campaignProgress.upgradePoints += levelCompleted * 10;
+  newSave.campaignProgress.totalScore += scoreEarned;
+  return newSave;
+};
+
+const applyUpgrade = (currentSave, championId, stat, cost) => {
+  const newSave = { ...currentSave };
+  newSave.campaignProgress.upgradePoints -= cost;
+  if (!newSave.championUpgrades[championId]) {
+    newSave.championUpgrades[championId] = { power: 0, defense: 0, speed: 0, magic: 0 };
+  }
+  newSave.championUpgrades[championId][stat] = (newSave.championUpgrades[championId][stat] || 0) + 1;
+  return newSave;
+};
 
 const COLORS = [
   { id: 'red', name: 'Fire', hex: '#FF3B3B', faction: 'fire', emoji: '🔥' },
