@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChampionSelect from '@/components/game/ChampionSelect';
+import CampaignMap from '@/components/game/CampaignMap';
+import ChampionUpgrades from '@/components/game/ChampionUpgrades';
 import GameBoard from '@/components/game/GameBoard';
 import GameHUD from '@/components/game/GameHUD';
 import UmbraOverlay from '@/components/game/UmbraOverlay';
@@ -8,6 +10,7 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
+import { saveGame, loadGame, getDefaultSaveData, updateCampaignProgress, applyUpgrade, hasSaveData } from '@/utils/saveSystem';
 
 const COLORS = [
   { id: 'red', name: 'Fire', hex: '#FF3B3B', faction: 'fire', emoji: '🔥' },
@@ -17,9 +20,10 @@ const COLORS = [
 ];
 
 const INITIAL_STATE = {
-  phase: 'title', // title, mode-select, champion-select, playing, ending
+  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, ending
   gameMode: null, // normal, time-attack, pvp
   champion: null,
+  selectedLevel: null,
   score: 0,
   coins: 100,
   timer: 60,
@@ -45,8 +49,19 @@ const INITIAL_STATE = {
 
 export default function ColorGameRoyale() {
   const [gameState, setGameState] = useState(INITIAL_STATE);
+  const [saveData, setSaveData] = useState(null);
   const timerRef = useRef(null);
   const audioContextRef = useRef(null);
+
+  // Load save data on mount
+  useEffect(() => {
+    const loaded = loadGame();
+    if (loaded) {
+      setSaveData(loaded);
+    } else {
+      setSaveData(getDefaultSaveData());
+    }
+  }, []);
 
   const playSound = useCallback((type) => {
     if (!audioContextRef.current) {
@@ -91,7 +106,21 @@ export default function ColorGameRoyale() {
   }, [gameState.phase, gameState.frozen, gameState.isDropping]);
 
   const determineEnding = (state) => {
-    if (state.shadowMeter <= 0) {
+    const isVictory = state.shadowMeter <= 0;
+    
+    // Save campaign progress for Normal mode
+    if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
+      const newSave = updateCampaignProgress(
+        saveData,
+        state.selectedLevel,
+        state.score,
+        state.champion?.id
+      );
+      setSaveData(newSave);
+      saveGame(newSave);
+    }
+    
+    if (isVictory) {
       const dominant = Object.entries(state.elementalBalance)
         .sort((a, b) => b[1] - a[1])[0][0];
       return dominant;
@@ -100,9 +129,10 @@ export default function ColorGameRoyale() {
   };
 
   const selectChampion = (champion) => {
+    const championWithUpgrades = getChampionWithUpgrades(champion);
     setGameState(prev => ({
       ...prev,
-      champion,
+      champion: championWithUpgrades,
       phase: 'playing',
     }));
   };
@@ -111,10 +141,51 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({
       ...prev,
       gameMode: mode,
-      phase: mode === 'pvp' ? 'pvp' : 'champion-select',
+      phase: mode === 'pvp' ? 'pvp' : mode === 'normal' ? 'campaign-map' : 'champion-select',
       timer: mode === 'time-attack' ? 30 : 60,
       maxRounds: mode === 'time-attack' ? 999 : 10,
     }));
+  };
+
+  const selectCampaignLevel = (levelId) => {
+    setGameState(prev => ({
+      ...prev,
+      selectedLevel: levelId,
+      phase: 'champion-select',
+      maxRounds: 1, // Campaign levels are single rounds
+      coins: 100 + (levelId - 1) * 10, // Starting coins increase with level
+    }));
+  };
+
+  const handleSaveProgress = () => {
+    if (saveData) {
+      saveGame(saveData);
+    }
+  };
+
+  const handleUpgrade = (stat, cost) => {
+    if (!gameState.champion || !saveData) return;
+    
+    const newSave = applyUpgrade(saveData, gameState.champion.id, stat, cost);
+    setSaveData(newSave);
+    saveGame(newSave);
+  };
+
+  const getChampionWithUpgrades = (champion) => {
+    if (!champion || !saveData) return champion;
+    
+    const upgrades = saveData.championUpgrades[champion.id] || {};
+    const upgradedStats = { ...champion.stats };
+    
+    Object.entries(upgrades).forEach(([stat, level]) => {
+      upgradedStats[stat] = (upgradedStats[stat] || 0) + level * 5;
+    });
+    
+    return {
+      ...champion,
+      stats: upgradedStats,
+      upgrades,
+    };
   };
 
   const placeBet = (colorId, amount) => {
@@ -364,6 +435,19 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({ ...prev, phase: 'mode-select' }));
   };
 
+  // Don't render until save data is loaded
+  if (!saveData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 overflow-hidden">
       {/* Animated background */}
@@ -397,11 +481,42 @@ export default function ColorGameRoyale() {
         )}
 
         {gameState.phase === 'mode-select' && (
-          <ModeSelect onSelectMode={selectMode} onBack={resetGame} />
+          <ModeSelect 
+            onSelectMode={selectMode} 
+            onBack={resetGame}
+            hasCampaignSave={saveData.campaignProgress.highestLevelUnlocked > 1}
+          />
+        )}
+
+        {gameState.phase === 'campaign-map' && (
+          <CampaignMap 
+            progress={saveData.campaignProgress}
+            onSelectLevel={selectCampaignLevel}
+            onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))}
+            onUpgrades={() => setGameState(prev => ({ ...prev, phase: 'upgrades' }))}
+          />
+        )}
+
+        {gameState.phase === 'upgrades' && (
+          <ChampionUpgrades
+            champion={gameState.champion || { id: 'ren', name: 'REN', title: 'The Disciplined Scholar', class: 'Warrior', sprite: '⚔️', stats: { power: 85, defense: 90, speed: 60, magic: 40 }, colors: { primary: '#FF3B3B', secondary: '#F97316' } }}
+            upgrades={saveData.championUpgrades[gameState.champion?.id || 'ren'] || {}}
+            upgradePoints={saveData.campaignProgress.upgradePoints}
+            onUpgrade={handleUpgrade}
+            onBack={() => setGameState(prev => ({ ...prev, phase: 'campaign-map' }))}
+            onSave={handleSaveProgress}
+          />
         )}
 
         {gameState.phase === 'champion-select' && (
-          <ChampionSelect onSelect={selectChampion} onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))} />
+          <ChampionSelect 
+            onSelect={selectChampion} 
+            onBack={() => setGameState(prev => ({ 
+              ...prev, 
+              phase: prev.gameMode === 'normal' ? 'campaign-map' : 'mode-select' 
+            }))}
+            championUpgrades={saveData.championUpgrades}
+          />
         )}
 
         {gameState.phase === 'pvp' && (

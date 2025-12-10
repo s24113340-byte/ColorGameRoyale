@@ -32,7 +32,7 @@ const MODES = [
   },
 ];
 
-export default function ModeSelect({ onSelectMode, onBack }) {
+export default function ModeSelect({ onSelectMode, onBack, hasCampaignSave }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -123,6 +123,13 @@ export default function ModeSelect({ onSelectMode, onBack }) {
                   </span>
                 ))}
               </div>
+
+              {/* Save indicator for campaign */}
+              {mode.id === 'normal' && hasCampaignSave && (
+                <div className="absolute top-4 right-4 px-2 py-1 rounded-lg bg-green-500/20 border border-green-500/50">
+                  <span className="text-green-400 text-xs font-bold">💾 SAVE</span>
+                </div>
+              )}
 
               {/* Play arrow */}
               <motion.div

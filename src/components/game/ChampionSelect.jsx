@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sword, Sparkles, Shield, Wand2, ArrowLeft } from 'lucide-react';
+import { Sword, Sparkles, Shield, Wand2, ArrowLeft, Star } from 'lucide-react';
 
 const CHAMPIONS = [
   {
@@ -37,9 +37,24 @@ const CHAMPIONS = [
   },
 ];
 
-export default function ChampionSelect({ onSelect, onBack }) {
+export default function ChampionSelect({ onSelect, onBack, championUpgrades = {} }) {
   const [hoveredChampion, setHoveredChampion] = useState(null);
   const [selectedChampion, setSelectedChampion] = useState(null);
+
+  const getUpgradedChampion = (champion) => {
+    const upgrades = championUpgrades[champion.id] || {};
+    const upgradedStats = { ...champion.stats };
+    
+    Object.entries(upgrades).forEach(([stat, level]) => {
+      upgradedStats[stat] = (upgradedStats[stat] || 0) + level * 5;
+    });
+    
+    return {
+      ...champion,
+      stats: upgradedStats,
+      upgrades,
+    };
+  };
 
   const handleSelect = (champion) => {
     setSelectedChampion(champion.id);
@@ -77,25 +92,36 @@ export default function ChampionSelect({ onSelect, onBack }) {
 
       {/* Champions grid */}
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 mt-8">
-        {CHAMPIONS.map((champion, index) => (
+        {CHAMPIONS.map((champion, index) => {
+          const upgradedChampion = getUpgradedChampion(champion);
+          const hasUpgrades = Object.values(upgradedChampion.upgrades || {}).some(v => v > 0);
+          return (
           <motion.div
             key={champion.id}
             initial={{ x: index === 0 ? -100 : 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 + index * 0.1 }}
-            onMouseEnter={() => setHoveredChampion(champion.id)}
+            onMouseEnter={() => setHoveredChampion(upgradedChampion.id)}
             onMouseLeave={() => setHoveredChampion(null)}
-            onClick={() => handleSelect(champion)}
+            onClick={() => handleSelect(upgradedChampion)}
             className={`
               relative cursor-pointer rounded-2xl overflow-hidden
               transition-all duration-300
               ${selectedChampion === champion.id ? 'scale-105 ring-4' : 'hover:scale-[1.02]'}
             `}
             style={{
-              background: `linear-gradient(135deg, ${champion.colors.primary}20, ${champion.colors.secondary}20)`,
-              ringColor: champion.colors.primary,
+              background: `linear-gradient(135deg, ${upgradedChampion.colors.primary}20, ${upgradedChampion.colors.secondary}20)`,
+              ringColor: upgradedChampion.colors.primary,
             }}
-          >
+            >
+            {/* Upgraded indicator */}
+            {hasUpgrades && (
+              <div className="absolute top-4 left-4 px-2 py-1 rounded-lg bg-yellow-500/20 border border-yellow-500/50">
+                <span className="text-yellow-400 text-xs font-bold flex items-center gap-1">
+                  <Star className="w-3 h-3" /> UPGRADED
+                </span>
+              </div>
+            )}
             {/* Glow effect */}
             <div 
               className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500"
@@ -145,23 +171,32 @@ export default function ChampionSelect({ onSelect, onBack }) {
 
               {/* Stats */}
               <div className="space-y-3 mb-6">
-                {Object.entries(champion.stats).map(([stat, value]) => (
-                  <div key={stat} className="flex items-center gap-3">
-                    <span className="text-slate-400 text-xs uppercase w-16">{stat}</span>
-                    <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${value}%` }}
-                        transition={{ delay: 0.5, duration: 0.8 }}
-                        className="h-full rounded-full"
-                        style={{ 
-                          background: `linear-gradient(90deg, ${champion.colors.primary}, ${champion.colors.secondary})` 
-                        }}
-                      />
+                {Object.entries(upgradedChampion.stats).map(([stat, value]) => {
+                  const baseValue = champion.stats[stat];
+                  const upgradeBonus = value - baseValue;
+                  return (
+                    <div key={stat} className="flex items-center gap-3">
+                      <span className="text-slate-400 text-xs uppercase w-16">{stat}</span>
+                      <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${value}%` }}
+                          transition={{ delay: 0.5, duration: 0.8 }}
+                          className="h-full rounded-full"
+                          style={{ 
+                            background: `linear-gradient(90deg, ${upgradedChampion.colors.primary}, ${upgradedChampion.colors.secondary})` 
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-baseline gap-1 w-16">
+                        <span className="text-slate-300 text-xs">{value}</span>
+                        {upgradeBonus > 0 && (
+                          <span className="text-green-400 text-xs font-bold">+{upgradeBonus}</span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-slate-300 text-xs w-8">{value}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Abilities */}
@@ -194,7 +229,8 @@ export default function ChampionSelect({ onSelect, onBack }) {
               )}
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Faction info */}
