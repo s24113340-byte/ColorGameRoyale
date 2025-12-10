@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Play, CircleDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onInsertCoin }) {
+export default function GameBoard({ gameState, colors, onPlaceBet, onDrop }) {
   const [betAmount, setBetAmount] = useState(10);
-  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, needsCoinInsert } = gameState;
+  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares } = gameState;
 
   const adjustBet = (delta) => {
     setBetAmount(Math.max(5, Math.min(50, betAmount + delta)));
@@ -14,77 +14,6 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onIns
   return (
     <div className="pt-48 pb-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* INSERT COIN Overlay */}
-        <AnimatePresence>
-          {needsCoinInsert && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-            >
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-center"
-              >
-                {/* Blinking INSERT COIN text */}
-                <motion.h1
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="text-5xl md:text-7xl font-black text-yellow-400 mb-8 tracking-wider"
-                  style={{
-                    textShadow: '0 0 20px rgba(250, 204, 21, 0.8), 0 0 40px rgba(250, 204, 21, 0.5)',
-                  }}
-                >
-                  INSERT COIN
-                </motion.h1>
-
-                {/* Coin slot visual */}
-                <div className="mb-8 flex justify-center">
-                  <div className="relative w-48 h-32 bg-gradient-to-b from-slate-700 to-slate-900 rounded-lg border-4 border-slate-600 flex items-center justify-center">
-                    {/* Coin slot */}
-                    <div className="w-24 h-6 bg-black rounded-full border-2 border-slate-500" />
-                    {/* Slot details */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400 font-mono">
-                      [PRESS TO INSERT]
-                    </div>
-                  </div>
-                </div>
-
-                {/* Insert button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onInsertCoin}
-                  className="px-12 py-6 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-xl text-black text-2xl font-black shadow-lg shadow-yellow-500/50 border-4 border-yellow-500"
-                >
-                  <div className="flex items-center gap-3">
-                    <motion.span
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="text-3xl"
-                    >
-                      🪙
-                    </motion.span>
-                    INSERT COIN
-                    <motion.span
-                      animate={{ rotate: [0, -360] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="text-3xl"
-                    >
-                      🪙
-                    </motion.span>
-                  </div>
-                </motion.button>
-
-                <p className="mt-6 text-slate-400 text-sm">
-                  Press to receive 50 coins and start playing
-                </p>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
         {/* Metallic Bowl / Ball Drop Area */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}

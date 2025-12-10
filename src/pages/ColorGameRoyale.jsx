@@ -97,7 +97,7 @@ const INITIAL_STATE = {
   selectedLevel: null,
   score: 0,
   coins: 0,
-  needsCoinInsert: true,
+  hasInsertedCoin: false,
   timer: 60,
   bonusTime: 0,
   streak: 0,
@@ -206,8 +206,7 @@ export default function ColorGameRoyale() {
       ...prev,
       champion: championWithUpgrades,
       phase: 'playing',
-      needsCoinInsert: true,
-      coins: 0,
+      coins: 50,
     }));
   };
 
@@ -215,8 +214,7 @@ export default function ColorGameRoyale() {
     playSound('bet');
     setGameState(prev => ({
       ...prev,
-      coins: prev.coins + 50,
-      needsCoinInsert: false,
+      hasInsertedCoin: true,
     }));
   };
 
@@ -515,6 +513,7 @@ export default function ColorGameRoyale() {
   };
 
   const startGame = () => {
+    if (!gameState.hasInsertedCoin) return;
     setGameState(prev => ({ ...prev, phase: 'mode-select' }));
   };
 
@@ -560,7 +559,7 @@ export default function ColorGameRoyale() {
 
       <AnimatePresence mode="wait">
         {gameState.phase === 'title' && (
-          <TitleScreen onStart={startGame} />
+          <TitleScreen onStart={startGame} onInsertCoin={insertCoin} hasInsertedCoin={gameState.hasInsertedCoin} />
         )}
 
         {gameState.phase === 'mode-select' && (
@@ -623,7 +622,6 @@ export default function ColorGameRoyale() {
               colors={COLORS}
               onPlaceBet={placeBet}
               onDrop={dropBalls}
-              onInsertCoin={insertCoin}
             />
 
             <UmbraOverlay 
@@ -651,7 +649,7 @@ export default function ColorGameRoyale() {
   );
 }
 
-function TitleScreen({ onStart }) {
+function TitleScreen({ onStart, onInsertCoin, hasInsertedCoin }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -707,27 +705,84 @@ function TitleScreen({ onStart }) {
         </motion.div>
       </div>
 
-      {/* Start button */}
-      <motion.button
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onStart}
-        className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white text-xl font-bold shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-shadow"
-      >
-        START GAME
-      </motion.button>
+      {/* Insert Coin / Start button */}
+      {!hasInsertedCoin ? (
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center"
+        >
+          {/* Blinking INSERT COIN */}
+          <motion.h2
+            animate={{ opacity: [1, 0.4, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="text-3xl md:text-4xl font-black text-yellow-400 mb-6 tracking-widest"
+            style={{
+              textShadow: '0 0 20px rgba(250, 204, 21, 0.8)',
+            }}
+          >
+            INSERT COIN
+          </motion.h2>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 text-slate-500 text-sm"
-      >
-        Press to Enter the Chromatic Kingdom
-      </motion.p>
+          {/* Coin slot */}
+          <div className="mb-6 flex justify-center">
+            <div className="relative w-40 h-24 bg-gradient-to-b from-slate-700 to-slate-900 rounded-lg border-4 border-slate-600 flex items-center justify-center">
+              <div className="w-20 h-5 bg-black rounded-full border-2 border-slate-500" />
+            </div>
+          </div>
+
+          {/* Insert button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onInsertCoin}
+            className="px-10 py-4 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-xl text-black text-xl font-black shadow-lg shadow-yellow-500/50 border-4 border-yellow-500"
+          >
+            <div className="flex items-center gap-3">
+              <motion.span
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="text-2xl"
+              >
+                🪙
+              </motion.span>
+              INSERT COIN
+              <motion.span
+                animate={{ rotate: [0, -360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="text-2xl"
+              >
+                🪙
+              </motion.span>
+            </div>
+          </motion.button>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onStart}
+            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white text-xl font-bold shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-shadow"
+          >
+            START GAME
+          </motion.button>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4 text-green-400 text-sm font-bold"
+          >
+            ✓ COIN INSERTED - Press to Enter
+          </motion.p>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
