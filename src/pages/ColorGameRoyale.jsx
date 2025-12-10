@@ -96,7 +96,8 @@ const INITIAL_STATE = {
   champion: null,
   selectedLevel: null,
   score: 0,
-  coins: 100,
+  coins: 0,
+  needsCoinInsert: true,
   timer: 60,
   bonusTime: 0,
   streak: 0,
@@ -205,6 +206,17 @@ export default function ColorGameRoyale() {
       ...prev,
       champion: championWithUpgrades,
       phase: 'playing',
+      needsCoinInsert: true,
+      coins: 0,
+    }));
+  };
+
+  const insertCoin = () => {
+    playSound('bet');
+    setGameState(prev => ({
+      ...prev,
+      coins: prev.coins + 50,
+      needsCoinInsert: false,
     }));
   };
 
@@ -611,6 +623,7 @@ export default function ColorGameRoyale() {
               colors={COLORS}
               onPlaceBet={placeBet}
               onDrop={dropBalls}
+              onInsertCoin={insertCoin}
             />
 
             <UmbraOverlay 
