@@ -104,6 +104,8 @@ const INITIAL_STATE = {
   bets: {},
   droppedBalls: [],
   isDropping: false,
+  canSkipResults: false,
+  resultsTimer: null,
   shadowMeter: 100,
   elementalBalance: { fire: 25, water: 25, nature: 25, light: 25 },
   umbraActive: false,
@@ -287,24 +289,48 @@ export default function ColorGameRoyale() {
     if (Object.keys(gameState.bets).length === 0 || gameState.isDropping) return;
     
     playSound('drop');
-    setGameState(prev => ({ ...prev, isDropping: true }));
+    setGameState(prev => ({ ...prev, isDropping: true, canSkipResults: false }));
 
-    // Simulate 3 ball drops
+    // Simulate 3 ball drops with bouncing animation
     const results = [];
     for (let i = 0; i < 3; i++) {
-      await new Promise(r => setTimeout(r, 800));
-      const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-      results.push(randomColor);
+      // Final landing color (weighted towards player's bets for easier gameplay)
+      const finalColor = Math.random() < 0.6 && Object.keys(gameState.bets).length > 0
+        ? COLORS.find(c => c.id === Object.keys(gameState.bets)[Math.floor(Math.random() * Object.keys(gameState.bets).length)])
+        : COLORS[Math.floor(Math.random() * COLORS.length)];
+      
+      results.push(finalColor);
+      
+      // Show ball with bouncing animation
       setGameState(prev => ({
         ...prev,
-        droppedBalls: [...prev.droppedBalls, randomColor],
+        droppedBalls: [...prev.droppedBalls, { 
+          color: finalColor, 
+          bouncing: true,
+          id: Date.now() + i 
+        }],
       }));
+      
+      await new Promise(r => setTimeout(r, 1200));
     }
 
-    // Calculate results
-    setTimeout(() => {
+    // Show final results for 1.5 seconds (can be skipped)
+    setGameState(prev => ({ ...prev, canSkipResults: true }));
+    
+    const resultsTimer = setTimeout(() => {
       calculateResults(results);
-    }, 500);
+    }, 1500);
+    
+    // Store timer ID so we can skip it
+    setGameState(prev => ({ ...prev, resultsTimer }));
+  };
+
+  const skipResults = () => {
+    if (gameState.canSkipResults && gameState.resultsTimer) {
+      clearTimeout(gameState.resultsTimer);
+      const results = gameState.droppedBalls.map(b => b.color);
+      calculateResults(results);
+    }
   };
 
   const calculateResults = (results) => {
@@ -367,17 +393,17 @@ export default function ColorGameRoyale() {
       // FINAL BOSS MODE: Last 2 rounds
       isFinalBoss = gameState.round >= gameState.maxRounds - 1;
       
-      // Base attack chance
-      let attackChance = 0.2;
+      // Base attack chance (reduced for easier gameplay)
+      let attackChance = 0.15;
       
-      // Rage Mode increases frequency
+      // Rage Mode increases frequency (but not too much)
       if (isRageMode) {
-        attackChance = 0.5;
+        attackChance = 0.35;
       }
       
-      // Final Boss always attacks
+      // Final Boss attacks more frequently
       if (isFinalBoss) {
-        attackChance = 0.8;
+        attackChance = 0.6;
       }
       
       if (Math.random() < attackChance) {
@@ -471,6 +497,8 @@ export default function ColorGameRoyale() {
         bets: {},
         droppedBalls: [],
         isDropping: false,
+        canSkipResults: false,
+        resultsTimer: null,
         shadowMeter: newShadow,
         elementalBalance: newBalance,
         factionBuffActive: factionBuff,
@@ -622,6 +650,7 @@ export default function ColorGameRoyale() {
               colors={COLORS}
               onPlaceBet={placeBet}
               onDrop={dropBalls}
+              onSkipResults={skipResults}
             />
 
             <UmbraOverlay 
