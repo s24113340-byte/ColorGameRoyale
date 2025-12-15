@@ -327,8 +327,8 @@ export default function ColorGameRoyale() {
   const skipResults = () => {
     if (gameState.canSkipResults && gameState.resultsTimer) {
       clearTimeout(gameState.resultsTimer);
+      const results = gameState.droppedBalls.map(b => b.color || b);
       setGameState(prev => ({ ...prev, canSkipResults: false, resultsTimer: null }));
-      const results = gameState.droppedBalls.map(b => b.color);
       calculateResults(results);
     }
   };
