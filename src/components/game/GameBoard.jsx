@@ -110,74 +110,61 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
               </div>
             </div>
 
-            {/* Color Faction Betting Areas - Static */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
-              {colors.map((color) => {
-                const isPoisoned = poisonedSquares.includes(color.id);
-                const currentBet = bets[color.id] || 0;
-                
-                return (
-                  <motion.button
-                    key={color.id}
-                    whileHover={{ scale: frozen || isDropping ? 1 : 1.02 }}
-                    whileTap={{ scale: frozen || isDropping ? 1 : 0.98 }}
-                    onClick={() => onPlaceBet(color.id, betAmount)}
-                    disabled={frozen || isDropping || coins < betAmount}
-                    className={`
-                      relative p-6 md:p-8 rounded-2xl transition-all duration-300
-                      ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      ${isPoisoned ? 'ring-2 ring-purple-500 animate-pulse' : ''}
-                    `}
-                    style={{
-                      background: `linear-gradient(135deg, ${color.hex}, ${color.hex}dd)`,
-                      border: `4px solid ${currentBet > 0 ? '#FFD700' : color.hex}`,
-                      boxShadow: currentBet > 0 
-                        ? `0 0 20px rgba(255, 215, 0, 0.6), 0 4px 15px ${color.hex}50` 
-                        : `0 4px 15px ${color.hex}50`,
-                    }}
-                  >
-                    {/* Color emoji */}
-                    <div className="text-5xl md:text-6xl mb-2">
-                      {color.emoji}
-                    </div>
-                    
-                    {/* Label */}
-                    <p className="text-white font-black text-lg md:text-xl drop-shadow-lg">
-                      {color.name.toUpperCase()}
-                    </p>
-                    <p className="text-white/80 text-xs uppercase tracking-wider">
-                      {color.id}
-                    </p>
+            {/* 6x6 Static Game Board */}
+            <div className="relative bg-gradient-to-br from-pink-200 to-pink-300 p-6 rounded-2xl border-8 border-pink-400 shadow-2xl mb-6">
+              <div className="relative bg-white/90 p-4 rounded-xl">
+                <div className="grid grid-cols-6 gap-2">
+                  {[...Array(36)].map((_, i) => {
+                    const colorIndex = i % colors.length;
+                    const gridColor = colors[colorIndex];
+                    return (
+                      <div 
+                        key={i}
+                        className="aspect-square rounded-md shadow-md"
+                        style={{
+                          background: `linear-gradient(135deg, ${gridColor.hex}, ${gridColor.hex}dd)`,
+                          border: `2px solid ${gridColor.hex}aa`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
 
-                    {/* Current bet indicator */}
-                    <AnimatePresence>
+              {/* Color betting areas below board */}
+              <div className="grid grid-cols-4 gap-3 mt-4">
+                {colors.map((color) => {
+                  const currentBet = bets[color.id] || 0;
+                  const isPoisoned = poisonedSquares.includes(color.id);
+                  return (
+                    <button 
+                      key={color.id}
+                      onClick={() => onPlaceBet(color.id, betAmount)}
+                      disabled={frozen || isDropping || coins < betAmount}
+                      className={`text-center p-3 rounded-lg border-4 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      style={{
+                        background: color.hex,
+                        borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
+                        boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                      }}
+                    >
+                      <div className="text-white text-shadow-lg">{color.name.toUpperCase()}</div>
                       {currentBet > 0 && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                          className="absolute -top-3 -right-3 px-3 py-1 rounded-full bg-yellow-400 text-yellow-900 font-bold text-sm shadow-lg"
-                        >
-                          💰 {currentBet}
-                        </motion.div>
+                        <div className="text-yellow-200 text-xs mt-1">💰 {currentBet}</div>
                       )}
-                    </AnimatePresence>
-
-                    {/* Poison overlay */}
-                    {isPoisoned && (
-                      <div className="absolute inset-0 rounded-2xl bg-purple-900/50 flex items-center justify-center">
-                        <span className="text-purple-300 font-bold text-sm">☠️ POISONED</span>
-                      </div>
-                    )}
-                  </motion.button>
-                );
-              })}
+                      {isPoisoned && (
+                        <div className="text-purple-300 text-xs mt-1">☠️</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           {/* Status text */}
-          <div className="text-center mt-6">
-            <h3 className="text-slate-300 font-medium text-lg">
+          <div className="text-center mt-4">
+            <h3 className="text-slate-300 font-medium">
               {isDropping ? '🎲 BALLS DROPPING...' : '💰 PLACE YOUR BETS'}
             </h3>
           </div>
