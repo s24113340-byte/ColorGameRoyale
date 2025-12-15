@@ -315,19 +315,19 @@ export default function ColorGameRoyale() {
     }
 
     // Show final results for 1.5 seconds (can be skipped)
-    setGameState(prev => ({ ...prev, canSkipResults: true }));
-    
     const resultsTimer = setTimeout(() => {
+      setGameState(prev => ({ ...prev, canSkipResults: false, resultsTimer: null }));
       calculateResults(results);
     }, 1500);
     
-    // Store timer ID so we can skip it
-    setGameState(prev => ({ ...prev, resultsTimer }));
+    // Enable skip and store timer ID
+    setGameState(prev => ({ ...prev, canSkipResults: true, resultsTimer }));
   };
 
   const skipResults = () => {
     if (gameState.canSkipResults && gameState.resultsTimer) {
       clearTimeout(gameState.resultsTimer);
+      setGameState(prev => ({ ...prev, canSkipResults: false, resultsTimer: null }));
       const results = gameState.droppedBalls.map(b => b.color);
       calculateResults(results);
     }
