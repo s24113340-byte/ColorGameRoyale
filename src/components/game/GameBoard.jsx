@@ -62,9 +62,11 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
               {/* Balls bouncing on grid with twist animation */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <AnimatePresence>
-                  {droppedBalls.map((ball, index) => (
+                  {droppedBalls.map((ball, index) => {
+                    const ballColor = ball.color || ball;
+                    return (
                     <motion.div
-                      key={ball.id}
+                      key={ball.id || index}
                       initial={{ 
                         y: -200, 
                         x: (index - 1) * 80,
@@ -106,16 +108,17 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                       <div 
                         className="w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center text-3xl"
                         style={{
-                          background: `radial-gradient(circle at 30% 30%, ${ball.color.hex}, ${ball.color.hex}88)`,
-                          boxShadow: `0 0 25px ${ball.color.hex}, inset 0 -5px 15px rgba(0,0,0,0.4)`,
+                          background: `radial-gradient(circle at 30% 30%, ${ballColor.hex}, ${ballColor.hex}88)`,
+                          boxShadow: `0 0 25px ${ballColor.hex}, inset 0 -5px 15px rgba(0,0,0,0.4)`,
                         }}
                       >
-                        {ball.color.emoji}
+                        {ballColor.emoji}
                       </div>
                       {/* Ball shine */}
                       <div className="absolute top-2 left-3 w-5 h-5 bg-white/50 rounded-full blur-sm" />
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             </div>
