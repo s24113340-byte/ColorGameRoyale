@@ -134,7 +134,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
 
               {/* Color betting areas below board */}
               <div className="grid grid-cols-4 gap-3 mt-4">
-                {colors.map((color) => {
+                {colors.filter(c => c && c.id).map((color) => {
                   const currentBet = bets[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
                   return (
