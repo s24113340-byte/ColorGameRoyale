@@ -57,11 +57,12 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                   {/* Balls dropping from ring with twist animation */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <AnimatePresence>
-                      {droppedBalls.map((ball, index) => {
+                      {droppedBalls.filter(ball => ball && (ball.color || ball.hex)).map((ball, index) => {
                         const ballColor = ball.color || ball;
+                        if (!ballColor || !ballColor.hex) return null;
                         return (
                           <motion.div
-                            key={ball.id || index}
+                            key={ball.id || `ball-${index}`}
                             initial={{ 
                               y: 0, 
                               x: (index - 1) * 70,
