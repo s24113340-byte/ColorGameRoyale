@@ -118,6 +118,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                   {[...Array(36)].map((_, i) => {
                     const colorIndex = i % colors.length;
                     const gridColor = colors[colorIndex];
+                    if (!gridColor || !gridColor.hex) return null;
                     return (
                       <div 
                         key={i}
