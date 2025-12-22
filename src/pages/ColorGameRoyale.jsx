@@ -346,7 +346,9 @@ export default function ColorGameRoyale() {
     // Count matches per color
     const colorCounts = {};
     results.forEach(r => {
-      colorCounts[r.id] = (colorCounts[r.id] || 0) + 1;
+      if (r && r.id) {
+        colorCounts[r.id] = (colorCounts[r.id] || 0) + 1;
+      }
     });
 
     // Check each bet
