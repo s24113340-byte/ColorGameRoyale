@@ -171,76 +171,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
           </div>
         </motion.div>
 
-        {/* Betting Grid */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          {colors.map((color, index) => {
-            const isPoisoned = poisonedSquares.includes(color.id);
-            const currentBet = bets[color.id] || 0;
-            
-            return (
-              <motion.button
-                key={color.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: frozen || isDropping ? 1 : 1.03 }}
-                whileTap={{ scale: frozen || isDropping ? 1 : 0.97 }}
-                onClick={() => onPlaceBet(color.id, betAmount)}
-                disabled={frozen || isDropping || coins < betAmount}
-                className={`
-                  relative p-6 rounded-2xl transition-all duration-300
-                  ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                  ${isPoisoned ? 'ring-2 ring-purple-500 animate-pulse' : ''}
-                `}
-                style={{
-                  background: `linear-gradient(135deg, ${color.hex}30, ${color.hex}10)`,
-                  border: `3px solid ${color.hex}`,
-                  boxShadow: currentBet > 0 ? `0 0 20px ${color.hex}50, inset 0 0 30px ${color.hex}20` : 'none',
-                }}
-              >
-                {/* Color indicator */}
-                <div 
-                  className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl mb-3 flex items-center justify-center text-4xl"
-                  style={{
-                    background: `linear-gradient(135deg, ${color.hex}, ${color.hex}aa)`,
-                    boxShadow: `0 4px 15px ${color.hex}50`,
-                  }}
-                >
-                  {color.emoji}
-                </div>
 
-                {/* Label */}
-                <p className="text-white font-bold text-lg">{color.name}</p>
-                <p className="text-slate-400 text-xs uppercase tracking-wider">{color.id}</p>
-
-                {/* Current bet */}
-                <AnimatePresence>
-                  {currentBet > 0 && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute -top-2 -right-2 px-3 py-1 rounded-full bg-yellow-400 text-yellow-900 font-bold text-sm"
-                    >
-                      {currentBet}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Poison overlay */}
-                {isPoisoned && (
-                  <div className="absolute inset-0 rounded-2xl bg-purple-900/50 flex items-center justify-center">
-                    <span className="text-purple-300 font-bold text-sm">POISONED</span>
-                  </div>
-                )}
-              </motion.button>
-            );
-          })}
-        </motion.div>
 
         {/* Bet Controls */}
         <motion.div
