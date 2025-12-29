@@ -481,13 +481,18 @@ export default function ColorGameRoyale() {
     setGameState(prev => {
       const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
       const newRound = prev.round + 1;
+      const newScore = prev.score + pointsEarned;
       
-      // Check for ending conditions
-      if (newShadow <= 0 || (prev.gameMode === 'normal' && newRound > prev.maxRounds)) {
+      // Check for ending conditions - win by depleting shadow OR reaching high score
+      const isVictory = newShadow <= 0 || newScore >= 500;
+      const isGameOver = isVictory || (prev.gameMode === 'normal' && newRound > prev.maxRounds);
+      
+      if (isGameOver) {
         return {
           ...prev,
+          score: newScore,
           phase: 'ending',
-          ending: newShadow <= 0 ? determineEnding({ ...prev, shadowMeter: 0 }) : 'chaos',
+          ending: isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos',
         };
       }
 
