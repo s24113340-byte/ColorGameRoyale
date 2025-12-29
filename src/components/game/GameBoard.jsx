@@ -32,41 +32,6 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
           )}
         </AnimatePresence>
 
-        {/* Metal Ring Above */}
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative mx-auto w-40 h-32 mb-8"
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-32 h-24">
-              {/* Metal ring with gradient */}
-              <div 
-                className="absolute inset-0 rounded-[50%] bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 border-4 border-slate-600"
-                style={{
-                  boxShadow: 'inset 0 -8px 15px rgba(0,0,0,0.4), 0 8px 25px rgba(0,0,0,0.3)',
-                }}
-              />
-              {/* Inner ring shadow */}
-              <div className="absolute inset-3 rounded-[50%] border-2 border-slate-700 bg-gradient-to-b from-slate-500 to-slate-600" />
-              
-              {/* Balls in the ring ready to drop */}
-              <AnimatePresence>
-                {isDropping && droppedBalls.length < 3 && (
-                  <motion.div
-                    initial={{ scale: 1 }}
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 0.5, repeat: Infinity }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <div className="text-3xl">🎱</div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Game Board with Perimeter Betting */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -186,6 +151,35 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Metal Ring in Center with Balls */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                    <div className="relative w-32 h-24">
+                      {/* Metal ring with gradient */}
+                      <div 
+                        className="absolute inset-0 rounded-[50%] bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 border-4 border-slate-600"
+                        style={{
+                          boxShadow: 'inset 0 -8px 15px rgba(0,0,0,0.4), 0 8px 25px rgba(0,0,0,0.3)',
+                        }}
+                      />
+                      {/* Inner ring shadow */}
+                      <div className="absolute inset-3 rounded-[50%] border-2 border-slate-700 bg-gradient-to-b from-slate-500 to-slate-600" />
+
+                      {/* Balls in the ring ready to drop */}
+                      <AnimatePresence>
+                        {isDropping && droppedBalls.length < 3 && (
+                          <motion.div
+                            initial={{ scale: 1 }}
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 0.5, repeat: Infinity }}
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            <div className="text-3xl">🎱</div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 
