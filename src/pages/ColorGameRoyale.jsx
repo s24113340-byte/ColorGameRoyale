@@ -180,7 +180,8 @@ export default function ColorGameRoyale() {
   }, [gameState.phase, gameState.frozen, gameState.isDropping]);
 
   const determineEnding = (state) => {
-    const isVictory = state.shadowMeter <= 0;
+    // Win if shadow meter is depleted OR score is high enough
+    const isVictory = state.shadowMeter <= 0 || state.score >= 500;
     
     // Save campaign progress for Normal mode
     if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
