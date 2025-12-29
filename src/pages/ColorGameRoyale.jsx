@@ -10,6 +10,7 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
+import PVPMultiplayer from '@/components/game/PVPMultiplayer';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -225,7 +226,7 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({
       ...prev,
       gameMode: mode,
-      phase: mode === 'pvp' ? 'pvp' : mode === 'normal' ? 'campaign-map' : 'champion-select',
+      phase: mode === 'pvp' ? 'pvp' : mode === 'online' ? 'online' : mode === 'normal' ? 'campaign-map' : 'champion-select',
       timer: mode === 'time-attack' ? 30 : 60,
       maxRounds: mode === 'time-attack' ? 999 : 10,
     }));
@@ -642,6 +643,10 @@ export default function ColorGameRoyale() {
 
         {gameState.phase === 'pvp' && (
           <PVPMode onBack={resetGame} colors={COLORS} />
+        )}
+
+        {gameState.phase === 'online' && (
+          <PVPMultiplayer onBack={resetGame} colors={COLORS} />
         )}
 
         {gameState.phase === 'playing' && (
