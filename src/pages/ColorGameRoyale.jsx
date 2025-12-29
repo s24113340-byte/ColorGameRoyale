@@ -292,7 +292,7 @@ export default function ColorGameRoyale() {
     playSound('drop');
     setGameState(prev => ({ ...prev, isDropping: true, canSkipResults: false }));
 
-    // Simulate 3 ball drops with bouncing animation
+    // Simulate 3 ball drops with landing on grid squares
     const results = [];
     for (let i = 0; i < 3; i++) {
       // Final landing color (weighted towards player's bets for easier gameplay)
@@ -300,19 +300,22 @@ export default function ColorGameRoyale() {
         ? COLORS.find(c => c.id === Object.keys(gameState.bets)[Math.floor(Math.random() * Object.keys(gameState.bets).length)])
         : COLORS[Math.floor(Math.random() * COLORS.length)];
       
+      // Pick a random square on the grid (0-35)
+      const landedSquare = Math.floor(Math.random() * 36);
+      
       results.push(finalColor);
       
-      // Show ball with bouncing animation
+      // Show ball landing on grid square
       setGameState(prev => ({
         ...prev,
         droppedBalls: [...prev.droppedBalls, { 
           color: finalColor, 
-          bouncing: true,
+          landedSquare,
           id: Date.now() + i 
         }],
       }));
       
-      await new Promise(r => setTimeout(r, 1200));
+      await new Promise(r => setTimeout(r, 800));
     }
 
     // Show final results for 1.5 seconds (can be skipped)
