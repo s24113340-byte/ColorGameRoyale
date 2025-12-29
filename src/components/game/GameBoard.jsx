@@ -107,6 +107,40 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                       })}
                     </AnimatePresence>
                   </div>
+
+                  {/* Results display in center */}
+                  {droppedBalls.length === 3 && (
+                  <div className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 z-20">
+                  <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-slate-900/95 backdrop-blur-xl rounded-2xl border-4 border-purple-500/50 p-4 shadow-2xl"
+                  >
+                  <p className="text-yellow-400 text-sm font-bold text-center mb-2">RESULTS</p>
+                  <div className="flex gap-3">
+                    {droppedBalls.filter(ball => ball && (ball.color || ball.hex)).map((ball, index) => {
+                      const ballColor = ball.color || ball;
+                      if (!ballColor || !ballColor.hex) return null;
+                      return (
+                        <motion.div
+                          key={ball.id || `result-${index}`}
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ delay: 0.1 * index, type: "spring" }}
+                          className="w-16 h-16 rounded-full shadow-xl flex items-center justify-center text-3xl"
+                          style={{
+                            background: `radial-gradient(circle at 30% 30%, ${ballColor.hex}, ${ballColor.hex}88)`,
+                            boxShadow: `0 0 20px ${ballColor.hex}`,
+                          }}
+                        >
+                          {ballColor.emoji}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  </motion.div>
+                  </div>
+                  )}
                 </div>
               </div>
             </div>
