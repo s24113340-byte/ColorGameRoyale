@@ -16,7 +16,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
       className="pt-48 pb-8 px-4"
       onClick={() => canSkipResults && onSkipResults()}
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Skip indicator */}
         <AnimatePresence>
           {canSkipResults && (
@@ -32,164 +32,185 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
           )}
         </AnimatePresence>
 
-        {/* Game Board with Metal Ring */}
+        {/* Game Board with Perimeter Betting */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative mb-8"
+          className="relative"
         >
-          <div className="relative mx-auto w-full max-w-2xl">
-            {/* Metal Ring Above - where balls drop from */}
-            <div className="relative mx-auto w-80 h-40 mb-8">
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Ring structure */}
-                <div className="relative w-64 h-32">
-                  {/* Metal ring with gradient */}
-                  <div 
-                    className="absolute inset-0 rounded-[50%] bg-gradient-to-b from-slate-400 via-slate-500 to-slate-600 border-4 border-slate-700"
-                    style={{
-                      boxShadow: 'inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3)',
-                    }}
-                  />
-                  {/* Inner ring shadow */}
-                  <div className="absolute inset-4 rounded-[50%] border-2 border-slate-800 bg-gradient-to-b from-slate-600 to-slate-700" />
-                  
-                  {/* Balls dropping from ring with twist animation */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <AnimatePresence>
-                      {droppedBalls.filter(ball => ball && (ball.color || ball.hex)).map((ball, index) => {
-                        const ballColor = ball.color || ball;
-                        if (!ballColor || !ballColor.hex) return null;
-                        return (
-                          <motion.div
-                            key={ball.id || `ball-${index}`}
-                            initial={{ 
-                              y: 0, 
-                              x: (index - 1) * 70,
-                              scale: 0.8,
-                              opacity: 1,
-                              rotate: 0,
-                            }}
-                            animate={{
-                              y: [0, 50, 100, 150, 200, 250, 270],
-                              x: [
-                                (index - 1) * 70,
-                                (index - 1) * 70 + 20,
-                                (index - 1) * 70 - 15,
-                                (index - 1) * 70 + 10,
-                                (index - 1) * 70 - 5,
-                                (index - 1) * 70,
-                                (index - 1) * 70,
-                              ],
-                              rotate: [0, 180, 360, 540, 720, 900, 1080],
-                              scale: [0.8, 1, 1.1, 1, 1, 1.2, 1.3],
-                            }}
-                            transition={{ 
-                              duration: 1.2,
-                              times: [0, 0.15, 0.3, 0.5, 0.7, 0.9, 1],
-                              ease: "easeOut",
-                            }}
-                            className="absolute"
-                          >
-                            <div 
-                              className="w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl"
-                              style={{
-                                background: `radial-gradient(circle at 30% 30%, ${ballColor.hex}, ${ballColor.hex}88)`,
-                                boxShadow: `0 0 25px ${ballColor.hex}, inset 0 -5px 15px rgba(0,0,0,0.4)`,
-                              }}
-                            >
-                              {ballColor.emoji}
-                            </div>
-                            {/* Ball shine */}
-                            <div className="absolute top-2 left-3 w-5 h-5 bg-white/50 rounded-full blur-sm" />
-                          </motion.div>
-                        );
-                      })}
-                    </AnimatePresence>
-                  </div>
+          <div className="relative mx-auto">
+            {/* Board container with betting panels on all sides */}
+            <div className="relative bg-gradient-to-br from-pink-200 to-pink-300 p-6 rounded-3xl border-8 border-pink-400 shadow-2xl">
 
-                  {/* Results display in center */}
-                  {droppedBalls.length === 3 && (
-                  <div className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 z-20">
-                  <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-slate-900/95 backdrop-blur-xl rounded-2xl border-4 border-purple-500/50 p-4 shadow-2xl"
-                  >
-                  <p className="text-yellow-400 text-sm font-bold text-center mb-2">RESULTS</p>
-                  <div className="flex gap-3">
-                    {droppedBalls.filter(ball => ball && (ball.color || ball.hex)).map((ball, index) => {
-                      const ballColor = ball.color || ball;
-                      if (!ballColor || !ballColor.hex) return null;
-                      return (
-                        <motion.div
-                          key={ball.id || `result-${index}`}
-                          initial={{ scale: 0, rotate: -180 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ delay: 0.1 * index, type: "spring" }}
-                          className="w-16 h-16 rounded-full shadow-xl flex items-center justify-center text-3xl"
-                          style={{
-                            background: `radial-gradient(circle at 30% 30%, ${ballColor.hex}, ${ballColor.hex}88)`,
-                            boxShadow: `0 0 20px ${ballColor.hex}`,
-                          }}
-                        >
-                          {ballColor.emoji}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                  </motion.div>
-                  </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 6x6 Static Game Board */}
-            <div className="relative bg-gradient-to-br from-pink-200 to-pink-300 p-6 rounded-2xl border-8 border-pink-400 shadow-2xl mb-6">
-              <div className="relative bg-white/90 p-4 rounded-xl">
-                <div className="grid grid-cols-6 gap-2">
-                  {[...Array(36)].map((_, i) => {
-                    const colorIndex = i % colors.length;
-                    const gridColor = colors[colorIndex];
-                    if (!gridColor || !gridColor.hex) return null;
-                    return (
-                      <div 
-                        key={i}
-                        className="aspect-square rounded-md shadow-md"
-                        style={{
-                          background: `linear-gradient(135deg, ${gridColor.hex}, ${gridColor.hex}dd)`,
-                          border: `2px solid ${gridColor.hex}aa`,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Color betting areas below board */}
-              <div className="grid grid-cols-4 gap-3 mt-4">
+              {/* Top betting panels */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
                 {colors.filter(c => c && c.id).map((color) => {
                   const currentBet = bets[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
                   return (
                     <button 
-                      key={color.id}
+                      key={`top-${color.id}`}
                       onClick={() => onPlaceBet(color.id, betAmount)}
                       disabled={frozen || isDropping || coins < betAmount}
-                      className={`text-center p-3 rounded-lg border-4 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      className={`p-3 rounded-lg border-3 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
                         background: color.hex,
                         borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
                         boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
                       }}
                     >
-                      <div className="text-white text-shadow-lg">{color.name.toUpperCase()}</div>
+                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2">
+                        {color.emoji} {color.name.toUpperCase()}
+                      </div>
                       {currentBet > 0 && (
                         <div className="text-yellow-200 text-xs mt-1">💰 {currentBet}</div>
                       )}
                       {isPoisoned && (
-                        <div className="text-purple-300 text-xs mt-1">☠️</div>
+                        <div className="text-purple-300 text-xs">☠️</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Main grid with side betting panels */}
+              <div className="flex gap-3">
+                {/* Left betting panels */}
+                <div className="flex flex-col gap-2">
+                  {colors.filter(c => c && c.id).map((color) => {
+                    const currentBet = bets[color.id] || 0;
+                    const isPoisoned = poisonedSquares.includes(color.id);
+                    return (
+                      <button 
+                        key={`left-${color.id}`}
+                        onClick={() => onPlaceBet(color.id, betAmount)}
+                        disabled={frozen || isDropping || coins < betAmount}
+                        className={`w-16 h-24 rounded-lg border-3 font-bold text-xs transition-all flex flex-col items-center justify-center ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        style={{
+                          background: color.hex,
+                          borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
+                          boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                        }}
+                      >
+                        <div className="text-white text-shadow-lg writing-mode-vertical text-2xl mb-1">
+                          {color.emoji}
+                        </div>
+                        {currentBet > 0 && (
+                          <div className="text-yellow-200 text-xs">💰{currentBet}</div>
+                        )}
+                        {isPoisoned && (
+                          <div className="text-purple-300 text-xs">☠️</div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Center 6x6 Grid */}
+                <div className="relative bg-white/90 p-3 rounded-xl flex-1">
+                  <div className="grid grid-cols-6 gap-1.5 relative">
+                    {[...Array(36)].map((_, i) => {
+                      const colorIndex = i % colors.length;
+                      const gridColor = colors[colorIndex];
+                      if (!gridColor || !gridColor.hex) return null;
+
+                      // Check if any ball landed on this square
+                      const ballOnSquare = droppedBalls.find(ball => ball.landedSquare === i);
+
+                      return (
+                        <div 
+                          key={i}
+                          className="aspect-square rounded-md shadow-md relative overflow-hidden"
+                          style={{
+                            background: `linear-gradient(135deg, ${gridColor.hex}, ${gridColor.hex}dd)`,
+                            border: `2px solid ${gridColor.hex}aa`,
+                          }}
+                        >
+                          {/* Ball landing animation */}
+                          <AnimatePresence>
+                            {ballOnSquare && (
+                              <motion.div
+                                initial={{ scale: 0, rotate: 0 }}
+                                animate={{ scale: 1, rotate: 360 }}
+                                exit={{ scale: 0 }}
+                                transition={{ type: "spring", duration: 0.5 }}
+                                className="absolute inset-0 flex items-center justify-center z-10"
+                              >
+                                <div 
+                                  className="w-10 h-10 rounded-full shadow-2xl flex items-center justify-center text-xl"
+                                  style={{
+                                    background: `radial-gradient(circle at 30% 30%, ${ballOnSquare.color?.hex || ballOnSquare.hex}, ${(ballOnSquare.color?.hex || ballOnSquare.hex)}88)`,
+                                    boxShadow: `0 0 20px ${ballOnSquare.color?.hex || ballOnSquare.hex}`,
+                                  }}
+                                >
+                                  {ballOnSquare.color?.emoji || ballOnSquare.emoji}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right betting panels */}
+                <div className="flex flex-col gap-2">
+                  {colors.filter(c => c && c.id).map((color) => {
+                    const currentBet = bets[color.id] || 0;
+                    const isPoisoned = poisonedSquares.includes(color.id);
+                    return (
+                      <button 
+                        key={`right-${color.id}`}
+                        onClick={() => onPlaceBet(color.id, betAmount)}
+                        disabled={frozen || isDropping || coins < betAmount}
+                        className={`w-16 h-24 rounded-lg border-3 font-bold text-xs transition-all flex flex-col items-center justify-center ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        style={{
+                          background: color.hex,
+                          borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
+                          boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                        }}
+                      >
+                        <div className="text-white text-shadow-lg text-2xl mb-1">
+                          {color.emoji}
+                        </div>
+                        {currentBet > 0 && (
+                          <div className="text-yellow-200 text-xs">💰{currentBet}</div>
+                        )}
+                        {isPoisoned && (
+                          <div className="text-purple-300 text-xs">☠️</div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom betting panels */}
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {colors.filter(c => c && c.id).map((color) => {
+                  const currentBet = bets[color.id] || 0;
+                  const isPoisoned = poisonedSquares.includes(color.id);
+                  return (
+                    <button 
+                      key={`bottom-${color.id}`}
+                      onClick={() => onPlaceBet(color.id, betAmount)}
+                      disabled={frozen || isDropping || coins < betAmount}
+                      className={`p-3 rounded-lg border-3 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      style={{
+                        background: color.hex,
+                        borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
+                        boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                      }}
+                    >
+                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2">
+                        {color.emoji} {color.name.toUpperCase()}
+                      </div>
+                      {currentBet > 0 && (
+                        <div className="text-yellow-200 text-xs mt-1">💰 {currentBet}</div>
+                      )}
+                      {isPoisoned && (
+                        <div className="text-purple-300 text-xs">☠️</div>
                       )}
                     </button>
                   );
@@ -201,7 +222,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
           {/* Status text */}
           <div className="text-center mt-4">
             <h3 className="text-slate-300 font-medium">
-              {isDropping ? '🎲 BALLS DROPPING...' : '💰 PLACE YOUR BETS'}
+              {isDropping ? '🎲 BALLS DROPPING...' : '💰 PLACE YOUR BETS ON THE PERIMETER'}
             </h3>
           </div>
         </motion.div>
