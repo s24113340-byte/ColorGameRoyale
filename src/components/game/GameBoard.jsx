@@ -153,20 +153,101 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                     })}
                   </div>
 
-                  {/* Metal Ring in Center with Balls */}
+                  {/* Futuristic Wireframe Hopper in Center */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                    <div className="relative w-32 h-24">
-                      {/* Metal ring with gradient */}
+                    <div className="relative w-48 h-48">
+                      {/* Top glowing ring */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-8">
+                        <div 
+                          className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                          style={{
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            background: 'linear-gradient(135deg, rgba(255, 59, 59, 0.15), rgba(59, 130, 246, 0.15), rgba(251, 191, 36, 0.15))',
+                            boxShadow: `
+                              0 0 20px rgba(255, 255, 255, 0.8),
+                              0 0 40px rgba(255, 59, 59, 0.3),
+                              0 0 40px rgba(59, 130, 246, 0.3),
+                              0 0 40px rgba(251, 191, 36, 0.3),
+                              inset 0 0 20px rgba(255, 255, 255, 0.2)
+                            `,
+                          }}
+                        />
+                        {/* Inner glow */}
+                        <div 
+                          className="absolute inset-1 rounded-[50%]"
+                          style={{
+                            background: 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1), transparent)',
+                          }}
+                        />
+                      </div>
+
+                      {/* Bottom glowing ring */}
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-6">
+                        <div 
+                          className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                          style={{
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15), rgba(251, 191, 36, 0.15))',
+                            boxShadow: `
+                              0 0 20px rgba(255, 255, 255, 0.8),
+                              0 0 40px rgba(59, 130, 246, 0.3),
+                              0 0 40px rgba(16, 185, 129, 0.3),
+                              0 0 40px rgba(251, 191, 36, 0.3),
+                              inset 0 0 20px rgba(255, 255, 255, 0.2)
+                            `,
+                          }}
+                        />
+                      </div>
+
+                      {/* Vertical spindles connecting the rings */}
+                      {[...Array(8)].map((_, i) => {
+                        const angle = (i * 360) / 8;
+                        const topRadius = 62;
+                        const bottomRadius = 46;
+                        const topX = Math.cos((angle * Math.PI) / 180) * topRadius;
+                        const topY = Math.sin((angle * Math.PI) / 180) * 16;
+                        const bottomX = Math.cos((angle * Math.PI) / 180) * bottomRadius;
+                        const bottomY = Math.sin((angle * Math.PI) / 180) * 12;
+
+                        return (
+                          <div
+                            key={i}
+                            className="absolute left-1/2 top-8 origin-top"
+                            style={{
+                              width: '1px',
+                              height: '128px',
+                              background: `linear-gradient(180deg, 
+                                rgba(255, 255, 255, 0.6), 
+                                rgba(255, 59, 59, 0.3),
+                                rgba(59, 130, 246, 0.3),
+                                rgba(251, 191, 36, 0.3),
+                                rgba(255, 255, 255, 0.6)
+                              )`,
+                              transform: `translateX(${topX}px) translateY(${topY}px)`,
+                              boxShadow: '0 0 4px rgba(255, 255, 255, 0.6)',
+                            }}
+                          />
+                        );
+                      })}
+
+                      {/* Frosted glass center effect */}
                       <div 
-                        className="absolute inset-0 rounded-[50%] bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 border-4 border-slate-600"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-32 rounded-[50%]"
                         style={{
-                          boxShadow: 'inset 0 -8px 15px rgba(0,0,0,0.4), 0 8px 25px rgba(0,0,0,0.3)',
+                          background: `
+                            radial-gradient(ellipse at center, 
+                              rgba(255, 255, 255, 0.05),
+                              rgba(255, 59, 59, 0.08),
+                              rgba(59, 130, 246, 0.08),
+                              rgba(251, 191, 36, 0.08),
+                              transparent
+                            )
+                          `,
+                          backdropFilter: 'blur(4px)',
                         }}
                       />
-                      {/* Inner ring shadow */}
-                      <div className="absolute inset-3 rounded-[50%] border-2 border-slate-700 bg-gradient-to-b from-slate-500 to-slate-600" />
 
-                      {/* Balls in the ring ready to drop */}
+                      {/* Balls in the hopper ready to drop */}
                       <AnimatePresence>
                         {isDropping && droppedBalls.length < 3 && (
                           <motion.div
@@ -175,10 +256,32 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                             transition={{ duration: 0.5, repeat: Infinity }}
                             className="absolute inset-0 flex items-center justify-center"
                           >
-                            <div className="text-3xl">🎱</div>
+                            <div className="text-3xl drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">🎱</div>
                           </motion.div>
                         )}
                       </AnimatePresence>
+
+                      {/* Ambient light reflections */}
+                      <motion.div
+                        animate={{
+                          opacity: [0.3, 0.6, 0.3],
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="absolute inset-0"
+                        style={{
+                          background: `
+                            radial-gradient(circle at 30% 30%, rgba(255, 59, 59, 0.15), transparent 40%),
+                            radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.15), transparent 40%),
+                            radial-gradient(circle at 50% 70%, rgba(251, 191, 36, 0.15), transparent 40%)
+                          `,
+                          filter: 'blur(20px)',
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
