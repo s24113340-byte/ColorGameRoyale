@@ -247,17 +247,45 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         }}
                       />
 
-                      {/* Balls in the hopper ready to drop */}
+                      {/* Spinning white glowing balls before drop */}
                       <AnimatePresence>
-                        {isDropping && droppedBalls.length < 3 && (
-                          <motion.div
-                            initial={{ scale: 1 }}
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ duration: 0.5, repeat: Infinity }}
-                            className="absolute inset-0 flex items-center justify-center"
-                          >
-                            <div className="text-3xl drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">🎱</div>
-                          </motion.div>
+                        {!isDropping && Object.keys(bets).length > 0 && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {[0, 1, 2].map((i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute"
+                                animate={{
+                                  rotate: 360,
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                  delay: i * 0.33,
+                                }}
+                                style={{
+                                  transformOrigin: '0 0',
+                                }}
+                              >
+                                <motion.div
+                                  className="w-8 h-8 rounded-full"
+                                  animate={{
+                                    x: Math.cos((i * 120 * Math.PI) / 180) * 30,
+                                    y: Math.sin((i * 120 * Math.PI) / 180) * 30,
+                                  }}
+                                  style={{
+                                    background: 'radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0)',
+                                    boxShadow: `
+                                      0 0 20px rgba(255, 255, 255, 0.8),
+                                      0 0 40px rgba(255, 255, 255, 0.5),
+                                      inset 0 0 10px rgba(255, 255, 255, 0.5)
+                                    `,
+                                  }}
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
                         )}
                       </AnimatePresence>
 

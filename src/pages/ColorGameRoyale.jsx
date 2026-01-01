@@ -299,17 +299,16 @@ export default function ColorGameRoyale() {
     // Simulate 3 ball drops with landing on grid squares
     const results = [];
     for (let i = 0; i < 3; i++) {
-      // Final landing color (weighted towards player's bets for easier gameplay)
-      const finalColor = Math.random() < 0.6 && Object.keys(gameState.bets).length > 0
-        ? COLORS.find(c => c.id === Object.keys(gameState.bets)[Math.floor(Math.random() * Object.keys(gameState.bets).length)])
-        : COLORS[Math.floor(Math.random() * COLORS.length)];
-      
       // Pick a random square on the grid (0-35)
       const landedSquare = Math.floor(Math.random() * 36);
       
+      // Get the color of the tile the ball lands on
+      const colorIndex = landedSquare % COLORS.length;
+      const finalColor = COLORS[colorIndex];
+      
       results.push(finalColor);
       
-      // Show ball landing on grid square
+      // Show ball landing on grid square with matching color
       setGameState(prev => ({
         ...prev,
         droppedBalls: [...prev.droppedBalls, { 
