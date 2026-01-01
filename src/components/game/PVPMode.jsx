@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Zap, Shield, Snowflake, Skull, Trophy, Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PauseMenu from './PauseMenu';
 
 const INTERFERENCE_ATTACKS = {
   freeze: { name: 'Freeze Turn', icon: Snowflake, cost: 30, color: '#3B82F6' },
@@ -21,6 +22,9 @@ export default function PVPMode({ onBack, colors }) {
   const [maxTurns] = useState(10);
   const [betAmount] = useState(10);
   const [winner, setWinner] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [musicOn, setMusicOn] = useState(true);
+  const [soundOn, setSoundOn] = useState(true);
   const audioRef = useRef(null);
 
   const playSound = useCallback((type) => {
@@ -277,6 +281,12 @@ export default function PVPMode({ onBack, colors }) {
         <button onClick={onBack} className="p-2 bg-slate-800/80 rounded-lg">
           <ArrowLeft className="w-5 h-5 text-slate-300" />
         </button>
+        <button
+          onClick={() => setIsPaused(true)}
+          className="px-4 py-2 bg-slate-800/80 rounded-xl text-white font-bold hover:bg-slate-700 transition-colors"
+        >
+          ⏸️ PAUSE
+        </button>
         <div className="text-center">
           <p className="text-slate-400 text-sm">Turn {turn} / {maxTurns}</p>
           <p className={`font-bold text-lg ${currentPlayer === 1 ? 'text-blue-400' : 'text-red-400'}`}>
@@ -386,6 +396,17 @@ export default function PVPMode({ onBack, colors }) {
           </Button>
         ))}
       </div>
+
+      <PauseMenu
+        isOpen={isPaused}
+        onResume={() => setIsPaused(false)}
+        onRetry={resetGame}
+        onEnd={onBack}
+        musicOn={musicOn}
+        soundOn={soundOn}
+        onToggleMusic={() => setMusicOn(!musicOn)}
+        onToggleSound={() => setSoundOn(!soundOn)}
+      />
     </motion.div>
   );
 }

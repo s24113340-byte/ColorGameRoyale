@@ -10,6 +10,7 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
+import PauseMenu from '@/components/game/PauseMenu';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -119,6 +120,9 @@ const INITIAL_STATE = {
   factionBuffActive: null,
   payoutMultiplier: 1,
   ending: null,
+  isPaused: false,
+  musicOn: true,
+  soundOn: true,
 };
 
 export default function ColorGameRoyale() {
@@ -165,7 +169,7 @@ export default function ColorGameRoyale() {
 
   // Timer logic
   useEffect(() => {
-    if (gameState.phase === 'playing' && !gameState.frozen && !gameState.isDropping) {
+    if (gameState.phase === 'playing' && !gameState.frozen && !gameState.isDropping && !gameState.isPaused) {
       timerRef.current = setInterval(() => {
         setGameState(prev => {
           const newTimer = prev.timer - 1;
@@ -177,7 +181,7 @@ export default function ColorGameRoyale() {
       }, 1000);
     }
     return () => clearInterval(timerRef.current);
-  }, [gameState.phase, gameState.frozen, gameState.isDropping]);
+  }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused]);
 
   const determineEnding = (state) => {
     // Win if shadow meter is depleted OR score is high enough
@@ -556,6 +560,26 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({ ...prev, phase: 'mode-select' }));
   };
 
+  const togglePause = () => {
+    setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }));
+  };
+
+  const handleRetry = () => {
+    const mode = gameState.gameMode;
+    setGameState({
+      ...INITIAL_STATE,
+      phase: 'champion-select',
+      gameMode: mode,
+      hasInsertedCoin: true,
+      timer: mode === 'time-attack' ? 30 : 60,
+      maxRounds: mode === 'time-attack' ? 999 : 10,
+    });
+  };
+
+  const handleEndGame = () => {
+    resetGame();
+  };
+
   // Don't render until save data is loaded
   if (!saveData) {
     return (
@@ -651,11 +675,19 @@ export default function ColorGameRoyale() {
             exit={{ opacity: 0 }}
             className="relative z-10"
           >
+            {/* Pause button */}
+            <button
+              onClick={togglePause}
+              className="fixed top-4 right-4 z-50 px-4 py-2 bg-slate-800/80 rounded-xl text-white font-bold hover:bg-slate-700 transition-colors"
+            >
+              ⏸️ PAUSE
+            </button>
+
             <GameHUD 
               gameState={gameState}
               colors={COLORS}
             />
-            
+
             <GameBoard 
               gameState={gameState}
               colors={COLORS}
@@ -673,6 +705,17 @@ export default function ColorGameRoyale() {
             />
 
             <UmbraAIIndicator gameState={gameState} />
+
+            <PauseMenu
+              isOpen={gameState.isPaused}
+              onResume={togglePause}
+              onRetry={handleRetry}
+              onEnd={handleEndGame}
+              musicOn={gameState.musicOn}
+              soundOn={gameState.soundOn}
+              onToggleMusic={() => setGameState(prev => ({ ...prev, musicOn: !prev.musicOn }))}
+              onToggleSound={() => setGameState(prev => ({ ...prev, soundOn: !prev.soundOn }))}
+            />
           </motion.div>
         )}
 
