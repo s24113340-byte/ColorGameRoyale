@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Swords, Clock, Users, ArrowLeft, Shield, Zap, Trophy, Globe } from 'lucide-react';
+import { Swords, Clock, Users, ArrowLeft, Shield, Zap, Trophy } from 'lucide-react';
 
 const MODES = [
   {
@@ -23,21 +23,12 @@ const MODES = [
   },
   {
     id: 'pvp',
-    name: 'LOCAL BATTLE',
-    subtitle: 'Same Device',
-    description: 'Compete head-to-head on the same device! Use Interference Attacks and drain your opponent\'s Integrity.',
+    name: 'VERSUS',
+    subtitle: 'Player vs Player',
+    description: 'Compete head-to-head! Use Faction Combos to launch Interference Attacks and drain your opponent\'s Integrity.',
     icon: Users,
     color: '#EF4444',
-    features: ['2 Players', 'Local Play', 'Interference Attacks', 'Turn-Based'],
-  },
-  {
-    id: 'online',
-    name: 'ONLINE BATTLE',
-    subtitle: 'Player vs Player',
-    description: 'Challenge players online with room codes! Create or join a room for real-time competitive battles.',
-    icon: Globe,
-    color: '#10B981',
-    features: ['Online Play', 'Room Codes', 'Real-Time', 'Global Competition'],
+    features: ['2 Players', 'Interference Attacks', 'Integrity Meter', 'Competitive'],
   },
 ];
 
@@ -72,7 +63,7 @@ export default function ModeSelect({ onSelectMode, onBack, hasCampaignSave }) {
       </motion.div>
 
       {/* Mode cards */}
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
         {MODES.map((mode, index) => (
           <motion.button
             key={mode.id}
