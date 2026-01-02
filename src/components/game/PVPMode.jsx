@@ -348,48 +348,298 @@ export default function PVPMode({ onBack, colors }) {
         ))}
       </div>
 
-      {/* Ball drop display */}
-      <div className="flex justify-center gap-4 mb-6 h-16">
-        {droppedBalls.map((ball, i) => (
-          <motion.div
-            key={i}
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-            style={{ background: ball.hex }}
-          >
-            {ball.emoji}
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Color grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {colors.map(color => (
-          <button
-            key={color.id}
-            onClick={() => placeBet(color.id)}
-            disabled={players[currentPlayer].frozen || isDropping}
-            className="relative p-4 rounded-xl transition-all"
+      {/* Game Board with Perimeter Betting */}
+      <div className="max-w-5xl mx-auto px-4 mb-6">
+        <div className="relative mx-auto">
+          {/* Board container with betting panels on all sides */}
+          <div 
+            className="relative p-6 rounded-3xl shadow-2xl"
             style={{
-              background: `${color.hex}20`,
-              border: `2px solid ${color.hex}`,
+              backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/3757eed38_unnamed__5_-removebg-preview.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
             }}
           >
-            <div 
-              className="w-12 h-12 mx-auto rounded-lg mb-2 flex items-center justify-center text-2xl"
-              style={{ background: color.hex }}
-            >
-              {color.emoji}
+            {/* Top betting panels */}
+            <div className="grid grid-cols-4 gap-3 mb-4 px-3">
+              {colors.filter(c => c && c.id).map((color) => {
+                const currentBet = players[currentPlayer].bets[color.id] || 0;
+                return (
+                  <div
+                    key={`top-${color.id}`}
+                    className="p-4 rounded-xl font-bold text-sm relative backdrop-blur-sm"
+                    style={{
+                      background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                      boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                    }}
+                  >
+                    <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
+                      {color.emoji} {color.name.toUpperCase()}
+                    </div>
+                    {currentBet > 0 && (
+                      <div className="text-yellow-200 text-xs mt-1 font-bold flex items-center justify-center gap-1">
+                        💰 {currentBet}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <p className="text-white font-bold text-sm">{color.name}</p>
-            {players[currentPlayer].bets[color.id] > 0 && (
-              <span className="absolute -top-2 -right-2 px-2 py-1 rounded-full bg-yellow-400 text-yellow-900 text-xs font-bold">
-                {players[currentPlayer].bets[color.id]}
-              </span>
-            )}
-          </button>
-        ))}
+
+            {/* Main grid with side betting panels */}
+            <div className="flex gap-4 px-3">
+              {/* Left betting panels */}
+              <div className="flex flex-col gap-3">
+                {colors.filter(c => c && c.id).map((color) => {
+                  const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  return (
+                    <button 
+                      key={`left-${color.id}`}
+                      onClick={() => placeBet(color.id)}
+                      disabled={players[currentPlayer].frozen || isDropping}
+                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      style={{
+                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                        boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                      }}
+                    >
+                      <div className="text-white text-shadow-lg text-3xl mb-1">
+                        {color.emoji}
+                      </div>
+                      {currentBet > 0 && (
+                        <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Center 6x6 Grid */}
+              <div className="relative bg-gradient-to-br from-cyan-100/20 to-white/30 backdrop-blur-md p-4 rounded-2xl flex-1 border-2 border-white/50">
+                <div className="grid grid-cols-6 gap-2 relative">
+                  {[...Array(36)].map((_, i) => {
+                    const colorIndex = i % colors.length;
+                    const gridColor = colors[colorIndex];
+                    if (!gridColor || !gridColor.hex) return null;
+
+                    // Check if any ball landed on this square
+                    const ballOnSquare = droppedBalls.find((ball, idx) => {
+                      const landedSquare = Math.floor(Math.random() * 36);
+                      return idx < droppedBalls.length && landedSquare === i;
+                    });
+
+                    return (
+                      <div 
+                        key={i}
+                        className="aspect-square rounded-lg shadow-lg relative overflow-hidden"
+                        style={{
+                          background: `linear-gradient(135deg, ${gridColor.hex}, ${gridColor.hex}dd)`,
+                          border: `3px solid white`,
+                          boxShadow: `0 2px 8px ${gridColor.hex}40, inset 0 0 20px ${gridColor.hex}20`,
+                        }}
+                      >
+                        {/* Ball landing animation */}
+                        <AnimatePresence>
+                          {ballOnSquare && (
+                            <motion.div
+                              initial={{ scale: 0, rotate: 0 }}
+                              animate={{ scale: 1, rotate: 360 }}
+                              exit={{ scale: 0 }}
+                              transition={{ type: "spring", duration: 0.5 }}
+                              className="absolute inset-0 flex items-center justify-center z-10"
+                            >
+                              {/* White glowy ring */}
+                              <div 
+                                className="absolute w-16 h-16 rounded-full animate-pulse"
+                                style={{
+                                  background: 'radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), transparent)',
+                                  boxShadow: '0 0 40px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.8), 0 0 80px rgba(255, 255, 255, 0.5)',
+                                }}
+                              />
+                              {/* Colored ball */}
+                              <div 
+                                className="w-10 h-10 rounded-full shadow-2xl relative z-10"
+                                style={{
+                                  background: `radial-gradient(circle at 30% 30%, ${gridColor.hex}dd, ${gridColor.hex}66)`,
+                                  boxShadow: `0 0 20px ${gridColor.hex}, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
+                                  filter: 'brightness(0.7)',
+                                }}
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Futuristic Wireframe Hopper in Center */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                  <div className="relative w-48 h-48">
+                    {/* Top glowing ring */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-8">
+                      <div 
+                        className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                        style={{
+                          borderColor: 'rgba(255, 255, 255, 0.8)',
+                          background: 'linear-gradient(135deg, rgba(255, 59, 59, 0.15), rgba(59, 130, 246, 0.15), rgba(251, 191, 36, 0.15))',
+                          boxShadow: `
+                            0 0 20px rgba(255, 255, 255, 0.8),
+                            0 0 40px rgba(255, 59, 59, 0.3),
+                            0 0 40px rgba(59, 130, 246, 0.3),
+                            0 0 40px rgba(251, 191, 36, 0.3),
+                            inset 0 0 20px rgba(255, 255, 255, 0.2)
+                          `,
+                        }}
+                      />
+                    </div>
+
+                    {/* Bottom glowing ring */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-6">
+                      <div 
+                        className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                        style={{
+                          borderColor: 'rgba(255, 255, 255, 0.8)',
+                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15), rgba(251, 191, 36, 0.15))',
+                          boxShadow: `
+                            0 0 20px rgba(255, 255, 255, 0.8),
+                            0 0 40px rgba(59, 130, 246, 0.3),
+                            0 0 40px rgba(16, 185, 129, 0.3),
+                            0 0 40px rgba(251, 191, 36, 0.3),
+                            inset 0 0 20px rgba(255, 255, 255, 0.2)
+                          `,
+                        }}
+                      />
+                    </div>
+
+                    {/* Vertical spindles */}
+                    {[...Array(8)].map((_, i) => {
+                      const angle = (i * 360) / 8;
+                      const topRadius = 62;
+                      const topX = Math.cos((angle * Math.PI) / 180) * topRadius;
+                      const topY = Math.sin((angle * Math.PI) / 180) * 16;
+
+                      return (
+                        <div
+                          key={i}
+                          className="absolute left-1/2 top-8 origin-top"
+                          style={{
+                            width: '1px',
+                            height: '128px',
+                            background: `linear-gradient(180deg, 
+                              rgba(255, 255, 255, 0.6), 
+                              rgba(255, 59, 59, 0.3),
+                              rgba(59, 130, 246, 0.3),
+                              rgba(251, 191, 36, 0.3),
+                              rgba(255, 255, 255, 0.6)
+                            )`,
+                            transform: `translateX(${topX}px) translateY(${topY}px)`,
+                            boxShadow: '0 0 4px rgba(255, 255, 255, 0.6)',
+                          }}
+                        />
+                      );
+                    })}
+
+                    {/* Spinning balls before drop */}
+                    <AnimatePresence>
+                      {!isDropping && Object.keys(players[currentPlayer].bets).length > 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {[0, 1, 2].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute"
+                              animate={{
+                                rotate: 360,
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "linear",
+                                delay: i * 0.33,
+                              }}
+                              style={{
+                                transformOrigin: '0 0',
+                              }}
+                            >
+                              <motion.div
+                                className="w-8 h-8 rounded-full"
+                                animate={{
+                                  x: Math.cos((i * 120 * Math.PI) / 180) * 30,
+                                  y: Math.sin((i * 120 * Math.PI) / 180) * 30,
+                                }}
+                                style={{
+                                  background: 'radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0)',
+                                  boxShadow: `
+                                    0 0 20px rgba(255, 255, 255, 0.8),
+                                    0 0 40px rgba(255, 255, 255, 0.5),
+                                    inset 0 0 10px rgba(255, 255, 255, 0.5)
+                                  `,
+                                }}
+                              />
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right betting panels */}
+              <div className="flex flex-col gap-3">
+                {colors.filter(c => c && c.id).map((color) => {
+                  const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  return (
+                    <button 
+                      key={`right-${color.id}`}
+                      onClick={() => placeBet(color.id)}
+                      disabled={players[currentPlayer].frozen || isDropping}
+                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      style={{
+                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                        boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                      }}
+                    >
+                      <div className="text-white text-shadow-lg text-3xl mb-1">
+                        {color.emoji}
+                      </div>
+                      {currentBet > 0 && (
+                        <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bottom betting panels */}
+            <div className="grid grid-cols-4 gap-3 mt-4 px-3">
+              {colors.filter(c => c && c.id).map((color) => {
+                const currentBet = players[currentPlayer].bets[color.id] || 0;
+                return (
+                  <button 
+                    key={`bottom-${color.id}`}
+                    onClick={() => placeBet(color.id)}
+                    disabled={players[currentPlayer].frozen || isDropping}
+                    className={`p-4 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                    style={{
+                      background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                      boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                    }}
+                  >
+                    <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
+                      {color.emoji} {color.name.toUpperCase()}
+                    </div>
+                    {currentBet > 0 && (
+                      <div className="text-yellow-200 text-xs mt-1 font-bold">💰 {currentBet}</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Actions */}
