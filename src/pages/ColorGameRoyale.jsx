@@ -8,6 +8,7 @@ import GameHUD from '@/components/game/GameHUD';
 import UmbraOverlay from '@/components/game/UmbraOverlay';
 import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import UmbraDragon from '@/components/game/UmbraDragon';
+import ChampionDisplay from '@/components/game/ChampionDisplay';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
@@ -760,6 +761,8 @@ export default function ColorGameRoyale() {
             {gameState.gameMode === 'normal' && (
               <UmbraDragon gameState={gameState} />
             )}
+
+            <ChampionDisplay champion={gameState.champion} />
 
             <PauseMenu
               isOpen={gameState.isPaused}

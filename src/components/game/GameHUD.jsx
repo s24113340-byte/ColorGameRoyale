@@ -96,33 +96,8 @@ export default function GameHUD({ gameState, colors }) {
         <div className="max-w-6xl mx-auto">
           {/* Bottom bar */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            {/* Left: Champion & Score */}
+            {/* Left: Score */}
             <div className="flex items-center gap-4">
-              {champion && (
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
-                >
-                  {champion.sprite.startsWith('http') ? (
-                    <img 
-                      src={champion.sprite} 
-                      alt={champion.name}
-                      className="w-10 h-10 object-contain"
-                      style={{ imageRendering: 'pixelated' }}
-                    />
-                  ) : (
-                    <span className="text-2xl">{champion.sprite}</span>
-                  )}
-                  <div>
-                    <p className="text-xs text-slate-400">{champion.class}</p>
-                    <p className="font-bold text-sm" style={{ color: champion.colors.primary }}>
-                      {champion.name}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-
               <motion.div 
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
