@@ -4,7 +4,7 @@ import { Lock, CheckCircle2, Skull, Crown, Star, Trophy, ArrowLeft } from 'lucid
 import { Button } from '@/components/ui/button';
 
 const CAMPAIGN_LEVELS = [
-  { id: 1, name: 'Peaceful Village', difficulty: 'Easy', boss: null, color: '#10B981', emoji: '🏘️' },
+  { id: 1, name: 'Destroyed Narnia Village', difficulty: 'Easy', boss: null, color: '#10B981', emoji: '🏚️' },
   { id: 2, name: 'Mystic Forest', difficulty: 'Easy', boss: null, color: '#22C55E', emoji: '🌲' },
   { id: 3, name: 'Verdant Grassland', difficulty: 'Normal', boss: 'Plains Walker', color: '#84CC16', emoji: '🌾' },
   { id: 4, name: 'Rocky Mountains', difficulty: 'Normal', boss: null, color: '#78716C', emoji: '⛰️' },
