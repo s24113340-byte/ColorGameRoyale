@@ -33,64 +33,11 @@ export default function GameHUD({ gameState, colors }) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Top bar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          {/* Left: Champion & Score */}
-          <div className="flex items-center gap-4">
-            {champion && (
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
-              >
-                {champion.sprite.startsWith('http') ? (
-                  <img 
-                    src={champion.sprite} 
-                    alt={champion.name}
-                    className="w-10 h-10 object-contain"
-                    style={{ imageRendering: 'pixelated' }}
-                  />
-                ) : (
-                  <span className="text-2xl">{champion.sprite}</span>
-                )}
-                <div>
-                  <p className="text-xs text-slate-400">{champion.class}</p>
-                  <p className="font-bold text-sm" style={{ color: champion.colors.primary }}>
-                    {champion.name}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
-            <motion.div 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
-            >
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-xs text-slate-400">Score</p>
-                <p className="font-bold text-white text-lg">{score.toLocaleString()}</p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-yellow-500/30"
-            >
-              <Coins className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-xs text-slate-400">Coins</p>
-                <p className="font-bold text-yellow-400 text-lg">{coins}</p>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Center: Timer */}
+    <>
+      {/* Top HUD: Timer and Umbra's HP */}
+      <div className="fixed top-0 left-0 right-0 z-40 p-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-4">
+          {/* Timer */}
           <motion.div 
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -116,49 +63,12 @@ export default function GameHUD({ gameState, colors }) {
             </div>
           </motion.div>
 
-          {/* Right: Round & Streak */}
-          <div className="flex items-center gap-4">
-            {gameMode === 'normal' && (
-              <motion.div 
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
-              >
-                <Target className="w-5 h-5 text-purple-400" />
-                <div>
-                  <p className="text-xs text-slate-400">Round</p>
-                  <p className="font-bold text-white">{round} / {maxRounds}</p>
-                </div>
-              </motion.div>
-            )}
-
-            <AnimatePresence>
-              {streak > 0 && (
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur border border-orange-500/50"
-                >
-                  <Zap className="w-5 h-5 text-orange-400" />
-                  <div>
-                    <p className="text-xs text-orange-300">Streak</p>
-                    <p className="font-bold text-orange-400 text-lg">x{streak}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Second row: Meters */}
-        <div className="mt-4 flex items-center gap-4 flex-wrap">
           {/* Shadow Meter (Umbra health) */}
           {gameMode === 'normal' && (
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex-1 min-w-[200px]"
+              className="flex-1 max-w-md"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-purple-300 font-medium flex items-center gap-1">
@@ -178,45 +88,127 @@ export default function GameHUD({ gameState, colors }) {
               </div>
             </motion.div>
           )}
+        </div>
+      </div>
 
-          {/* Elemental Balance */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex-1 min-w-[300px]"
-          >
-            <p className="text-xs text-slate-400 mb-2 font-medium">ELEMENTAL BALANCE</p>
-            <div className="flex h-4 rounded-full overflow-hidden bg-slate-800 border border-slate-700">
-              {Object.entries(elementalBalance).map(([element, value]) => {
-                const Icon = factionIcons[element];
-                return (
-                  <motion.div
-                    key={element}
-                    animate={{ width: `${value}%` }}
-                    transition={{ duration: 0.5 }}
-                    className="relative flex items-center justify-center"
-                    style={{ background: factionColors[element] }}
-                  >
-                    {value >= 15 && (
-                      <Icon className="w-3 h-3 text-white/80" />
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-            <div className="flex justify-between mt-1">
-              {Object.entries(elementalBalance).map(([element, value]) => (
-                <span 
-                  key={element} 
-                  className="text-xs font-medium"
-                  style={{ color: factionColors[element] }}
+      {/* Bottom HUD: Champion, Score, Coins, Streak, Elemental Balance */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 p-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Bottom bar */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Left: Champion & Score */}
+            <div className="flex items-center gap-4">
+              {champion && (
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
                 >
-                  {Math.round(value)}%
-                </span>
-              ))}
+                  {champion.sprite.startsWith('http') ? (
+                    <img 
+                      src={champion.sprite} 
+                      alt={champion.name}
+                      className="w-10 h-10 object-contain"
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                  ) : (
+                    <span className="text-2xl">{champion.sprite}</span>
+                  )}
+                  <div>
+                    <p className="text-xs text-slate-400">{champion.class}</p>
+                    <p className="font-bold text-sm" style={{ color: champion.colors.primary }}>
+                      {champion.name}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
+              >
+                <Trophy className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="text-xs text-slate-400">Score</p>
+                  <p className="font-bold text-white text-lg">{score.toLocaleString()}</p>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-yellow-500/30"
+              >
+                <Coins className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="text-xs text-slate-400">Coins</p>
+                  <p className="font-bold text-yellow-400 text-lg">{coins}</p>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+
+            {/* Right: Streak */}
+            <div className="flex items-center gap-4">
+              <AnimatePresence>
+                {streak > 0 && (
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur border border-orange-500/50"
+                  >
+                    <Zap className="w-5 h-5 text-orange-400" />
+                    <div>
+                      <p className="text-xs text-orange-300">Streak</p>
+                      <p className="font-bold text-orange-400 text-lg">x{streak}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Second row: Elemental Balance */}
+          <div className="mt-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <p className="text-xs text-slate-400 mb-2 font-medium">ELEMENTAL BALANCE</p>
+              <div className="flex h-4 rounded-full overflow-hidden bg-slate-800 border border-slate-700">
+                {Object.entries(elementalBalance).map(([element, value]) => {
+                  const Icon = factionIcons[element];
+                  return (
+                    <motion.div
+                      key={element}
+                      animate={{ width: `${value}%` }}
+                      transition={{ duration: 0.5 }}
+                      className="relative flex items-center justify-center"
+                      style={{ background: factionColors[element] }}
+                    >
+                      {value >= 15 && (
+                        <Icon className="w-3 h-3 text-white/80" />
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+              <div className="flex justify-between mt-1">
+                {Object.entries(elementalBalance).map(([element, value]) => (
+                  <span 
+                    key={element} 
+                    className="text-xs font-medium"
+                    style={{ color: factionColors[element] }}
+                  >
+                    {Math.round(value)}%
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Faction Buff Active */}
@@ -247,6 +239,6 @@ export default function GameHUD({ gameState, colors }) {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </>
   );
 }
