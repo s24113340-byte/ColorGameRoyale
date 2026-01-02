@@ -13,15 +13,7 @@ export default function ChampionDisplay({ champion }) {
         className="relative flex items-center gap-4"
       >
         {/* Champion name beside sprite */}
-        <motion.div
-          animate={{
-            y: [0, -8, 0],
-          }}
-          transition={{
-            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-          }}
-          className="text-right"
-        >
+        <div className="text-right">
           <p 
             className="text-4xl font-black tracking-wider mb-1"
             style={{ 
@@ -38,11 +30,11 @@ export default function ChampionDisplay({ champion }) {
           >
             {champion.class.toUpperCase()}
           </p>
-        </motion.div>
+        </div>
 
         {/* Champion sprite */}
         <motion.div 
-          className="relative w-48 h-48"
+          className="relative w-80 h-80"
           animate={{
             y: [0, -8, 0],
             x: [0, 3, 0, -3, 0],
@@ -81,7 +73,7 @@ export default function ChampionDisplay({ champion }) {
               opacity: [0.3, 0.7, 0.3],
             }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="absolute top-0 left-0 w-48 h-48 rounded-full -z-10"
+            className="absolute top-0 left-0 w-80 h-80 rounded-full -z-10"
             style={{
               background: `radial-gradient(circle, ${champion.colors.primary}60, transparent 70%)`,
               filter: 'blur(30px)',
