@@ -14,6 +14,7 @@ import BlackHoleTransition from '@/components/game/BlackHoleTransition';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
 import PauseMenu from '@/components/game/PauseMenu';
+import GameInstructions from '@/components/game/GameInstructions';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -95,7 +96,7 @@ const COLORS = [
 ];
 
 const INITIAL_STATE = {
-  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, black-hole, ending
+  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, instructions, playing, black-hole, ending
   gameMode: null, // normal, time-attack, pvp
   champion: null,
   selectedLevel: null,
@@ -217,9 +218,13 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({
       ...prev,
       champion: championWithUpgrades,
-      phase: 'playing',
+      phase: 'instructions',
       coins: 500,
     }));
+  };
+
+  const startPlayingAfterInstructions = () => {
+    setGameState(prev => ({ ...prev, phase: 'playing' }));
   };
 
   const insertCoin = () => {
@@ -716,6 +721,14 @@ export default function ColorGameRoyale() {
               phase: prev.gameMode === 'normal' ? 'campaign-map' : 'mode-select' 
             }))}
             championUpgrades={saveData.championUpgrades}
+          />
+        )}
+
+        {gameState.phase === 'instructions' && (
+          <GameInstructions
+            onStart={startPlayingAfterInstructions}
+            gameMode={gameState.gameMode}
+            champion={gameState.champion}
           />
         )}
 
