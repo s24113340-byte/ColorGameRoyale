@@ -28,76 +28,18 @@ export default function UmbraDragon({ gameState }) {
         transition={{ duration: 0.5, repeat: animState === 'attacking' ? 3 : 0 }}
         className="relative"
       >
-        {/* Pixel Art Dragon */}
-        <div className="relative w-40 h-40">
-          {/* Dragon body - pixel art style */}
-          <svg viewBox="0 0 160 160" className="w-full h-full">
-            {/* Body */}
-            <rect x="40" y="80" width="60" height="50" fill="#5A9FCB" />
-            
-            {/* Legs */}
-            <rect x="45" y="125" width="15" height="25" fill="#4A7FA8" />
-            <rect x="80" y="125" width="15" height="25" fill="#4A7FA8" />
-            
-            {/* Claws */}
-            <rect x="42" y="145" width="4" height="5" fill="#2C4A5C" />
-            <rect x="48" y="145" width="4" height="5" fill="#2C4A5C" />
-            <rect x="54" y="145" width="4" height="5" fill="#2C4A5C" />
-            <rect x="78" y="145" width="4" height="5" fill="#2C4A5C" />
-            <rect x="84" y="145" width="4" height="5" fill="#2C4A5C" />
-            <rect x="90" y="145" width="4" height="5" fill="#2C4A5C" />
-            
-            {/* Belly */}
-            <rect x="48" y="90" width="44" height="35" fill="#E8C49A" />
-            
-            {/* Neck */}
-            <rect x="30" y="50" width="30" height="35" fill="#5A9FCB" />
-            
-            {/* Head */}
-            <rect x="15" y="30" width="35" height="30" fill="#6BB0D9" />
-            
-            {/* Snout */}
-            <rect x="5" y="40" width="15" height="15" fill="#7AC0E8" />
-            
-            {/* Horns */}
-            <rect x="20" y="20" width="6" height="12" fill="#2C4A5C" />
-            <rect x="34" y="20" width="6" height="12" fill="#2C4A5C" />
-            
-            {/* Spikes on head - magenta */}
-            <rect x="28" y="25" width="4" height="8" fill="#E63E8B" />
-            <rect x="34" y="28" width="4" height="8" fill="#E63E8B" />
-            <rect x="40" y="32" width="4" height="8" fill="#E63E8B" />
-            
-            {/* Back spikes */}
-            <rect x="50" y="75" width="5" height="8" fill="#E63E8B" />
-            <rect x="60" y="73" width="5" height="10" fill="#E63E8B" />
-            <rect x="70" y="75" width="5" height="8" fill="#E63E8B" />
-            <rect x="80" y="77" width="5" height="6" fill="#E63E8B" />
-            
-            {/* Tail */}
-            <path d="M 100 100 Q 120 90, 140 85 Q 145 83, 150 80" 
-                  stroke="#5A9FCB" strokeWidth="12" fill="none"/>
-            
-            {/* Eyes - glowing */}
-            <motion.g
-              animate={{
-                opacity: [0.7, 1, 0.7],
-              }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >
-              <circle cx="25" cy="42" r="3" fill={eyeColor} />
-              <circle cx="35" cy="42" r="3" fill={eyeColor} />
-              
-              {/* Eye glow */}
-              <circle cx="25" cy="42" r="5" fill={eyeColor} opacity="0.4" />
-              <circle cx="35" cy="42" r="5" fill={eyeColor} opacity="0.4" />
-            </motion.g>
-            
-            {/* Teeth */}
-            <rect x="8" y="50" width="3" height="4" fill="#FFFFFF" />
-            <rect x="12" y="50" width="3" height="4" fill="#FFFFFF" />
-            <rect x="16" y="50" width="3" height="4" fill="#FFFFFF" />
-          </svg>
+        {/* Dragon pixel art container */}
+        <div className="relative w-48 h-48">
+          {/* Actual pixel art dragon image */}
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/ca5463876_image.png"
+            alt="Umbra Dragon"
+            className="w-full h-full object-contain"
+            style={{
+              imageRendering: 'pixelated',
+              filter: umbraRageMode ? 'brightness(1.3) saturate(1.5)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg)' : 'none',
+            }}
+          />
 
           {/* Ability effects */}
           <AnimatePresence>
