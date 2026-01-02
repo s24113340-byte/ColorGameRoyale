@@ -224,6 +224,22 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                           style={{ imageRendering: 'pixelated' }}
                         />
                       )
+                    ) : champion.id === 'rei' ? (
+                      ending === 'chaos' ? (
+                        <img 
+                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
+                          alt="Defeated Rei"
+                          className="w-48 h-48 object-contain"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                      ) : (
+                        <img 
+                          src={champion.sprite} 
+                          alt={champion.name}
+                          className="w-48 h-48 object-contain"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                      )
                     ) : champion.sprite.startsWith('http') ? (
                       <img 
                         src={champion.sprite} 
