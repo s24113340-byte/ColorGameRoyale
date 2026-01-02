@@ -706,6 +706,31 @@ export default function ColorGameRoyale() {
     resetGame();
   };
 
+  const useChampionAbility = () => {
+    if (gameState.abilityCharges <= 0 || gameState.abilityCooldown > 0) return;
+    
+    playSound('win');
+    setGameState(prev => ({
+      ...prev,
+      abilityCharges: prev.abilityCharges - 1,
+      abilityCooldown: 3, // 3 rounds cooldown
+      poisonedSquares: [], // Cleanse poison
+      frozen: false, // Break freeze
+      championHP: Math.min(100, prev.championHP + 15), // Heal 15% HP
+      shadowMeter: Math.max(0, prev.shadowMeter - 10), // Deal 10 damage to Umbra
+    }));
+
+    // Clear cooldown after 3 drops
+    let dropCount = 0;
+    const cooldownInterval = setInterval(() => {
+      dropCount++;
+      if (dropCount >= 3) {
+        setGameState(prev => ({ ...prev, abilityCooldown: 0 }));
+        clearInterval(cooldownInterval);
+      }
+    }, 1000);
+  };
+
   // Don't render until save data is loaded
   if (!saveData) {
     return (
