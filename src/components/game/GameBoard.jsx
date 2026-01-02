@@ -147,18 +147,19 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                               >
                                 {/* White glowy ring */}
                                 <div 
-                                  className="absolute w-14 h-14 rounded-full animate-pulse"
+                                  className="absolute w-16 h-16 rounded-full animate-pulse"
                                   style={{
-                                    background: 'radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3), transparent)',
-                                    boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(255, 255, 255, 0.6)',
+                                    background: 'radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), transparent)',
+                                    boxShadow: '0 0 40px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.8), 0 0 80px rgba(255, 255, 255, 0.5)',
                                   }}
                                 />
-                                {/* Colored ball - matches tile color */}
+                                {/* Colored ball - darker than tile color */}
                                 <div 
                                   className="w-10 h-10 rounded-full shadow-2xl relative z-10"
                                   style={{
-                                    background: `radial-gradient(circle at 30% 30%, ${gridColor.hex}, ${gridColor.hex}88)`,
+                                    background: `radial-gradient(circle at 30% 30%, ${gridColor.hex}dd, ${gridColor.hex}66)`,
                                     boxShadow: `0 0 20px ${gridColor.hex}, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
+                                    filter: 'brightness(0.7)',
                                   }}
                                 />
                               </motion.div>
