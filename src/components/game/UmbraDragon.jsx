@@ -29,7 +29,17 @@ export default function UmbraDragon({ gameState }) {
         className="relative"
       >
         {/* Dragon pixel art container */}
-        <div className="relative w-48 h-48">
+        <motion.div 
+          className="relative w-48 h-48"
+          animate={{
+            y: animState === 'idle' ? [0, -8, 0] : animState === 'attacking' ? [0, -12, 0] : [0, -10, 0],
+            x: animState === 'idle' ? [0, 3, 0, -3, 0] : 0,
+          }}
+          transition={{
+            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+            x: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+          }}
+        >
           {/* Actual pixel art dragon image */}
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/ca5463876_image.png"
@@ -37,78 +47,80 @@ export default function UmbraDragon({ gameState }) {
             className="w-full h-full object-contain"
             style={{
               imageRendering: 'pixelated',
-              filter: umbraRageMode ? 'brightness(1.3) saturate(1.5)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg)' : 'none',
+              filter: umbraRageMode ? 'brightness(1.3) saturate(1.5) drop-shadow(0 0 20px #FF0000)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg) drop-shadow(0 0 20px #8B5CF6)' : 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))',
+              mixBlendMode: 'normal',
             }}
           />
 
-          {/* Ability effects */}
-          <AnimatePresence>
-            {umbraActive && (
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1.5, opacity: [0, 1, 0] }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                {umbraAbility === 'freeze' && (
-                  <Snowflake className="w-12 h-12 text-blue-400" />
-                )}
-                {umbraAbility === 'score-drain' && (
-                  <Skull className="w-12 h-12 text-purple-400" />
-                )}
-                {umbraAbility === 'poison' && (
-                  <div className="text-4xl">☠️</div>
-                )}
-                {(umbraAbility === 'shadow-surge' || umbraAbility === 'elemental-drain' || umbraAbility === 'corruption') && (
-                  <Zap className="w-12 h-12 text-red-500" />
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        </motion.div>
 
-          {/* Rage/Final boss aura */}
-          {(umbraRageMode || umbraFinalBoss) && (
+        {/* Ability effects */}
+        <AnimatePresence>
+          {umbraActive && (
             <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${umbraFinalBoss ? '#8B5CF6' : '#FF0000'}40, transparent 70%)`,
-                filter: 'blur(20px)',
-              }}
-            />
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1.5, opacity: [0, 1, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              className="absolute top-24 left-24"
+            >
+              {umbraAbility === 'freeze' && (
+                <Snowflake className="w-12 h-12 text-blue-400" />
+              )}
+              {umbraAbility === 'score-drain' && (
+                <Skull className="w-12 h-12 text-purple-400" />
+              )}
+              {umbraAbility === 'poison' && (
+                <div className="text-4xl">☠️</div>
+              )}
+              {(umbraAbility === 'shadow-surge' || umbraAbility === 'elemental-drain' || umbraAbility === 'corruption') && (
+                <Zap className="w-12 h-12 text-red-500" />
+              )}
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          {/* Breathing fire animation when attacking */}
-          <AnimatePresence>
-            {umbraActive && (
-              <>
-                <motion.div
-                  initial={{ x: 20, opacity: 1, scale: 0.5 }}
-                  animate={{ x: 120, opacity: 0, scale: 2 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2"
-                >
-                  <div className="text-4xl">🔥</div>
-                </motion.div>
-                <motion.div
-                  initial={{ x: 20, opacity: 1, scale: 0.3 }}
-                  animate={{ x: 100, opacity: 0, scale: 1.8 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.7, delay: 0.1 }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2"
-                >
-                  <div className="text-3xl">🔥</div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
+        {/* Rage/Final boss aura */}
+        {(umbraRageMode || umbraFinalBoss) && (
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 0.7, 0.3],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="absolute top-0 left-0 w-48 h-48 rounded-full -z-10"
+            style={{
+              background: `radial-gradient(circle, ${umbraFinalBoss ? '#8B5CF6' : '#FF0000'}60, transparent 70%)`,
+              filter: 'blur(30px)',
+            }}
+          />
+        )}
+
+        {/* Breathing fire animation when attacking */}
+        <AnimatePresence>
+          {umbraActive && (
+            <>
+              <motion.div
+                initial={{ x: 40, opacity: 1, scale: 0.5 }}
+                animate={{ x: 150, opacity: 0, scale: 2 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                className="absolute left-0 top-20"
+              >
+                <div className="text-4xl">🔥</div>
+              </motion.div>
+              <motion.div
+                initial={{ x: 40, opacity: 1, scale: 0.3 }}
+                animate={{ x: 130, opacity: 0, scale: 1.8 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="absolute left-0 top-24"
+              >
+                <div className="text-3xl">🔥</div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Shadow meter bar under dragon */}
         <div className="mt-2 w-48">
