@@ -181,35 +181,10 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                 </div>
               </div>
 
-              {/* Stats - fixed spacing */}
-              <div className="space-y-3 mb-6 mt-8">
-                {Object.entries(upgradedChampion.stats).map(([stat, value]) => {
-                  const baseValue = champion.stats[stat];
-                  const upgradeBonus = value - baseValue;
-                  return (
-                    <div key={stat} className="flex items-center gap-3">
-                      <span className="text-slate-400 text-xs uppercase w-16">{stat}</span>
-                      <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${value}%` }}
-                          transition={{ delay: 0.5, duration: 0.8 }}
-                          className="h-full rounded-full"
-                          style={{ 
-                            background: `linear-gradient(90deg, ${upgradedChampion.colors.primary}, ${upgradedChampion.colors.secondary})` 
-                          }}
-                        />
-                      </div>
-                      <div className="flex items-baseline gap-1 w-16">
-                        <span className="text-slate-300 text-xs">{value}</span>
-                        {upgradeBonus > 0 && (
-                          <span className="text-green-400 text-xs font-bold">+{upgradeBonus}</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                </div>
+              {/* Description */}
+              <p className="text-slate-400 text-sm text-center leading-relaxed px-4 mb-6">
+                {champion.description}
+              </p>
 
               {/* Select indicator */}
               {selectedChampion === champion.id && (
