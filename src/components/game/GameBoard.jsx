@@ -145,11 +145,20 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                                 transition={{ type: "spring", duration: 0.5 }}
                                 className="absolute inset-0 flex items-center justify-center z-10"
                               >
+                                {/* White glowy ring */}
                                 <div 
-                                  className="w-10 h-10 rounded-full shadow-2xl flex items-center justify-center text-xl"
+                                  className="absolute w-14 h-14 rounded-full animate-pulse"
+                                  style={{
+                                    background: 'radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3), transparent)',
+                                    boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(255, 255, 255, 0.6)',
+                                  }}
+                                />
+                                {/* Colored ball */}
+                                <div 
+                                  className="w-10 h-10 rounded-full shadow-2xl flex items-center justify-center text-xl relative z-10"
                                   style={{
                                     background: `radial-gradient(circle at 30% 30%, ${ballOnSquare.color?.hex || ballOnSquare.hex}, ${(ballOnSquare.color?.hex || ballOnSquare.hex)}88)`,
-                                    boxShadow: `0 0 20px ${ballOnSquare.color?.hex || ballOnSquare.hex}`,
+                                    boxShadow: `0 0 20px ${ballOnSquare.color?.hex || ballOnSquare.hex}, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
                                   }}
                                 >
                                   {ballOnSquare.color?.emoji || ballOnSquare.emoji}
