@@ -153,16 +153,14 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                                     boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(255, 255, 255, 0.6)',
                                   }}
                                 />
-                                {/* Colored ball */}
+                                {/* Colored ball - matches tile color */}
                                 <div 
-                                  className="w-10 h-10 rounded-full shadow-2xl flex items-center justify-center text-xl relative z-10"
+                                  className="w-10 h-10 rounded-full shadow-2xl relative z-10"
                                   style={{
-                                    background: `radial-gradient(circle at 30% 30%, ${ballOnSquare.color?.hex || ballOnSquare.hex}, ${(ballOnSquare.color?.hex || ballOnSquare.hex)}88)`,
-                                    boxShadow: `0 0 20px ${ballOnSquare.color?.hex || ballOnSquare.hex}, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
+                                    background: `radial-gradient(circle at 30% 30%, ${gridColor.hex}, ${gridColor.hex}88)`,
+                                    boxShadow: `0 0 20px ${gridColor.hex}, inset 0 0 10px rgba(255, 255, 255, 0.4)`,
                                   }}
-                                >
-                                  {ballOnSquare.color?.emoji || ballOnSquare.emoji}
-                                </div>
+                                />
                               </motion.div>
                             )}
                           </AnimatePresence>
