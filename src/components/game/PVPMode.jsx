@@ -18,6 +18,7 @@ export default function PVPMode({ onBack, colors }) {
     2: { score: 0, coins: 100, integrity: 100, bets: {}, frozen: false, streak: 0 },
   });
   const [droppedBalls, setDroppedBalls] = useState([]);
+  const [ballsWithSquares, setBallsWithSquares] = useState([]);
   const [isDropping, setIsDropping] = useState(false);
   const [turn, setTurn] = useState(1);
   const [maxTurns] = useState(10);
@@ -90,16 +91,29 @@ export default function PVPMode({ onBack, colors }) {
     playSound('drop');
     setIsDropping(true);
     setDroppedBalls([]);
+    setBallsWithSquares([]);
 
     const results = [];
+    const ballsData = [];
+    
     for (let i = 0; i < 3; i++) {
-      await new Promise(r => setTimeout(r, 600));
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      results.push(randomColor);
-      setDroppedBalls(prev => [...prev, randomColor]);
+      await new Promise(r => setTimeout(r, 800));
+      
+      // Pick a random square on the grid (0-35)
+      const landedSquare = Math.floor(Math.random() * 36);
+      
+      // Get the color of the tile the ball lands on
+      const colorIndex = landedSquare % colors.length;
+      const finalColor = colors[colorIndex];
+      
+      results.push(finalColor);
+      ballsData.push({ color: finalColor, landedSquare, id: Date.now() + i });
+      
+      setBallsWithSquares(prev => [...prev, { color: finalColor, landedSquare, id: Date.now() + i }]);
+      setDroppedBalls(prev => [...prev, finalColor]);
     }
 
-    setTimeout(() => calculateResults(results), 500);
+    setTimeout(() => calculateResults(results), 1000);
   };
 
   const calculateResults = (results) => {
@@ -140,6 +154,7 @@ export default function PVPMode({ onBack, colors }) {
     // Next turn
     setTimeout(() => {
       setDroppedBalls([]);
+      setBallsWithSquares([]);
       setIsDropping(false);
       
       if (currentPlayer === 2) {
@@ -209,6 +224,7 @@ export default function PVPMode({ onBack, colors }) {
       2: { score: 0, coins: 100, integrity: 100, bets: {}, frozen: false, streak: 0 },
     });
     setDroppedBalls([]);
+    setBallsWithSquares([]);
     setIsDropping(false);
     setTurn(1);
     setCurrentPlayer(1);
@@ -424,10 +440,7 @@ export default function PVPMode({ onBack, colors }) {
                     if (!gridColor || !gridColor.hex) return null;
 
                     // Check if any ball landed on this square
-                    const ballOnSquare = droppedBalls.find((ball, idx) => {
-                      const landedSquare = Math.floor(Math.random() * 36);
-                      return idx < droppedBalls.length && landedSquare === i;
-                    });
+                    const ballOnSquare = ballsWithSquares.find(ball => ball.landedSquare === i);
 
                     return (
                       <div 
