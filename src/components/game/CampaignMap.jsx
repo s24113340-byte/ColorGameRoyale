@@ -4,15 +4,15 @@ import { Lock, CheckCircle2, Skull, Crown, Star, Trophy, ArrowLeft } from 'lucid
 import { Button } from '@/components/ui/button';
 
 const CAMPAIGN_LEVELS = [
-  { id: 1, name: 'Destroyed Narnia Village', difficulty: 'Easy', boss: null, color: '#10B981', emoji: '🏚️' },
-  { id: 2, name: 'Mystic Forest', difficulty: 'Easy', boss: null, color: '#22C55E', emoji: '🌲' },
-  { id: 3, name: 'Verdant Grassland', difficulty: 'Normal', boss: 'Plains Walker', color: '#84CC16', emoji: '🌾' },
-  { id: 4, name: 'Rocky Mountains', difficulty: 'Normal', boss: null, color: '#78716C', emoji: '⛰️' },
-  { id: 5, name: 'Mountain Peak', difficulty: 'Normal', boss: 'Stone Guardian', color: '#57534E', emoji: '🏔️' },
-  { id: 6, name: 'Scorching Desert', difficulty: 'Hard', boss: null, color: '#F59E0B', emoji: '🏜️' },
-  { id: 7, name: 'Endless Dunes', difficulty: 'Hard', boss: 'Mirage Demon', color: '#D97706', emoji: '🌵' },
-  { id: 8, name: 'Crystal Lake', difficulty: 'Very Hard', boss: null, color: '#06B6D4', emoji: '🌊' },
-  { id: 9, name: 'Frozen Tundra', difficulty: 'Very Hard', boss: 'Ice Colossus', color: '#3B82F6', emoji: '❄️' },
+  { id: 1, name: 'Destroyed Narnia Village', difficulty: 'Easy', boss: 'Goblin', color: '#10B981', emoji: '🏚️' },
+  { id: 2, name: 'Mystic Forest', difficulty: 'Easy', boss: 'Little Fairies', color: '#22C55E', emoji: '🌲' },
+  { id: 3, name: 'Verdant Grassland', difficulty: 'Normal', boss: 'Dark Knights', color: '#84CC16', emoji: '🌾' },
+  { id: 4, name: 'Rocky Mountains', difficulty: 'Normal', boss: 'Ogres', color: '#78716C', emoji: '⛰️' },
+  { id: 5, name: 'Mountain Peak', difficulty: 'Normal', boss: 'Rukh (Giant Bird)', color: '#57534E', emoji: '🏔️' },
+  { id: 6, name: 'Scorching Desert', difficulty: 'Hard', boss: 'Mystical Magi', color: '#F59E0B', emoji: '🏜️' },
+  { id: 7, name: 'Endless Dunes', difficulty: 'Hard', boss: 'Giant Fire Lizard', color: '#D97706', emoji: '🌵' },
+  { id: 8, name: 'Crystal Lake', difficulty: 'Very Hard', boss: 'Huge Ice Guardian', color: '#06B6D4', emoji: '🌊' },
+  { id: 9, name: 'Frozen Tundra', difficulty: 'Very Hard', boss: 'Ice Queen', color: '#3B82F6', emoji: '❄️' },
   { id: 10, name: 'UMBRA\'S DARK CASTLE', difficulty: 'Legendary', boss: 'UMBRA THE CHROMATIC SHADOW', color: '#1E1B4B', emoji: '🏰' },
 ];
 

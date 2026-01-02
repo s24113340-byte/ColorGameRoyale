@@ -2,7 +2,23 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skull, Zap, Snowflake } from 'lucide-react';
 
+const ENEMY_SPRITES = {
+  1: { emoji: '👺', name: 'Goblin', color: '#10B981' },
+  2: { emoji: '🧚', name: 'Little Fairies', color: '#22C55E' },
+  3: { emoji: '⚔️', name: 'Dark Knights', color: '#84CC16' },
+  4: { emoji: '👹', name: 'Ogres', color: '#78716C' },
+  5: { emoji: '🦅', name: 'Rukh', color: '#57534E' },
+  6: { emoji: '🧙', name: 'Mystical Magi', color: '#F59E0B' },
+  7: { emoji: '🦎', name: 'Giant Fire Lizard', color: '#D97706' },
+  8: { emoji: '🧊', name: 'Huge Ice Guardian', color: '#06B6D4' },
+  9: { emoji: '👑', name: 'Ice Queen', color: '#3B82F6' },
+  10: { emoji: '🐉', name: 'UMBRA', color: '#1E1B4B' },
+};
+
 export default function UmbraDragon({ gameState }) {
+  const currentLevel = gameState.selectedLevel || 10;
+  const enemy = ENEMY_SPRITES[currentLevel] || ENEMY_SPRITES[10];
+  const isUmbra = currentLevel === 10;
   const { umbraActive, umbraAbility, umbraRageMode, umbraFinalBoss, shadowMeter } = gameState;
   
   // Determine dragon animation state
