@@ -133,7 +133,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             <div className="relative p-6 md:p-8">
               {/* Champion sprite - fixed height container for alignment */}
               <motion.div 
-                className={`text-center flex justify-center h-96 mb-4 ${champion.id === 'ren' ? 'items-center' : 'items-end'}`}
+                className={`text-center flex justify-center h-96 ${champion.id === 'ren' ? 'items-center mb-0' : 'items-end mb-4'}`}
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
