@@ -161,7 +161,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </motion.div>
 
               {/* Name & Title */}
-              <div className="text-center mb-6">
+              <div className={`text-center mb-6 ${champion.id === 'ren' ? '-mt-4' : ''}`}>
                 <h3 
                   className="text-3xl md:text-4xl font-black tracking-wider"
                   style={{ color: champion.colors.primary }}
