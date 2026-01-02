@@ -33,7 +33,7 @@ export default function GameHUD({ gameState, colors }) {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 p-4">
+    <div className="fixed bottom-0 left-0 right-0 z-40 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Top bar */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
