@@ -14,7 +14,7 @@ import BlackHoleTransition from '@/components/game/BlackHoleTransition';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
 import PauseMenu from '@/components/game/PauseMenu';
-import GameInstructions from '@/components/game/GameInstructions';
+import InGameTutorial from '@/components/game/InGameTutorial';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -96,7 +96,7 @@ const COLORS = [
 ];
 
 const INITIAL_STATE = {
-  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, instructions, playing, black-hole, ending
+  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, black-hole, ending
   gameMode: null, // normal, time-attack, pvp
   champion: null,
   selectedLevel: null,
@@ -128,6 +128,8 @@ const INITIAL_STATE = {
   isPaused: false,
   musicOn: true,
   soundOn: true,
+  showTutorial: false,
+  tutorialCompleted: false,
 };
 
 export default function ColorGameRoyale() {
@@ -215,16 +217,16 @@ export default function ColorGameRoyale() {
 
   const selectChampion = (champion) => {
     const championWithUpgrades = getChampionWithUpgrades(champion);
+    const isLevel1 = gameState.selectedLevel === 1;
+    const shouldShowTutorial = isLevel1 && !localStorage.getItem('tutorialCompleted');
+    
     setGameState(prev => ({
       ...prev,
       champion: championWithUpgrades,
-      phase: 'instructions',
+      phase: 'playing',
       coins: 500,
+      showTutorial: shouldShowTutorial,
     }));
-  };
-
-  const startPlayingAfterInstructions = () => {
-    setGameState(prev => ({ ...prev, phase: 'playing' }));
   };
 
   const insertCoin = () => {
@@ -633,7 +635,18 @@ export default function ColorGameRoyale() {
       hasInsertedCoin: true,
       timer: mode === 'time-attack' ? 30 : 60,
       maxRounds: mode === 'time-attack' ? 999 : 10,
+      tutorialCompleted: gameState.tutorialCompleted,
     });
+  };
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('tutorialCompleted', 'true');
+    setGameState(prev => ({ ...prev, showTutorial: false, tutorialCompleted: true }));
+  };
+
+  const handleTutorialSkip = () => {
+    localStorage.setItem('tutorialCompleted', 'true');
+    setGameState(prev => ({ ...prev, showTutorial: false, tutorialCompleted: true }));
   };
 
   const handleEndGame = () => {
@@ -724,13 +737,7 @@ export default function ColorGameRoyale() {
           />
         )}
 
-        {gameState.phase === 'instructions' && (
-          <GameInstructions
-            onStart={startPlayingAfterInstructions}
-            gameMode={gameState.gameMode}
-            champion={gameState.champion}
-          />
-        )}
+
 
         {gameState.phase === 'pvp' && (
           <PVPMode onBack={resetGame} colors={COLORS} />
@@ -790,6 +797,14 @@ export default function ColorGameRoyale() {
               onToggleMusic={() => setGameState(prev => ({ ...prev, musicOn: !prev.musicOn }))}
               onToggleSound={() => setGameState(prev => ({ ...prev, soundOn: !prev.soundOn }))}
             />
+
+            {/* In-game tutorial overlay */}
+            {gameState.showTutorial && (
+              <InGameTutorial
+                onComplete={handleTutorialComplete}
+                onSkip={handleTutorialSkip}
+              />
+            )}
           </motion.div>
         )}
 

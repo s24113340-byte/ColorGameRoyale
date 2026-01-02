@@ -51,7 +51,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             >
 
               {/* Top betting panels - UMBRA'S BETS */}
-              <div className="grid grid-cols-4 gap-3 mb-4 px-3">
+              <div className="grid grid-cols-4 gap-3 mb-4 px-3 betting-panel">
                 {colors.filter(c => c && c.id).map((color) => {
                   const umbraBet = umbraBets?.[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
@@ -408,7 +408,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center gap-6 flex-wrap"
+          className="flex items-center justify-center gap-6 flex-wrap bet-controls"
         >
           {/* Bet amount adjuster */}
           <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700">
@@ -440,7 +440,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             whileTap={{ scale: 0.95 }}
             onClick={onDrop}
             disabled={Object.keys(bets).length === 0 || isDropping || frozen}
-            className={`
+            className={`drop-button 
               px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3
               ${Object.keys(bets).length === 0 || isDropping || frozen
                 ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
