@@ -6,7 +6,7 @@ export default function GameFeedback({ message, type = 'default', onComplete }) 
     if (message) {
       const timer = setTimeout(() => {
         onComplete?.();
-      }, 2000);
+      }, 2500);
       return () => clearTimeout(timer);
     }
   }, [message, onComplete]);

@@ -206,8 +206,21 @@ export default function ColorGameRoyale() {
   }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused, gameState.showTutorial]);
 
   const determineEnding = async (state) => {
-    // Win if shadow meter is depleted OR score is high enough
-    const isVictory = state.shadowMeter <= 0 || state.score >= 500;
+    // Win conditions based on level
+    let isVictory = false;
+    if (state.gameMode === 'normal' && state.selectedLevel) {
+      // Levels 1-5: Win when Umbra HP <= 10
+      if (state.selectedLevel >= 1 && state.selectedLevel <= 5) {
+        isVictory = state.shadowMeter <= 10;
+      }
+      // Levels 6-10: Win when Umbra HP = 0
+      else if (state.selectedLevel >= 6 && state.selectedLevel <= 10) {
+        isVictory = state.shadowMeter <= 0;
+      }
+    } else {
+      // Other modes: Win if shadow meter is depleted OR score is high enough
+      isVictory = state.shadowMeter <= 0 || state.score >= 500;
+    }
     
     // Save campaign progress for Normal mode
     if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
@@ -343,18 +356,18 @@ export default function ColorGameRoyale() {
     };
   }, [gameState.phase, gameState.isDropping, gameState.bets]);
 
-  // Check Umbra low HP (campaign only)
+  // Check Umbra low HP (campaign only) - random appearance
   useEffect(() => {
     if (
       gameState.gameMode === 'normal' && 
       gameState.shadowMeter <= 25 && 
       gameState.shadowMeter > 0 &&
-      !gameState.umbraLowHPShown
+      !gameState.isDropping &&
+      Math.random() < 0.3 // 30% chance to show
     ) {
       showFeedback('Gamay na lang! Jiayou!', 'umbra-low');
-      setGameState(prev => ({ ...prev, umbraLowHPShown: true }));
     }
-  }, [gameState.shadowMeter, gameState.gameMode, gameState.umbraLowHPShown]);
+  }, [gameState.shadowMeter, gameState.gameMode, gameState.isDropping]);
 
   const placeBet = (colorId, amount) => {
     if (gameState.coins < amount || gameState.frozen || gameState.isDropping) return;
@@ -651,8 +664,21 @@ export default function ColorGameRoyale() {
       const newHP = Math.max(0, prev.championHP - poisonDamage);
       const newCoins = prev.coins + totalWin;
 
-      // Check for ending conditions - win by depleting shadow OR time runs out OR champion dies OR no coins left
-      const isVictory = newShadow <= 0;
+      // Check for ending conditions based on level
+      let isVictory = false;
+      if (prev.gameMode === 'normal' && prev.selectedLevel) {
+        // Levels 1-5: Win when Umbra HP <= 10
+        if (prev.selectedLevel >= 1 && prev.selectedLevel <= 5) {
+          isVictory = newShadow <= 10;
+        }
+        // Levels 6-10: Win when Umbra HP = 0
+        else if (prev.selectedLevel >= 6 && prev.selectedLevel <= 10) {
+          isVictory = newShadow <= 0;
+        }
+      } else {
+        // Other modes: Win by depleting shadow
+        isVictory = newShadow <= 0;
+      }
       const isDefeat = newHP <= 0 || (prev.gameMode === 'normal' && newTimer <= 0) || newCoins <= 0;
       const isGameOver = isVictory || isDefeat;
 
