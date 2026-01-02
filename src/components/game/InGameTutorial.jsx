@@ -8,69 +8,48 @@ const TUTORIAL_STEPS = [
     title: 'Welcome to Color Game Royale!',
     description: 'Let me show you how to play. You can skip this tutorial anytime.',
     position: 'center',
-    arrow: null,
-  },
-  {
-    id: 'hud',
-    title: 'Your Resources',
-    description: 'Keep an eye on your Score and Coins at the bottom left.',
-    position: 'bottom-left',
-    arrow: 'down-left',
-    highlightSelector: '.game-hud',
   },
   {
     id: 'shadow-meter',
     title: 'Umbra\'s Shadow Meter',
     description: 'Defeat Umbra by reducing his shadow meter to zero! Win matches to damage him.',
     position: 'top-left',
-    arrow: 'up-left',
-    highlightSelector: '.shadow-meter',
+  },
+  {
+    id: 'hud',
+    title: 'Your Resources',
+    description: 'Keep an eye on your Score and Coins here.',
+    position: 'bottom-left-beside',
   },
   {
     id: 'betting',
     title: 'Place Your Bets',
     description: 'Click on any color panel around the board to place a bet. Each bet costs coins.',
-    position: 'middle-right',
-    arrow: 'right',
-    highlightSelector: '.betting-panel',
+    position: 'middle-left',
   },
   {
-    id: 'bet-amount',
-    title: 'Adjust Bet Amount',
-    description: 'Use these buttons to increase or decrease your bet size (5-50 coins).',
-    position: 'bottom-center',
-    arrow: 'down',
-    highlightSelector: '.bet-controls',
-  },
-  {
-    id: 'drop',
-    title: 'Drop the Balls',
-    description: 'Once you\'ve placed bets, click DROP BALLS to see where they land!',
-    position: 'bottom-center',
-    arrow: 'down',
-    highlightSelector: '.drop-button',
+    id: 'controls',
+    title: 'Bet Controls',
+    description: 'Adjust your bet amount here, then click DROP BALLS to play!',
+    position: 'bottom-right',
   },
   {
     id: 'winning',
     title: 'Match Colors to Win',
     description: 'If balls land on colors you bet on, you win! 3 matches = JACKPOT with bonus time.',
     position: 'center',
-    arrow: null,
   },
   {
     id: 'umbra',
     title: 'Beware of Umbra',
     description: 'Umbra will interfere with freeze, poison, and score drain abilities. Stay sharp!',
-    position: 'top-left-corner',
-    arrow: 'up-left',
-    highlightSelector: '.umbra-dragon',
+    position: 'top-right',
   },
   {
     id: 'ready',
     title: 'You\'re Ready!',
     description: 'Win by depleting Umbra\'s shadow meter before time runs out. Good luck!',
     position: 'center',
-    arrow: null,
   },
 ];
 
@@ -86,7 +65,6 @@ const ARROW_COMPONENTS = {
 export default function InGameTutorial({ onComplete, onSkip }) {
   const [currentStep, setCurrentStep] = useState(0);
   const step = TUTORIAL_STEPS[currentStep];
-  const Arrow = step.arrow ? ARROW_COMPONENTS[step.arrow] : null;
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -111,18 +89,16 @@ export default function InGameTutorial({ onComplete, onSkip }) {
 
   const getPositionClasses = () => {
     switch (step.position) {
-      case 'top-center':
-        return 'top-[180px] left-1/2 -translate-x-1/2';
       case 'top-left':
-        return 'top-[180px] left-[15%]';
-      case 'top-left-corner':
-        return 'top-[220px] left-[15%]';
-      case 'bottom-left':
-        return 'bottom-[280px] left-[15%]';
-      case 'bottom-center':
-        return 'bottom-[200px] left-1/2 -translate-x-1/2';
-      case 'middle-right':
-        return 'top-[50%] right-[15%] -translate-y-1/2';
+        return 'top-[120px] left-[20%]';
+      case 'top-right':
+        return 'top-[120px] right-[5%]';
+      case 'bottom-left-beside':
+        return 'bottom-[140px] left-[5%]';
+      case 'bottom-right':
+        return 'bottom-[140px] right-[5%]';
+      case 'middle-left':
+        return 'top-[45%] left-[5%] -translate-y-1/2';
       case 'center':
       default:
         return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
@@ -182,19 +158,7 @@ export default function InGameTutorial({ onComplete, onSkip }) {
           className={`fixed z-[101] ${getPositionClasses()}`}
         >
           <div className="relative max-w-md">
-            {/* Animated arrow */}
-            {Arrow && (
-              <motion.div
-                animate={{ 
-                  y: (step.arrow === 'down' || step.arrow === 'down-left') ? [0, 12, 0] : (step.arrow === 'up' || step.arrow === 'up-left') ? [0, -12, 0] : 0,
-                  x: step.arrow === 'left' ? [0, -12, 0] : step.arrow === 'right' ? [0, 12, 0] : 0,
-                }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute ${getArrowClasses()} z-10`}
-              >
-                <Arrow className="w-[57.6px] h-[57.6px] text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,1)]" strokeWidth={3.5} />
-              </motion.div>
-            )}
+
 
             {/* Card */}
             <div className="bg-gradient-to-br from-purple-900/95 to-slate-900/95 backdrop-blur-xl border-2 border-purple-500/60 rounded-2xl p-8 shadow-2xl shadow-purple-500/30">
