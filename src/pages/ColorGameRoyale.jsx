@@ -15,6 +15,8 @@ import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
 import PauseMenu from '@/components/game/PauseMenu';
 import InGameTutorial from '@/components/game/InGameTutorial';
+import TimeAttackInstructions from '@/components/game/TimeAttackInstructions';
+import TimeAttackLeaderboard from '@/components/game/TimeAttackLeaderboard';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -96,7 +98,7 @@ const COLORS = [
 ];
 
 const INITIAL_STATE = {
-  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, black-hole, ending
+  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, time-attack-instructions, playing, black-hole, ending
   gameMode: null, // normal, time-attack, pvp
   champion: null,
   selectedLevel: null,
@@ -133,7 +135,9 @@ const INITIAL_STATE = {
   soundOn: true,
   showTutorial: false,
   tutorialCompleted: false,
-};
+  showLeaderboard: false,
+  playerName: '',
+  };
 
 export default function ColorGameRoyale() {
   const [gameState, setGameState] = useState(INITIAL_STATE);
@@ -194,7 +198,7 @@ export default function ColorGameRoyale() {
     return () => clearInterval(timerRef.current);
   }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused, gameState.showTutorial]);
 
-  const determineEnding = (state) => {
+  const determineEnding = async (state) => {
     // Win if shadow meter is depleted OR score is high enough
     const isVictory = state.shadowMeter <= 0 || state.score >= 500;
     
@@ -208,6 +212,21 @@ export default function ColorGameRoyale() {
       );
       setSaveData(newSave);
       saveGame(newSave);
+    }
+    
+    // Save time attack score to leaderboard
+    if (state.gameMode === 'time-attack') {
+      try {
+        const user = await base44.auth.me();
+        await base44.entities.TimeAttackScore.create({
+          player_name: user.full_name || user.email,
+          score: state.score,
+          coins: state.coins,
+          time_survived: 30 - state.timer,
+        });
+      } catch (error) {
+        console.error('Failed to save time attack score:', error);
+      }
     }
     
     if (isVictory) {
@@ -244,7 +263,7 @@ export default function ColorGameRoyale() {
     setGameState(prev => ({
       ...prev,
       gameMode: mode,
-      phase: mode === 'pvp' ? 'pvp' : mode === 'normal' ? 'campaign-map' : 'champion-select',
+      phase: mode === 'pvp' ? 'pvp' : mode === 'normal' ? 'campaign-map' : 'time-attack-instructions',
       timer: mode === 'time-attack' ? 30 : 60,
       maxRounds: mode === 'time-attack' ? 999 : 10,
     }));
@@ -683,7 +702,7 @@ export default function ColorGameRoyale() {
     const mode = gameState.gameMode;
     setGameState({
       ...INITIAL_STATE,
-      phase: 'champion-select',
+      phase: mode === 'time-attack' ? 'time-attack-instructions' : 'champion-select',
       gameMode: mode,
       hasInsertedCoin: true,
       timer: mode === 'time-attack' ? 30 : 60,
@@ -804,12 +823,19 @@ export default function ColorGameRoyale() {
           />
         )}
 
+        {gameState.phase === 'time-attack-instructions' && (
+          <TimeAttackInstructions
+            onStart={() => setGameState(prev => ({ ...prev, phase: 'champion-select' }))}
+            onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))}
+          />
+        )}
+
         {gameState.phase === 'champion-select' && (
           <ChampionSelect 
             onSelect={selectChampion} 
             onBack={() => setGameState(prev => ({ 
               ...prev, 
-              phase: prev.gameMode === 'normal' ? 'campaign-map' : 'mode-select' 
+              phase: prev.gameMode === 'normal' ? 'campaign-map' : prev.gameMode === 'time-attack' ? 'time-attack-instructions' : 'mode-select' 
             }))}
             championUpgrades={saveData.championUpgrades}
           />
@@ -828,13 +854,23 @@ export default function ColorGameRoyale() {
             exit={{ opacity: 0 }}
             className="relative z-10"
           >
-            {/* Pause button */}
-            <button
-              onClick={togglePause}
-              className="fixed top-4 right-4 z-50 px-4 py-2 bg-slate-800/80 rounded-xl text-white font-bold hover:bg-slate-700 transition-colors"
-            >
-              ⏸️ PAUSE
-            </button>
+            {/* Top right buttons */}
+            <div className="fixed top-4 right-4 z-50 flex gap-2">
+              {gameState.gameMode === 'time-attack' && (
+                <button
+                  onClick={() => setGameState(prev => ({ ...prev, showLeaderboard: true }))}
+                  className="px-4 py-2 bg-slate-800/80 rounded-xl text-white font-bold hover:bg-slate-700 transition-colors flex items-center gap-2"
+                >
+                  🏆 LEADERBOARD
+                </button>
+              )}
+              <button
+                onClick={togglePause}
+                className="px-4 py-2 bg-slate-800/80 rounded-xl text-white font-bold hover:bg-slate-700 transition-colors"
+              >
+                ⏸️ PAUSE
+              </button>
+            </div>
 
             <GameHUD 
               gameState={gameState}
@@ -884,8 +920,15 @@ export default function ColorGameRoyale() {
                 onSkip={handleTutorialSkip}
               />
             )}
-          </motion.div>
-        )}
+
+            {/* Time Attack Leaderboard */}
+            <TimeAttackLeaderboard
+              isOpen={gameState.showLeaderboard}
+              onClose={() => setGameState(prev => ({ ...prev, showLeaderboard: false }))}
+              currentScore={gameState.score}
+            />
+            </motion.div>
+            )}
 
         {gameState.phase === 'black-hole' && (
           <BlackHoleTransition 
@@ -894,16 +937,25 @@ export default function ColorGameRoyale() {
         )}
 
         {gameState.phase === 'ending' && (
-          <EndingCinematic 
-            ending={gameState.ending}
-            score={gameState.score}
-            champion={gameState.champion}
-            onRestart={handleEndingRestart}
-            gameMode={gameState.gameMode}
-            currentLevel={gameState.selectedLevel}
-            onNextLevel={handleNextLevel}
-            onBackToMap={handleBackToMap}
-          />
+          <>
+            <EndingCinematic 
+              ending={gameState.ending}
+              score={gameState.score}
+              champion={gameState.champion}
+              onRestart={handleEndingRestart}
+              gameMode={gameState.gameMode}
+              currentLevel={gameState.selectedLevel}
+              onNextLevel={handleNextLevel}
+              onBackToMap={handleBackToMap}
+            />
+            {gameState.gameMode === 'time-attack' && (
+              <TimeAttackLeaderboard
+                isOpen={true}
+                onClose={handleEndingRestart}
+                currentScore={gameState.score}
+              />
+            )}
+          </>
         )}
       </AnimatePresence>
     </div>
