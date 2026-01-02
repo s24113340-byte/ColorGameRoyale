@@ -133,7 +133,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             <div className="relative p-6 md:p-8">
               {/* Champion sprite */}
               <motion.div 
-                className="text-center mb-4 flex items-center justify-center"
+                className={`text-center flex items-center justify-center ${champion.id === 'ren' ? 'mb-1' : 'mb-4'}`}
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
@@ -144,7 +144,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                   <motion.img 
                     src={champion.sprite} 
                     alt={champion.name}
-                    className={`object-contain ${champion.id === 'ren' ? 'w-56 h-56 md:w-64 md:h-64' : 'w-32 h-32 md:w-40 md:h-40'}`}
+                    className={`object-contain ${champion.id === 'ren' ? 'w-72 h-72 md:w-80 md:h-80' : 'w-32 h-32 md:w-40 md:h-40'}`}
                     style={{ imageRendering: 'pixelated' }}
                     whileHover={{ scale: 1.15, y: -12 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
