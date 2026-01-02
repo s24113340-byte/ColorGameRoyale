@@ -17,7 +17,7 @@ const CHAMPIONS = [
       secondary: '#F97316',
       glow: 'rgba(255, 59, 59, 0.5)',
     },
-    sprite: '⚔️',
+    sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/51344f694_image.png',
   },
   {
     id: 'rei',
@@ -133,14 +133,23 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             <div className="relative p-6 md:p-8">
               {/* Champion sprite */}
               <motion.div 
-                className="text-8xl md:text-9xl text-center mb-4"
+                className="text-center mb-4 flex items-center justify-center"
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
                 } : {}}
                 transition={{ duration: 0.5 }}
               >
-                {champion.sprite}
+                {champion.sprite.startsWith('http') ? (
+                  <img 
+                    src={champion.sprite} 
+                    alt={champion.name}
+                    className="w-32 h-32 md:w-40 md:h-40 object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : (
+                  <span className="text-8xl md:text-9xl">{champion.sprite}</span>
+                )}
               </motion.div>
 
               {/* Name & Title */}
