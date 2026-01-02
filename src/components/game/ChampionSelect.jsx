@@ -141,14 +141,22 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                 transition={{ duration: 0.5 }}
               >
                 {champion.sprite.startsWith('http') ? (
-                  <img 
+                  <motion.img 
                     src={champion.sprite} 
                     alt={champion.name}
-                    className="w-32 h-32 md:w-40 md:h-40 object-contain"
+                    className={`object-contain ${champion.id === 'ren' ? 'w-48 h-48 md:w-56 md:h-56' : 'w-32 h-32 md:w-40 md:h-40'}`}
                     style={{ imageRendering: 'pixelated' }}
+                    whileHover={{ scale: 1.15, y: -12 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                   />
                 ) : (
-                  <span className="text-8xl md:text-9xl">{champion.sprite}</span>
+                  <motion.span 
+                    className="text-8xl md:text-9xl inline-block"
+                    whileHover={{ scale: 1.15, y: -12 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                  >
+                    {champion.sprite}
+                  </motion.span>
                 )}
               </motion.div>
 
