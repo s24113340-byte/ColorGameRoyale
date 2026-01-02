@@ -768,13 +768,28 @@ export default function PVPMode({ onBack, colors }) {
       {/* Actions */}
       <div className="flex flex-wrap gap-3 justify-center mb-6">
         {gamePhase.startsWith('betting') && (
-          <Button
-            onClick={confirmBets}
-            disabled={Object.keys(players[currentPlayer].bets).length === 0}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            <Zap className="w-4 h-4 mr-2" /> Confirm Bets ({Object.keys(players[currentPlayer].bets).length}/2)
-          </Button>
+          <>
+            <Button
+              onClick={confirmBets}
+              disabled={Object.keys(players[currentPlayer].bets).length === 0}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <Zap className="w-4 h-4 mr-2" /> Confirm Bets ({Object.keys(players[currentPlayer].bets).length}/2)
+            </Button>
+
+            {Object.entries(INTERFERENCE_ATTACKS).map(([key, attack]) => (
+              <Button
+                key={key}
+                onClick={() => useInterference(key)}
+                disabled={players[currentPlayer].coins < attack.cost}
+                variant="outline"
+                className="border-purple-500 text-purple-400"
+              >
+                <attack.icon className="w-4 h-4 mr-2" />
+                {attack.name} ({attack.cost} coins)
+              </Button>
+            ))}
+          </>
         )}
 
         {gamePhase === 'dropping' && (
