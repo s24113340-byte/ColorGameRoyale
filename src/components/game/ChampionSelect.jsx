@@ -182,12 +182,12 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </div>
 
               {/* Description - fixed height */}
-              <p className="text-slate-400 text-sm text-center leading-relaxed mb-3 mt-0 h-16 flex items-center justify-center px-2">
+              <p className="text-slate-400 text-sm text-center leading-relaxed h-16 flex items-center justify-center px-2">
                 {champion.description}
               </p>
 
-              {/* Stats - fixed top margin */}
-              <div className="space-y-3 mb-6 mt-4">
+              {/* Stats - fixed spacing */}
+              <div className="space-y-3 mb-6 mt-6">
                 {Object.entries(upgradedChampion.stats).map(([stat, value]) => {
                   const baseValue = champion.stats[stat];
                   const upgradeBonus = value - baseValue;
