@@ -218,7 +218,7 @@ export default function ColorGameRoyale() {
   const selectChampion = (champion) => {
     const championWithUpgrades = getChampionWithUpgrades(champion);
     const isLevel1 = gameState.selectedLevel === 1;
-    const shouldShowTutorial = isLevel1 && !localStorage.getItem('tutorialCompleted');
+    const shouldShowTutorial = isLevel1;
     
     setGameState(prev => ({
       ...prev,
