@@ -552,10 +552,11 @@ export default function ColorGameRoyale() {
       const newScore = prev.score + pointsEarned;
       const newTimer = Math.max(0, prev.timer + bonusTimeEarned);
       const newHP = Math.max(0, prev.championHP - poisonDamage);
+      const newCoins = prev.coins + totalWin;
 
-      // Check for ending conditions - win by depleting shadow OR time runs out OR champion dies
+      // Check for ending conditions - win by depleting shadow OR time runs out OR champion dies OR no coins left
       const isVictory = newShadow <= 0;
-      const isDefeat = newHP <= 0 || (prev.gameMode === 'normal' && newTimer <= 0);
+      const isDefeat = newHP <= 0 || (prev.gameMode === 'normal' && newTimer <= 0) || newCoins <= 0;
       const isGameOver = isVictory || isDefeat;
 
       if (isGameOver) {
@@ -573,7 +574,7 @@ export default function ColorGameRoyale() {
       return {
         ...prev,
         score: newScore,
-        coins: prev.coins + totalWin,
+        coins: newCoins,
         timer: newTimer,
         championHP: newHP,
         streak: newStreak,
