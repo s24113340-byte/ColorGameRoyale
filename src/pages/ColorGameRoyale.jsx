@@ -101,7 +101,7 @@ const INITIAL_STATE = {
   champion: null,
   selectedLevel: null,
   score: 0,
-  coins: 500,
+  coins: 300,
   hasInsertedCoin: false,
   timer: 60,
   bonusTime: 0,
@@ -225,7 +225,7 @@ export default function ColorGameRoyale() {
       ...prev,
       champion: championWithUpgrades,
       phase: 'playing',
-      coins: 500,
+      coins: 300,
       showTutorial: shouldShowTutorial,
     }));
   };
@@ -254,7 +254,7 @@ export default function ColorGameRoyale() {
       selectedLevel: levelId,
       phase: 'champion-select',
       maxRounds: 10, // Campaign has 10 rounds per level
-      coins: 500, // Starting coins
+      coins: 300, // Starting coins
     }));
   };
 
@@ -645,7 +645,7 @@ export default function ColorGameRoyale() {
       gameMode: 'normal',
       selectedLevel: nextLevel,
       hasInsertedCoin: true,
-      coins: 500,
+      coins: 300,
       timer: 60,
       maxRounds: 10,
     });

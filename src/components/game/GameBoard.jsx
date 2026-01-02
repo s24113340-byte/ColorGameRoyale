@@ -4,11 +4,11 @@ import { Minus, Plus, Play, CircleDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults }) {
-  const [betAmount, setBetAmount] = useState(10);
+  const [betAmount, setBetAmount] = useState(50);
   const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets } = gameState;
 
   const adjustBet = (delta) => {
-    setBetAmount(Math.max(5, Math.min(50, betAmount + delta)));
+    setBetAmount(Math.max(10, Math.min(100, betAmount + delta)));
   };
 
   return (
@@ -453,8 +453,8 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => adjustBet(-5)}
-              disabled={betAmount <= 5}
+              onClick={() => adjustBet(-10)}
+              disabled={betAmount <= 10}
               className="h-8 w-8 p-0"
             >
               <Minus className="w-4 h-4" />
@@ -463,8 +463,8 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => adjustBet(5)}
-              disabled={betAmount >= 50}
+              onClick={() => adjustBet(10)}
+              disabled={betAmount >= 100}
               className="h-8 w-8 p-0"
             >
               <Plus className="w-4 h-4" />
