@@ -209,43 +209,12 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                 {champion && (
                   <div className="flex items-center justify-center gap-4 mb-6">
                     {ending === 'chaos' && champion.id === 'ren' ? (
-                      <div className="relative">
-                        <img 
-                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
-                          alt="Defeated Ren"
-                          className="w-48 h-48 object-contain"
-                          style={{ imageRendering: 'pixelated' }}
-                        />
-                        {/* Defeated stars floating above */}
-                        {[...Array(6)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            className="absolute text-2xl"
-                            initial={{ 
-                              x: -24 + (i * 10),
-                              y: -40 - (i % 2) * 10,
-                              opacity: 1,
-                              rotate: 0,
-                            }}
-                            animate={{ 
-                              y: [-40 - (i % 2) * 10, -60 - (i % 2) * 15, -40 - (i % 2) * 10],
-                              x: [-24 + (i * 10) + Math.sin(i) * 5, -24 + (i * 10) - Math.sin(i) * 5, -24 + (i * 10) + Math.sin(i) * 5],
-                              opacity: [0.3, 0.8, 0.2, 0.8, 0.3],
-                              rotate: [0, -15, 15, -10, 0],
-                              scale: [0.8, 1, 0.7, 1, 0.8],
-                            }}
-                            transition={{
-                              duration: 3 + i * 0.3,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                              delay: i * 0.2,
-                            }}
-                            style={{ filter: 'blur(0.5px)' }}
-                          >
-                            ✨
-                          </motion.div>
-                        ))}
-                      </div>
+                      <img 
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
+                        alt="Defeated Ren"
+                        className="w-48 h-48 object-contain"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
                     ) : champion.sprite.startsWith('http') ? (
                       <img 
                         src={champion.sprite} 
