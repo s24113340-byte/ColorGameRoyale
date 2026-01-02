@@ -139,23 +139,54 @@ export default function PVPMode({ onBack, colors }) {
       }
     });
 
-    setPlayers(prev => ({
-      ...prev,
-      [currentPlayer]: {
+    setPlayers(prev => {
+      const updatedPlayer = {
         ...prev[currentPlayer],
         score: prev[currentPlayer].score + pointsEarned,
         coins: prev[currentPlayer].coins + totalWin,
         streak: newStreak,
         bets: {},
         frozen: false,
-      },
-    }));
+      };
+
+      const newPlayers = {
+        ...prev,
+        [currentPlayer]: updatedPlayer,
+      };
+
+      // Check for coin-based win condition
+      const p1 = currentPlayer === 1 ? updatedPlayer : prev[1];
+      const p2 = currentPlayer === 2 ? updatedPlayer : prev[2];
+
+      if (p1.coins <= 0 || p2.coins <= 0) {
+        setTimeout(() => {
+          if (p1.coins > p2.coins) {
+            setWinner(1);
+          } else if (p2.coins > p1.coins) {
+            setWinner(2);
+          } else {
+            setWinner(0);
+          }
+          setGamePhase('ended');
+        }, 1500);
+      }
+
+      return newPlayers;
+    });
 
     // Next turn
     setTimeout(() => {
       setDroppedBalls([]);
       setBallsWithSquares([]);
       setIsDropping(false);
+      
+      // Check if game should end due to coins
+      const p1 = currentPlayer === 1 ? players[currentPlayer] : players[1];
+      const p2 = currentPlayer === 2 ? players[currentPlayer] : players[2];
+      
+      if (p1.coins <= 0 || p2.coins <= 0) {
+        return; // Game will end via the coin check above
+      }
       
       if (currentPlayer === 2) {
         if (turn >= maxTurns) {
