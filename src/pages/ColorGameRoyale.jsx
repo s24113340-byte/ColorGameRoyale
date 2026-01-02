@@ -221,7 +221,7 @@ export default function ColorGameRoyale() {
       // Other modes: Win if shadow meter is depleted OR score is high enough
       isVictory = state.shadowMeter <= 0 || state.score >= 500;
     }
-    
+
     // Save campaign progress for Normal mode
     if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
       const newSave = updateCampaignProgress(
@@ -233,7 +233,7 @@ export default function ColorGameRoyale() {
       setSaveData(newSave);
       saveGame(newSave);
     }
-    
+
     // Save time attack score to leaderboard
     if (state.gameMode === 'time-attack') {
       try {
@@ -248,12 +248,18 @@ export default function ColorGameRoyale() {
         console.error('Failed to save time attack score:', error);
       }
     }
-    
+
     if (isVictory) {
       const dominant = Object.entries(state.elementalBalance)
         .sort((a, b) => b[1] - a[1])[0][0];
       return dominant;
     }
+
+    // For campaign levels 1-9, return 'fallen' instead of 'chaos'
+    if (state.gameMode === 'normal' && state.selectedLevel < 10) {
+      return 'fallen';
+    }
+
     return 'chaos';
   };
 
@@ -683,8 +689,8 @@ export default function ColorGameRoyale() {
       const isGameOver = isVictory || isDefeat;
 
       if (isGameOver) {
-        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
-        
+        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : (prev.gameMode === 'normal' && prev.selectedLevel < 10 ? 'fallen' : 'chaos');
+
         // Show victory message before ending (only if actually won)
         if (isVictory) {
           showFeedback('Paldo!', 'victory');
@@ -704,16 +710,17 @@ export default function ColorGameRoyale() {
             ending,
           };
         }
-        
-        // Defeat - show black hole transition
+
+        // Defeat - show black hole transition only for Umbra (level 10) or other game modes
+        const shouldShowBlackHole = prev.gameMode !== 'normal' || prev.selectedLevel === 10;
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
           championHP: newHP,
           coins: newCoins,
-          phase: 'black-hole',
-          ending: 'chaos',
+          phase: shouldShowBlackHole ? 'black-hole' : 'ending',
+          ending,
         };
       }
 

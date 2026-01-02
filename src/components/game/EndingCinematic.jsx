@@ -48,12 +48,21 @@ const ENDINGS = {
     bgGradient: 'from-purple-950 via-slate-950 to-black',
     emoji: '💀',
   },
+  fallen: {
+    title: 'YOU HAVE FALLEN',
+    subtitle: 'Defeat',
+    description: 'The enemy has proven too strong... Your champion has fallen in battle. But do not despair - rise again and face the challenge with renewed determination!',
+    icon: Skull,
+    color: '#EF4444',
+    bgGradient: 'from-red-950 via-slate-950 to-gray-950',
+    emoji: '⚔️',
+  },
 };
 
 export default function EndingCinematic({ ending, score, champion, onRestart, gameMode, currentLevel, onNextLevel, onBackToMap }) {
   const [phase, setPhase] = useState('intro');
   const endingData = ENDINGS[ending] || ENDINGS.chaos;
-  const isVictory = ending !== 'chaos';
+  const isVictory = ending !== 'chaos' && ending !== 'fallen';
 
   useEffect(() => {
     const timers = [
