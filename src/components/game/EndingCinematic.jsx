@@ -208,7 +208,23 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                 {/* Champion info */}
                 {champion && (
                   <div className="flex items-center justify-center gap-4 mb-6">
-                    <span className="text-4xl">{champion.sprite}</span>
+                    {ending === 'chaos' && champion.id === 'ren' ? (
+                      <img 
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
+                        alt="Defeated Ren"
+                        className="w-32 h-32 object-contain"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    ) : champion.sprite.startsWith('http') ? (
+                      <img 
+                        src={champion.sprite} 
+                        alt={champion.name}
+                        className="w-16 h-16 object-contain"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    ) : (
+                      <span className="text-4xl">{champion.sprite}</span>
+                    )}
                     <div className="text-left">
                       <p className="text-slate-400 text-sm">Champion</p>
                       <p className="font-bold text-white text-xl">{champion.name}</p>
