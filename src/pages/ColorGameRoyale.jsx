@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
 import ChampionSelect from '@/components/game/ChampionSelect';
 import CampaignMap from '@/components/game/CampaignMap';
 import ChampionUpgrades from '@/components/game/ChampionUpgrades';
