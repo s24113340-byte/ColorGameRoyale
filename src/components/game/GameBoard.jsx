@@ -124,6 +124,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
 
                       // Check if any ball landed on this square
                       const ballOnSquare = droppedBalls.find(ball => ball.landedSquare === i);
+                      const isPoisonedTile = poisonedSquares.includes(gridColor.id);
 
                       return (
                         <div 
@@ -135,6 +136,42 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                             boxShadow: `0 2px 8px ${gridColor.hex}40, inset 0 0 20px ${gridColor.hex}20`,
                           }}
                         >
+                          {/* Poison effect overlay */}
+                          {isPoisonedTile && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0.6, 0.8, 0.6] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                              className="absolute inset-0 z-0"
+                              style={{
+                                background: 'radial-gradient(circle, rgba(34, 197, 94, 0.7), rgba(22, 163, 74, 0.5), transparent)',
+                                boxShadow: 'inset 0 0 20px rgba(34, 197, 94, 0.8)',
+                              }}
+                            >
+                              {/* Bubbling effect */}
+                              {[...Array(3)].map((_, idx) => (
+                                <motion.div
+                                  key={idx}
+                                  className="absolute w-1 h-1 bg-green-300 rounded-full"
+                                  initial={{ 
+                                    bottom: '0%', 
+                                    left: `${20 + idx * 30}%`,
+                                    opacity: 0.8
+                                  }}
+                                  animate={{ 
+                                    bottom: '100%',
+                                    opacity: 0
+                                  }}
+                                  transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: idx * 0.5,
+                                    ease: "easeOut"
+                                  }}
+                                />
+                              ))}
+                            </motion.div>
+                          )}
                           {/* Ball landing animation */}
                           <AnimatePresence>
                             {ballOnSquare && (

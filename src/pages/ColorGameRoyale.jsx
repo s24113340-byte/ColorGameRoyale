@@ -113,6 +113,7 @@ const INITIAL_STATE = {
   canSkipResults: false,
   resultsTimer: null,
   shadowMeter: 100,
+  championHP: 100,
   elementalBalance: { fire: 25, water: 25, nature: 25, light: 25 },
   umbraActive: false,
   umbraAbility: null,
@@ -497,20 +498,27 @@ export default function ColorGameRoyale() {
         const ragePower = isRageMode ? 1.5 : 1;
         
         if (umbraAbility === 'score-drain') {
-          const drainPercent = isRageMode ? 0.7 : 0.5;
-          totalWin = Math.floor(totalWin * (1 - drainPercent));
-          pointsEarned = Math.floor(pointsEarned * (1 - drainPercent));
+          // Drain 5% of champion HP to restore Umbra's HP
+          const hpDrain = 5;
+          setGameState(prev => ({
+            ...prev,
+            championHP: Math.max(0, prev.championHP - hpDrain),
+            shadowMeter: Math.min(100, prev.shadowMeter + hpDrain),
+          }));
         } else if (umbraAbility === 'freeze') {
           frozen = true;
-          const freezeDuration = isRageMode ? 5000 : 3000;
           setTimeout(() => {
             setGameState(prev => ({ ...prev, frozen: false }));
-          }, freezeDuration);
+          }, 5000);
         } else if (umbraAbility === 'poison') {
-          const poisonCount = isRageMode ? 2 : 1;
+          const poisonCount = Math.floor(Math.random() * 2) + 2; // 2-3 tiles
           for (let i = 0; i < poisonCount; i++) {
             poisoned.push(COLORS[Math.floor(Math.random() * COLORS.length)].id);
           }
+          // Clear poison after 5 seconds
+          setTimeout(() => {
+            setGameState(prev => ({ ...prev, poisonedSquares: [] }));
+          }, 5000);
         } else if (umbraAbility === 'shadow-surge') {
           // FINAL BOSS: Massive score drain + time penalty
           totalWin = Math.floor(totalWin * 0.3);
@@ -528,24 +536,35 @@ export default function ColorGameRoyale() {
             setGameState(prev => ({ ...prev, poisonedSquares: [] }));
           }, 2000);
         }
-      }
-    }
+        }
+        }
+
+        // Check for poison damage - if ball lands on poisoned tile user bet on
+        let poisonDamage = 0;
+        results.forEach(r => {
+        if (r && r.id && gameState.poisonedSquares.includes(r.id) && gameState.bets[r.id]) {
+        poisonDamage += 5; // 5% HP per poisoned hit
+        }
+        });
 
     setGameState(prev => {
       const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
       const newScore = prev.score + pointsEarned;
       const newTimer = Math.max(0, prev.timer + bonusTimeEarned);
-      
-      // Check for ending conditions - win by depleting shadow OR time runs out
+      const newHP = Math.max(0, prev.championHP - poisonDamage);
+
+      // Check for ending conditions - win by depleting shadow OR time runs out OR champion dies
       const isVictory = newShadow <= 0;
-      const isGameOver = isVictory || (prev.gameMode === 'normal' && newTimer <= 0);
-      
+      const isDefeat = newHP <= 0 || (prev.gameMode === 'normal' && newTimer <= 0);
+      const isGameOver = isVictory || isDefeat;
+
       if (isGameOver) {
         const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
+          championHP: newHP,
           phase: ending === 'chaos' ? 'black-hole' : 'ending',
           ending,
         };
@@ -556,6 +575,7 @@ export default function ColorGameRoyale() {
         score: newScore,
         coins: prev.coins + totalWin,
         timer: newTimer,
+        championHP: newHP,
         streak: newStreak,
         bets: {},
         umbraBets: {},

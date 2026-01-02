@@ -11,6 +11,7 @@ export default function GameHUD({ gameState, colors }) {
     round,
     maxRounds,
     shadowMeter,
+    championHP,
     elementalBalance,
     factionBuffActive,
     payoutMultiplier,
@@ -34,10 +35,12 @@ export default function GameHUD({ gameState, colors }) {
 
   return (
     <>
-      {/* Top HUD: Timer and Umbra's HP */}
+      {/* Top HUD: Timer, Umbra's HP, and Champion HP */}
       <div className="fixed top-0 left-0 right-0 z-40 p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-center gap-4">
-          {/* Timer */}
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex-1" />
+
+          {/* Center: Timer */}
           <motion.div 
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -63,32 +66,66 @@ export default function GameHUD({ gameState, colors }) {
             </div>
           </motion.div>
 
-          {/* Shadow Meter (Umbra health) */}
-          {gameMode === 'normal' && (
+          {/* Right: Champion HP */}
+          {champion && (
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex-1 max-w-md"
+              className="flex-1 max-w-xs"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-purple-300 font-medium flex items-center gap-1">
-                  <Shield className="w-3 h-3" /> UMBRA'S SHADOW
+                <span className="text-xs text-cyan-300 font-medium flex items-center gap-1">
+                  <Shield className="w-3 h-3" /> {champion.name.toUpperCase()}
                 </span>
-                <span className="text-xs text-purple-400">{shadowMeter}%</span>
+                <span className="text-xs text-cyan-400">{championHP}%</span>
               </div>
-              <div className="h-3 bg-slate-800 rounded-full overflow-hidden border border-purple-500/30">
+              <div className="h-3 bg-slate-800 rounded-full overflow-hidden border border-cyan-500/30">
                 <motion.div
-                  animate={{ width: `${shadowMeter}%` }}
+                  animate={{ width: `${championHP}%` }}
                   transition={{ duration: 0.5 }}
-                  className="h-full rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500"
+                  className={`h-full rounded-full ${
+                    championHP > 50 
+                      ? 'bg-gradient-to-r from-green-500 to-cyan-500' 
+                      : championHP > 25
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                      : 'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}
                   style={{
-                    boxShadow: '0 0 10px rgba(168, 85, 247, 0.5)',
+                    boxShadow: championHP > 50 
+                      ? '0 0 10px rgba(6, 182, 212, 0.5)' 
+                      : '0 0 10px rgba(239, 68, 68, 0.5)',
                   }}
                 />
               </div>
             </motion.div>
           )}
         </div>
+
+        {/* Shadow Meter (Umbra health) - below timer */}
+        {gameMode === 'normal' && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md mx-auto mt-3"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-purple-300 font-medium flex items-center gap-1">
+                <Shield className="w-3 h-3" /> UMBRA'S SHADOW
+              </span>
+              <span className="text-xs text-purple-400">{shadowMeter}%</span>
+            </div>
+            <div className="h-3 bg-slate-800 rounded-full overflow-hidden border border-purple-500/30">
+              <motion.div
+                animate={{ width: `${shadowMeter}%` }}
+                transition={{ duration: 0.5 }}
+                className="h-full rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500"
+                style={{
+                  boxShadow: '0 0 10px rgba(168, 85, 247, 0.5)',
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Bottom HUD: Champion, Score, Coins, Streak, Elemental Balance */}
