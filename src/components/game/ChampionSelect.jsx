@@ -182,7 +182,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </div>
 
               {/* Description */}
-              <p className={`text-slate-400 text-sm text-center leading-relaxed ${champion.id === 'ren' ? 'mb-4 mt-1' : 'mb-6'}`}>
+              <p className={`text-slate-400 text-sm text-center leading-relaxed ${champion.id === 'ren' ? 'mb-3 mt-0' : 'mb-6'}`}>
                 {champion.description}
               </p>
 
