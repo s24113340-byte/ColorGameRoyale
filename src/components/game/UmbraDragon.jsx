@@ -19,7 +19,7 @@ export default function UmbraDragon({ gameState }) {
   const eyeColor = umbraRageMode ? '#FF0000' : umbraFinalBoss ? '#8B5CF6' : '#FF6B6B';
 
   return (
-    <div className="fixed top-4 left-4 z-40 pointer-events-none">
+    <div className="fixed top-4 left-4 z-40 pointer-events-none umbra-dragon">
       <motion.div
         animate={{
           scale: animState === 'attacking' ? [1, 1.1, 1] : animState === 'rage' ? [1, 1.05, 1] : 1,
