@@ -144,7 +144,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                   <motion.img 
                     src={champion.sprite} 
                     alt={champion.name}
-                    className={`object-contain ${champion.id === 'ren' ? 'w-[351px] h-[351px] md:w-[439px] md:h-[439px] -mb-16 -ml-[5%]' : 'w-[232px] h-[232px] md:w-[271px] md:h-[271px]'}`}
+                    className={`object-contain ${champion.id === 'ren' ? 'w-[386px] h-[386px] md:w-[483px] md:h-[483px] -mb-16 -ml-[5%]' : 'w-[255px] h-[255px] md:w-[298px] md:h-[298px]'}`}
                     style={{ imageRendering: 'pixelated' }}
                     whileHover={{ scale: 1.15, y: -12 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
