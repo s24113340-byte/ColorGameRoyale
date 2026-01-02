@@ -18,6 +18,7 @@ import PauseMenu from '@/components/game/PauseMenu';
 import InGameTutorial from '@/components/game/InGameTutorial';
 import TimeAttackInstructions from '@/components/game/TimeAttackInstructions';
 import TimeAttackLeaderboard from '@/components/game/TimeAttackLeaderboard';
+import GameFeedback from '@/components/game/GameFeedback';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -138,6 +139,10 @@ const INITIAL_STATE = {
   tutorialCompleted: false,
   showLeaderboard: false,
   playerName: '',
+  feedbackMessage: null,
+  feedbackType: 'default',
+  lastBetTime: Date.now(),
+  umbraLowHPShown: false,
   };
 
 export default function ColorGameRoyale() {
@@ -145,6 +150,7 @@ export default function ColorGameRoyale() {
   const [saveData, setSaveData] = useState(null);
   const timerRef = useRef(null);
   const audioContextRef = useRef(null);
+  const idleTimerRef = useRef(null);
 
   // Load save data on mount
   useEffect(() => {
@@ -311,9 +317,53 @@ export default function ColorGameRoyale() {
     };
   };
 
+  const showFeedback = (message, type = 'default') => {
+    setGameState(prev => ({ 
+      ...prev, 
+      feedbackMessage: message,
+      feedbackType: type,
+    }));
+  };
+
+  const clearFeedback = () => {
+    setGameState(prev => ({ ...prev, feedbackMessage: null }));
+  };
+
+  // Idle timer for betting
+  useEffect(() => {
+    if (gameState.phase === 'playing' && !gameState.isDropping && Object.keys(gameState.bets).length === 0) {
+      idleTimerRef.current = setTimeout(() => {
+        showFeedback('si batman nalay bahala', 'idle');
+      }, 5500);
+    }
+    return () => {
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+    };
+  }, [gameState.phase, gameState.isDropping, gameState.bets]);
+
+  // Check Umbra low HP (campaign only)
+  useEffect(() => {
+    if (
+      gameState.gameMode === 'normal' && 
+      gameState.shadowMeter <= 25 && 
+      gameState.shadowMeter > 0 &&
+      !gameState.umbraLowHPShown
+    ) {
+      showFeedback('Gamay na lang! Jiayou!', 'umbra-low');
+      setGameState(prev => ({ ...prev, umbraLowHPShown: true }));
+    }
+  }, [gameState.shadowMeter, gameState.gameMode, gameState.umbraLowHPShown]);
+
   const placeBet = (colorId, amount) => {
     if (gameState.coins < amount || gameState.frozen || gameState.isDropping) return;
     playSound('bet');
+    
+    // Reset idle timer
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
     
     setGameState(prev => ({
       ...prev,
@@ -322,6 +372,7 @@ export default function ColorGameRoyale() {
         ...prev.bets,
         [colorId]: (prev.bets[colorId] || 0) + amount,
       },
+      lastBetTime: Date.now(),
     }));
   };
 
@@ -412,9 +463,11 @@ export default function ColorGameRoyale() {
     const streakDamageBonus = gameState.streak >= 5 ? gameState.streak * 2 : 0;
 
     // Check player bets
+    let hadMatch = false;
     Object.entries(gameState.bets).forEach(([colorId, betAmount]) => {
       const matches = colorCounts[colorId] || 0;
       if (matches > 0) {
+        hadMatch = true;
         const payoutRates = { 1: 1, 2: 2, 3: 3 };
         const payout = betAmount * payoutRates[matches] * multiplier;
         totalWin += payout;
@@ -425,6 +478,7 @@ export default function ColorGameRoyale() {
         if (matches === 3) {
           bonusTimeEarned += 10; // Jackpot: +10 seconds
           shadowDamage = 25 + streakDamageBonus;
+          showFeedback('paldo', 'jackpot');
         } else if (matches === 2) {
           bonusTimeEarned += 5; // Combo: +5 seconds
           shadowDamage = 15 + streakDamageBonus;
@@ -450,6 +504,20 @@ export default function ColorGameRoyale() {
         newStreak = 0;
       }
     });
+
+    // Negative feedback if no matches
+    if (!hadMatch && Object.keys(gameState.bets).length > 0) {
+      const negativeMessages = ['kasayang!', 'bawi lang', 'ok ra na'];
+      const randomNegative = negativeMessages[Math.floor(Math.random() * negativeMessages.length)];
+      showFeedback(randomNegative, 'negative');
+    }
+
+    // Streak feedback
+    if (newStreak === 2) {
+      showFeedback('wow galing!', 'streak');
+    } else if (newStreak >= 3 && newStreak <= 4) {
+      showFeedback('lodicakes', 'streak');
+    }
 
     // Check Umbra's bets (Campaign mode)
     if (gameState.gameMode === 'normal' && gameState.umbraBets) {
@@ -589,13 +657,26 @@ export default function ColorGameRoyale() {
       const isGameOver = isVictory || isDefeat;
 
       if (isGameOver) {
+        // Show victory message before ending
+        if (isVictory) {
+          showFeedback('Paldo!', 'victory');
+          setTimeout(() => {
+            const ending = determineEnding({ ...prev, shadowMeter: newShadow, score: newScore });
+            setGameState(p => ({
+              ...p,
+              phase: ending === 'chaos' ? 'black-hole' : 'ending',
+              ending,
+            }));
+          }, 2000);
+        }
+        
         const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
           championHP: newHP,
-          phase: ending === 'chaos' ? 'black-hole' : 'ending',
+          phase: isVictory ? prev.phase : (ending === 'chaos' ? 'black-hole' : 'ending'),
           ending,
         };
       }
@@ -928,8 +1009,15 @@ export default function ColorGameRoyale() {
               onClose={() => setGameState(prev => ({ ...prev, showLeaderboard: false }))}
               currentScore={gameState.score}
             />
-            </motion.div>
-            )}
+
+            {/* Game Feedback Messages */}
+            <GameFeedback
+              message={gameState.feedbackMessage}
+              type={gameState.feedbackType}
+              onComplete={clearFeedback}
+            />
+          </motion.div>
+        )}
 
         {gameState.phase === 'black-hole' && (
           <BlackHoleTransition 
