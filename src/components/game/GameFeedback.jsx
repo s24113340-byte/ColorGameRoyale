@@ -2,12 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function GameFeedback({ message, type = 'default', onComplete }) {
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
     if (message) {
+      setShow(true);
       const timer = setTimeout(() => {
-        onComplete?.();
+        setShow(false);
+        setTimeout(() => {
+          onComplete?.();
+        }, 500); // Wait for exit animation
       }, 2500);
       return () => clearTimeout(timer);
+    } else {
+      setShow(false);
     }
   }, [message, onComplete]);
 
@@ -61,8 +69,8 @@ export default function GameFeedback({ message, type = 'default', onComplete }) 
   const styles = getStyles();
 
   return (
-    <AnimatePresence>
-      {message && (
+    <AnimatePresence mode="wait">
+      {show && message && (
         <motion.div
           initial={{ scale: 0, rotate: -10, opacity: 0 }}
           animate={{ 
