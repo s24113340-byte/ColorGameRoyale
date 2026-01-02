@@ -229,7 +229,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
                           alt="Defeated Rei"
-                          className="w-48 h-48 object-contain"
+                          className="w-64 h-64 object-contain"
                           style={{ imageRendering: 'pixelated' }}
                         />
                       ) : (
