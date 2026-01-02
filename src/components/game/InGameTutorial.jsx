@@ -110,15 +110,15 @@ export default function InGameTutorial({ onComplete, onSkip }) {
   const getPositionClasses = () => {
     switch (step.position) {
       case 'top':
-        return 'top-32 left-1/2 -translate-x-1/2';
+        return 'top-40 left-1/2 -translate-x-1/2';
       case 'top-right':
-        return 'top-32 right-8';
+        return 'top-40 right-12';
       case 'bottom':
-        return 'bottom-32 left-1/2 -translate-x-1/2';
+        return 'bottom-48 left-1/2 -translate-x-1/2';
       case 'bottom-left':
-        return 'bottom-32 left-8';
+        return 'bottom-32 left-32';
       case 'left':
-        return 'left-8 top-1/2 -translate-y-1/2';
+        return 'left-64 top-[45%] -translate-y-1/2';
       case 'center':
       default:
         return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
@@ -128,13 +128,13 @@ export default function InGameTutorial({ onComplete, onSkip }) {
   const getArrowClasses = () => {
     switch (step.arrow) {
       case 'down':
-        return '-top-8 left-1/2 -translate-x-1/2';
+        return '-top-12 left-1/2 -translate-x-1/2';
       case 'up':
-        return '-bottom-8 left-1/2 -translate-x-1/2';
+        return '-bottom-12 left-1/2 -translate-x-1/2';
       case 'left':
-        return '-left-8 top-1/2 -translate-y-1/2';
+        return '-left-12 top-1/2 -translate-y-1/2';
       case 'right':
-        return '-right-8 top-1/2 -translate-y-1/2';
+        return '-right-12 top-1/2 -translate-y-1/2';
       default:
         return '';
     }
@@ -147,7 +147,7 @@ export default function InGameTutorial({ onComplete, onSkip }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
+        className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[100]"
         onClick={nextStep}
       />
 
@@ -178,13 +178,13 @@ export default function InGameTutorial({ onComplete, onSkip }) {
             {Arrow && (
               <motion.div
                 animate={{ 
-                  y: step.arrow === 'down' ? [0, 8, 0] : step.arrow === 'up' ? [0, -8, 0] : 0,
-                  x: step.arrow === 'left' ? [0, -8, 0] : step.arrow === 'right' ? [0, 8, 0] : 0,
+                  y: step.arrow === 'down' ? [0, 12, 0] : step.arrow === 'up' ? [0, -12, 0] : 0,
+                  x: step.arrow === 'left' ? [0, -12, 0] : step.arrow === 'right' ? [0, 12, 0] : 0,
                 }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
                 className={`absolute ${getArrowClasses()}`}
               >
-                <Arrow className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
+                <Arrow className="w-10 h-10 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.9)]" strokeWidth={3} />
               </motion.div>
             )}
 
