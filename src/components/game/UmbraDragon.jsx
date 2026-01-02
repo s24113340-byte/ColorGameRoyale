@@ -169,7 +169,7 @@ export default function UmbraDragon({ gameState }) {
         </div>
 
         {/* Shadow meter bar under dragon */}
-        <div className="mt-2 w-40">
+        <div className="mt-2 w-48">
           <div className="h-3 bg-slate-900 rounded-lg overflow-hidden border-2 border-purple-500/50">
             <motion.div
               animate={{ width: `${shadowMeter}%` }}
