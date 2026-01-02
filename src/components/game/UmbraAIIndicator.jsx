@@ -11,7 +11,7 @@ export default function UmbraAIIndicator({ gameState }) {
   const getUmbraStrategy = () => {
     const shadowPercent = shadowMeter;
     const isRage = shadowPercent <= 30;
-    const isFinal = gameState.round >= gameState.maxRounds - 1;
+    const isFinal = gameState.timer <= 20;
     
     if (isFinal) {
       return {
