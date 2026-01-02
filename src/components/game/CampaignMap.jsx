@@ -4,16 +4,16 @@ import { Lock, CheckCircle2, Skull, Crown, Star, Trophy, ArrowLeft } from 'lucid
 import { Button } from '@/components/ui/button';
 
 const CAMPAIGN_LEVELS = [
-  { id: 1, name: 'Awakening', difficulty: 'Easy', boss: null, color: '#10B981' },
-  { id: 2, name: 'First Shadow', difficulty: 'Easy', boss: null, color: '#10B981' },
-  { id: 3, name: 'Rising Darkness', difficulty: 'Normal', boss: 'Umbra Minion', color: '#3B82F6' },
-  { id: 4, name: 'Elemental Trial', difficulty: 'Normal', boss: null, color: '#3B82F6' },
-  { id: 5, name: 'Shadow\'s Grip', difficulty: 'Normal', boss: 'Umbra Lieutenant', color: '#3B82F6' },
-  { id: 6, name: 'Chromatic Surge', difficulty: 'Hard', boss: null, color: '#F59E0B' },
-  { id: 7, name: 'Heart of Chaos', difficulty: 'Hard', boss: 'Umbra Commander', color: '#F59E0B' },
-  { id: 8, name: 'Penultimate Shadow', difficulty: 'Hard', boss: null, color: '#EF4444' },
-  { id: 9, name: 'Eclipse of Hope', difficulty: 'Very Hard', boss: 'Umbra Prime', color: '#EF4444' },
-  { id: 10, name: 'Final Confrontation', difficulty: 'Legendary', boss: 'UMBRA THE CHROMATIC SHADOW', color: '#8B5CF6' },
+  { id: 1, name: 'Peaceful Village', difficulty: 'Easy', boss: null, color: '#10B981', emoji: '🏘️' },
+  { id: 2, name: 'Mystic Forest', difficulty: 'Easy', boss: null, color: '#22C55E', emoji: '🌲' },
+  { id: 3, name: 'Verdant Grassland', difficulty: 'Normal', boss: 'Plains Walker', color: '#84CC16', emoji: '🌾' },
+  { id: 4, name: 'Rocky Mountains', difficulty: 'Normal', boss: null, color: '#78716C', emoji: '⛰️' },
+  { id: 5, name: 'Mountain Peak', difficulty: 'Normal', boss: 'Stone Guardian', color: '#57534E', emoji: '🏔️' },
+  { id: 6, name: 'Scorching Desert', difficulty: 'Hard', boss: null, color: '#F59E0B', emoji: '🏜️' },
+  { id: 7, name: 'Endless Dunes', difficulty: 'Hard', boss: 'Mirage Demon', color: '#D97706', emoji: '🌵' },
+  { id: 8, name: 'Crystal Lake', difficulty: 'Very Hard', boss: null, color: '#06B6D4', emoji: '🌊' },
+  { id: 9, name: 'Frozen Tundra', difficulty: 'Very Hard', boss: 'Ice Colossus', color: '#3B82F6', emoji: '❄️' },
+  { id: 10, name: 'UMBRA\'S DARK CASTLE', difficulty: 'Legendary', boss: 'UMBRA THE CHROMATIC SHADOW', color: '#1E1B4B', emoji: '🏰' },
 ];
 
 export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrades }) {
@@ -21,9 +21,9 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
   const highestUnlocked = progress.highestLevelUnlocked || 1;
 
   const getLevelStatus = (levelId) => {
+    // All levels unlocked
     if (levelId < highestUnlocked) return 'completed';
-    if (levelId === highestUnlocked) return 'available';
-    return 'locked';
+    return 'available';
   };
 
   const handleLevelClick = (level) => {
@@ -165,13 +165,13 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
                     {isCompleted && (
                       <CheckCircle2 className="w-8 h-8 text-white" />
                     )}
-                    {isAvailable && (
+                    {isAvailable && !isCompleted && (
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
-                        className="text-2xl"
+                        className="text-2xl md:text-3xl"
                       >
-                        ⚔️
+                        {level.emoji}
                       </motion.div>
                     )}
                     {isLocked && (
