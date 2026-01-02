@@ -43,7 +43,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             <div 
               className="relative p-6 rounded-3xl shadow-2xl"
               style={{
-                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/db0f3b570_unnamed__5_-removebg-preview.png)',
+                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/bc9d64f2e_image.png)',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
@@ -162,70 +162,164 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                     })}
                   </div>
 
-                  {/* Center Hopper */}
+                  {/* Futuristic Wireframe Hopper in Center */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                    <motion.div
-                      animate={{
-                        filter: [
-                          'drop-shadow(0 0 20px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 40px rgba(251, 191, 36, 0.4))',
-                          'drop-shadow(0 0 30px rgba(251, 191, 36, 0.6)) drop-shadow(0 0 50px rgba(59, 130, 246, 0.4))',
-                          'drop-shadow(0 0 20px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 40px rgba(251, 191, 36, 0.4))',
-                        ],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <img 
-                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/b33a15b06_unnamed__4_-removebg-preview.png"
-                        alt="Hopper"
-                        className="w-96 h-96 object-contain"
+                    <div className="relative w-48 h-48">
+                      {/* Top glowing ring */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-8">
+                        <div 
+                          className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                          style={{
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            background: 'linear-gradient(135deg, rgba(255, 59, 59, 0.15), rgba(59, 130, 246, 0.15), rgba(251, 191, 36, 0.15))',
+                            boxShadow: `
+                              0 0 20px rgba(255, 255, 255, 0.8),
+                              0 0 40px rgba(255, 59, 59, 0.3),
+                              0 0 40px rgba(59, 130, 246, 0.3),
+                              0 0 40px rgba(251, 191, 36, 0.3),
+                              inset 0 0 20px rgba(255, 255, 255, 0.2)
+                            `,
+                          }}
+                        />
+                        {/* Inner glow */}
+                        <div 
+                          className="absolute inset-1 rounded-[50%]"
+                          style={{
+                            background: 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1), transparent)',
+                          }}
+                        />
+                      </div>
+
+                      {/* Bottom glowing ring */}
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-6">
+                        <div 
+                          className="absolute inset-0 rounded-[50%] border-2 backdrop-blur-sm"
+                          style={{
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15), rgba(251, 191, 36, 0.15))',
+                            boxShadow: `
+                              0 0 20px rgba(255, 255, 255, 0.8),
+                              0 0 40px rgba(59, 130, 246, 0.3),
+                              0 0 40px rgba(16, 185, 129, 0.3),
+                              0 0 40px rgba(251, 191, 36, 0.3),
+                              inset 0 0 20px rgba(255, 255, 255, 0.2)
+                            `,
+                          }}
+                        />
+                      </div>
+
+                      {/* Vertical spindles connecting the rings */}
+                      {[...Array(8)].map((_, i) => {
+                        const angle = (i * 360) / 8;
+                        const topRadius = 62;
+                        const bottomRadius = 46;
+                        const topX = Math.cos((angle * Math.PI) / 180) * topRadius;
+                        const topY = Math.sin((angle * Math.PI) / 180) * 16;
+                        const bottomX = Math.cos((angle * Math.PI) / 180) * bottomRadius;
+                        const bottomY = Math.sin((angle * Math.PI) / 180) * 12;
+
+                        return (
+                          <div
+                            key={i}
+                            className="absolute left-1/2 top-8 origin-top"
+                            style={{
+                              width: '1px',
+                              height: '128px',
+                              background: `linear-gradient(180deg, 
+                                rgba(255, 255, 255, 0.6), 
+                                rgba(255, 59, 59, 0.3),
+                                rgba(59, 130, 246, 0.3),
+                                rgba(251, 191, 36, 0.3),
+                                rgba(255, 255, 255, 0.6)
+                              )`,
+                              transform: `translateX(${topX}px) translateY(${topY}px)`,
+                              boxShadow: '0 0 4px rgba(255, 255, 255, 0.6)',
+                            }}
+                          />
+                        );
+                      })}
+
+                      {/* Frosted glass center effect */}
+                      <div 
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-32 rounded-[50%]"
+                        style={{
+                          background: `
+                            radial-gradient(ellipse at center, 
+                              rgba(255, 255, 255, 0.05),
+                              rgba(255, 59, 59, 0.08),
+                              rgba(59, 130, 246, 0.08),
+                              rgba(251, 191, 36, 0.08),
+                              transparent
+                            )
+                          `,
+                          backdropFilter: 'blur(4px)',
+                        }}
                       />
-                    </motion.div>
-                    
-                    {/* Spinning white glowing balls before drop - INSIDE the hopper */}
-                    <AnimatePresence>
-                      {!isDropping && Object.keys(bets).length > 0 && (
-                        <div className="absolute top-[35%] left-1/2 -translate-x-1/2 flex items-center justify-center">
-                          {[0, 1, 2].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute"
-                              animate={{
-                                rotate: 360,
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "linear",
-                                delay: i * 0.33,
-                              }}
-                              style={{
-                                transformOrigin: '0 0',
-                              }}
-                            >
+
+                      {/* Spinning white glowing balls before drop */}
+                      <AnimatePresence>
+                        {!isDropping && Object.keys(bets).length > 0 && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {[0, 1, 2].map((i) => (
                               <motion.div
-                                className="w-10 h-10 rounded-full"
+                                key={i}
+                                className="absolute"
                                 animate={{
-                                  x: Math.cos((i * 120 * Math.PI) / 180) * 40,
-                                  y: Math.sin((i * 120 * Math.PI) / 180) * 40,
+                                  rotate: 360,
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                  delay: i * 0.33,
                                 }}
                                 style={{
-                                  background: 'radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0)',
-                                  boxShadow: `
-                                    0 0 20px rgba(255, 255, 255, 0.8),
-                                    0 0 40px rgba(255, 255, 255, 0.5),
-                                    inset 0 0 10px rgba(255, 255, 255, 0.5)
-                                  `,
+                                  transformOrigin: '0 0',
                                 }}
-                              />
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </AnimatePresence>
+                              >
+                                <motion.div
+                                  className="w-8 h-8 rounded-full"
+                                  animate={{
+                                    x: Math.cos((i * 120 * Math.PI) / 180) * 30,
+                                    y: Math.sin((i * 120 * Math.PI) / 180) * 30,
+                                  }}
+                                  style={{
+                                    background: 'radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0)',
+                                    boxShadow: `
+                                      0 0 20px rgba(255, 255, 255, 0.8),
+                                      0 0 40px rgba(255, 255, 255, 0.5),
+                                      inset 0 0 10px rgba(255, 255, 255, 0.5)
+                                    `,
+                                  }}
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Ambient light reflections */}
+                      <motion.div
+                        animate={{
+                          opacity: [0.3, 0.6, 0.3],
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="absolute inset-0"
+                        style={{
+                          background: `
+                            radial-gradient(circle at 30% 30%, rgba(255, 59, 59, 0.15), transparent 40%),
+                            radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.15), transparent 40%),
+                            radial-gradient(circle at 50% 70%, rgba(251, 191, 36, 0.15), transparent 40%)
+                          `,
+                          filter: 'blur(20px)',
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 
