@@ -212,7 +212,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                       <img 
                         src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
                         alt="Defeated Ren"
-                        className="w-32 h-32 object-contain"
+                        className="w-48 h-48 object-contain"
                         style={{ imageRendering: 'pixelated' }}
                       />
                     ) : champion.sprite.startsWith('http') ? (
