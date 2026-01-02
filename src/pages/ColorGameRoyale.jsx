@@ -617,6 +617,29 @@ export default function ColorGameRoyale() {
     }
   };
 
+  const handleNextLevel = () => {
+    const nextLevel = gameState.selectedLevel + 1;
+    setGameState({
+      ...INITIAL_STATE,
+      phase: 'champion-select',
+      gameMode: 'normal',
+      selectedLevel: nextLevel,
+      hasInsertedCoin: true,
+      coins: 500,
+      timer: 60,
+      maxRounds: 10,
+    });
+  };
+
+  const handleBackToMap = () => {
+    setGameState({
+      ...INITIAL_STATE,
+      phase: 'campaign-map',
+      gameMode: 'normal',
+      hasInsertedCoin: true,
+    });
+  };
+
   const startGame = () => {
     if (!gameState.hasInsertedCoin) return;
     setGameState(prev => ({ ...prev, phase: 'mode-select' }));
@@ -820,6 +843,10 @@ export default function ColorGameRoyale() {
             score={gameState.score}
             champion={gameState.champion}
             onRestart={handleEndingRestart}
+            gameMode={gameState.gameMode}
+            currentLevel={gameState.selectedLevel}
+            onNextLevel={handleNextLevel}
+            onBackToMap={handleBackToMap}
           />
         )}
       </AnimatePresence>

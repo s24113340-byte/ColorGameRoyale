@@ -50,7 +50,7 @@ const ENDINGS = {
   },
 };
 
-export default function EndingCinematic({ ending, score, champion, onRestart }) {
+export default function EndingCinematic({ ending, score, champion, onRestart, gameMode, currentLevel, onNextLevel, onBackToMap }) {
   const [phase, setPhase] = useState('intro');
   const endingData = ENDINGS[ending] || ENDINGS.chaos;
   const isVictory = ending !== 'chaos';
@@ -294,23 +294,79 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                   ))}
                 </div>
 
-                {/* Play again button */}
-                <motion.button
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onRestart}
-                  className="mt-8 px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3 mx-auto"
-                  style={{
-                    background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
-                    boxShadow: `0 10px 30px ${endingData.color}40`,
-                  }}
-                >
-                  <RefreshCw className="w-5 h-5" />
-                  PLAY AGAIN
-                </motion.button>
+                {/* Action buttons */}
+                <div className="mt-8 flex flex-col gap-4 items-center">
+                  {/* Campaign mode victory - show next level and back options */}
+                  {gameMode === 'normal' && isVictory && currentLevel < 10 && (
+                    <>
+                      <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={onNextLevel}
+                        className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3"
+                        style={{
+                          background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
+                          boxShadow: `0 10px 30px ${endingData.color}40`,
+                        }}
+                      >
+                        NEXT LEVEL
+                      </motion.button>
+                      <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={onBackToMap}
+                        className="px-8 py-4 rounded-xl font-bold text-lg bg-slate-800/80 hover:bg-slate-700/80 text-white"
+                      >
+                        BACK TO MAP
+                      </motion.button>
+                    </>
+                  )}
+                  
+                  {/* Campaign mode - back to map for defeat or last level */}
+                  {gameMode === 'normal' && (!isVictory || currentLevel >= 10) && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onBackToMap}
+                      className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3"
+                      style={{
+                        background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
+                        boxShadow: `0 10px 30px ${endingData.color}40`,
+                      }}
+                    >
+                      BACK TO MAP
+                    </motion.button>
+                  )}
+                  
+                  {/* Other modes - play again */}
+                  {gameMode !== 'normal' && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onRestart}
+                      className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3"
+                      style={{
+                        background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
+                        boxShadow: `0 10px 30px ${endingData.color}40`,
+                      }}
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                      PLAY AGAIN
+                    </motion.button>
+                  )}
+                </div>
               </motion.div>
             )}
           </motion.div>
