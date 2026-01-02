@@ -13,9 +13,9 @@ const TUTORIAL_STEPS = [
   {
     id: 'hud',
     title: 'Your Resources',
-    description: 'Keep an eye on your Coins (for betting), Timer, and Score at the top.',
-    position: 'top-center',
-    arrow: 'up',
+    description: 'Keep an eye on your Score and Coins at the bottom left.',
+    position: 'bottom-left',
+    arrow: 'down-left',
     highlightSelector: '.game-hud',
   },
   {
@@ -80,6 +80,7 @@ const ARROW_COMPONENTS = {
   left: ArrowLeft,
   right: ArrowRight,
   'up-left': ArrowUp,
+  'down-left': ArrowDown,
 };
 
 export default function InGameTutorial({ onComplete, onSkip }) {
@@ -116,6 +117,8 @@ export default function InGameTutorial({ onComplete, onSkip }) {
         return 'top-[180px] left-[15%]';
       case 'top-left-corner':
         return 'top-[220px] left-[15%]';
+      case 'bottom-left':
+        return 'bottom-[280px] left-[15%]';
       case 'bottom-center':
         return 'bottom-[200px] left-1/2 -translate-x-1/2';
       case 'middle-right':
@@ -130,6 +133,8 @@ export default function InGameTutorial({ onComplete, onSkip }) {
     switch (step.arrow) {
       case 'down':
         return 'top-full mt-4 left-1/2 -translate-x-1/2';
+      case 'down-left':
+        return 'top-full mt-4 left-1/4';
       case 'up':
         return 'bottom-full mb-4 left-1/2 -translate-x-1/2';
       case 'up-left':
@@ -181,13 +186,13 @@ export default function InGameTutorial({ onComplete, onSkip }) {
             {Arrow && (
               <motion.div
                 animate={{ 
-                  y: step.arrow === 'down' ? [0, 12, 0] : (step.arrow === 'up' || step.arrow === 'up-left') ? [0, -12, 0] : 0,
+                  y: (step.arrow === 'down' || step.arrow === 'down-left') ? [0, 12, 0] : (step.arrow === 'up' || step.arrow === 'up-left') ? [0, -12, 0] : 0,
                   x: step.arrow === 'left' ? [0, -12, 0] : step.arrow === 'right' ? [0, 12, 0] : 0,
                 }}
                 transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
                 className={`absolute ${getArrowClasses()} z-10`}
               >
-                <Arrow className="w-12 h-12 text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,1)]" strokeWidth={3.5} />
+                <Arrow className="w-[57.6px] h-[57.6px] text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,1)]" strokeWidth={3.5} />
               </motion.div>
             )}
 
