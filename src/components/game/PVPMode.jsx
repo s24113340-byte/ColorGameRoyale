@@ -485,25 +485,31 @@ export default function PVPMode({ onBack, colors }) {
               {/* Left betting panels */}
               <div className="flex flex-col gap-3">
                 {colors.filter(c => c && c.id).map((color) => {
-                  const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  const p1Bet = players[1].bets[color.id] || 0;
+                  const p2Bet = players[2].bets[color.id] || 0;
                   const isLocked = lockedColors.includes(color.id);
-                  const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
+                  const isBettingPhase = gamePhase === 'betting-p1' || gamePhase === 'betting-p2';
+                  const isMyTurn = (gamePhase === 'betting-p1' && currentPlayer === 1) || (gamePhase === 'betting-p2' && currentPlayer === 2);
+                  const canBet = isBettingPhase && isMyTurn && !isDropping && !isLocked;
                   return (
                     <button 
                       key={`left-${color.id}`}
-                      onClick={() => placeBet(color.id)}
+                      onClick={() => canBet && placeBet(color.id)}
                       disabled={!canBet}
                       className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
                         background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
-                        boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                        boxShadow: (p1Bet > 0 || p2Bet > 0) ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                       }}
                     >
                       <div className="text-white text-shadow-lg text-3xl mb-1">
                         {color.emoji}
                       </div>
-                      {currentBet > 0 && (
-                        <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
+                      {p1Bet > 0 && (
+                        <div className="text-blue-200 text-xs font-bold">P1:{p1Bet}</div>
+                      )}
+                      {p2Bet > 0 && (
+                        <div className="text-red-200 text-xs font-bold">P2:{p2Bet}</div>
                       )}
                       {isLocked && (
                         <div className="text-xs">🔒</div>
@@ -684,25 +690,31 @@ export default function PVPMode({ onBack, colors }) {
               {/* Right betting panels */}
               <div className="flex flex-col gap-3">
                 {colors.filter(c => c && c.id).map((color) => {
-                  const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  const p1Bet = players[1].bets[color.id] || 0;
+                  const p2Bet = players[2].bets[color.id] || 0;
                   const isLocked = lockedColors.includes(color.id);
-                  const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
+                  const isBettingPhase = gamePhase === 'betting-p1' || gamePhase === 'betting-p2';
+                  const isMyTurn = (gamePhase === 'betting-p1' && currentPlayer === 1) || (gamePhase === 'betting-p2' && currentPlayer === 2);
+                  const canBet = isBettingPhase && isMyTurn && !isDropping && !isLocked;
                   return (
                     <button 
                       key={`right-${color.id}`}
-                      onClick={() => placeBet(color.id)}
+                      onClick={() => canBet && placeBet(color.id)}
                       disabled={!canBet}
                       className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
                         background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
-                        boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                        boxShadow: (p1Bet > 0 || p2Bet > 0) ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                       }}
                     >
                       <div className="text-white text-shadow-lg text-3xl mb-1">
                         {color.emoji}
                       </div>
-                      {currentBet > 0 && (
-                        <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
+                      {p1Bet > 0 && (
+                        <div className="text-blue-200 text-xs font-bold">P1:{p1Bet}</div>
+                      )}
+                      {p2Bet > 0 && (
+                        <div className="text-red-200 text-xs font-bold">P2:{p2Bet}</div>
                       )}
                       {isLocked && (
                         <div className="text-xs">🔒</div>
@@ -716,25 +728,31 @@ export default function PVPMode({ onBack, colors }) {
             {/* Bottom betting panels */}
             <div className="grid grid-cols-4 gap-3 mt-4 px-3">
               {colors.filter(c => c && c.id).map((color) => {
-                const currentBet = players[currentPlayer].bets[color.id] || 0;
+                const p1Bet = players[1].bets[color.id] || 0;
+                const p2Bet = players[2].bets[color.id] || 0;
                 const isLocked = lockedColors.includes(color.id);
-                const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
+                const isBettingPhase = gamePhase === 'betting-p1' || gamePhase === 'betting-p2';
+                const isMyTurn = (gamePhase === 'betting-p1' && currentPlayer === 1) || (gamePhase === 'betting-p2' && currentPlayer === 2);
+                const canBet = isBettingPhase && isMyTurn && !isDropping && !isLocked;
                 return (
                   <button 
                     key={`bottom-${color.id}`}
-                    onClick={() => placeBet(color.id)}
+                    onClick={() => canBet && placeBet(color.id)}
                     disabled={!canBet}
                     className={`p-4 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                     style={{
                       background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
-                      boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                      boxShadow: (p1Bet > 0 || p2Bet > 0) ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                     }}
                   >
                     <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
                       {color.emoji} {color.name.toUpperCase()}
                     </div>
-                    {currentBet > 0 && (
-                      <div className="text-yellow-200 text-xs mt-1 font-bold">💰 {currentBet}</div>
+                    {p1Bet > 0 && (
+                      <div className="text-blue-200 text-xs mt-1 font-bold">P1: 💰{p1Bet}</div>
+                    )}
+                    {p2Bet > 0 && (
+                      <div className="text-red-200 text-xs mt-1 font-bold">P2: 💰{p2Bet}</div>
                     )}
                     {isLocked && (
                       <div className="text-xs">🔒</div>
