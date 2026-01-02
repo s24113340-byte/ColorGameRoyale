@@ -45,7 +45,16 @@ export default function GameHUD({ gameState, colors }) {
                 animate={{ scale: 1 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700"
               >
-                <span className="text-2xl">{champion.sprite}</span>
+                {champion.sprite.startsWith('http') ? (
+                  <img 
+                    src={champion.sprite} 
+                    alt={champion.name}
+                    className="w-10 h-10 object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : (
+                  <span className="text-2xl">{champion.sprite}</span>
+                )}
                 <div>
                   <p className="text-xs text-slate-400">{champion.class}</p>
                   <p className="font-bold text-sm" style={{ color: champion.colors.primary }}>
