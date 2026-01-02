@@ -131,9 +131,9 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             />
 
             <div className="relative p-6 md:p-8">
-              {/* Champion sprite */}
+              {/* Champion sprite - fixed height container for alignment */}
               <motion.div 
-                className={`text-center flex items-center ${champion.id === 'ren' ? 'justify-start pl-8 -mb-2' : champion.id === 'rei' ? 'justify-center -mb-2' : 'justify-center mb-4'}`}
+                className="text-center flex items-end justify-center h-96 -mb-2"
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
@@ -161,7 +161,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </motion.div>
 
               {/* Name & Title */}
-              <div className={`text-center mb-6 ${champion.id === 'ren' || champion.id === 'rei' ? '-mt-4' : ''}`}>
+              <div className="text-center mb-6 -mt-4">
                 <h3 
                   className="text-3xl md:text-4xl font-black tracking-wider"
                   style={{ color: champion.colors.primary }}
@@ -181,13 +181,13 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                 </div>
               </div>
 
-              {/* Description */}
-              <p className={`text-slate-400 text-sm text-center leading-relaxed ${champion.id === 'ren' || champion.id === 'rei' ? 'mb-3 mt-0' : 'mb-6'}`}>
+              {/* Description - fixed height */}
+              <p className="text-slate-400 text-sm text-center leading-relaxed mb-3 mt-0 h-16 flex items-center justify-center px-2">
                 {champion.description}
               </p>
 
-              {/* Stats */}
-              <div className="space-y-3 mb-6">
+              {/* Stats - fixed top margin */}
+              <div className="space-y-3 mb-6 mt-4">
                 {Object.entries(upgradedChampion.stats).map(([stat, value]) => {
                   const baseValue = champion.stats[stat];
                   const upgradeBonus = value - baseValue;
@@ -216,8 +216,8 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                 })}
               </div>
 
-              {/* Abilities */}
-              <div className="flex flex-wrap gap-2 justify-center">
+              {/* Abilities - bottom aligned */}
+              <div className="flex flex-wrap gap-2 justify-center min-h-[60px] items-end">
                 {champion.abilities.map((ability) => (
                   <span 
                     key={ability}
