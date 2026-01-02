@@ -7,6 +7,7 @@ import GameBoard from '@/components/game/GameBoard';
 import GameHUD from '@/components/game/GameHUD';
 import UmbraOverlay from '@/components/game/UmbraOverlay';
 import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
+import UmbraDragon from '@/components/game/UmbraDragon';
 import EndingCinematic from '@/components/game/EndingCinematic';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
@@ -103,6 +104,7 @@ const INITIAL_STATE = {
   bonusTime: 0,
   streak: 0,
   bets: {},
+  umbraBets: {},
   droppedBalls: [],
   isDropping: false,
   canSkipResults: false,
@@ -293,6 +295,20 @@ export default function ColorGameRoyale() {
   const dropBalls = async () => {
     if (Object.keys(gameState.bets).length === 0 || gameState.isDropping) return;
     
+    // Umbra makes his bets (in Campaign mode)
+    if (gameState.gameMode === 'normal') {
+      const umbraBets = {};
+      const numBets = Math.floor(Math.random() * 3) + 1; // 1-3 colors
+      const availableColors = [...COLORS];
+      
+      for (let i = 0; i < numBets; i++) {
+        const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+        umbraBets[randomColor.id] = Math.floor(Math.random() * 30) + 10; // 10-40 bet
+      }
+      
+      setGameState(prev => ({ ...prev, umbraBets }));
+    }
+    
     playSound('drop');
     setGameState(prev => ({ ...prev, isDropping: true, canSkipResults: false }));
 
@@ -358,7 +374,7 @@ export default function ColorGameRoyale() {
       }
     });
 
-    // Check each bet
+    // Check player bets
     Object.entries(gameState.bets).forEach(([colorId, betAmount]) => {
       const matches = colorCounts[colorId] || 0;
       if (matches > 0) {
@@ -368,13 +384,23 @@ export default function ColorGameRoyale() {
         pointsEarned += matches === 3 ? 30 : 10 * matches;
         newStreak++;
 
-        // Faction buff activation on streak or jackpot
-        if (matches === 3 || newStreak >= 3) {
+        // Time bonus based on matches
+        if (matches === 3) {
+          bonusTimeEarned += 10; // Jackpot: +10 seconds
+          shadowDamage = 25;
+        } else if (matches === 2) {
+          bonusTimeEarned += 5; // Combo: +5 seconds
+          shadowDamage = 15;
+        } else {
+          bonusTimeEarned += 2; // Match: +2 seconds
+          shadowDamage = 5;
+        }
+
+        // Faction buff activation on jackpot
+        if (matches === 3) {
           const color = COLORS.find(c => c.id === colorId);
           factionBuff = color.faction;
           multiplier = 3;
-          shadowDamage = 20;
-          bonusTimeEarned = matches === 3 ? 15 : 5;
           newBalance[color.faction] = Math.min(100, newBalance[color.faction] + 10);
           playSound('jackpot');
         } else {
@@ -385,22 +411,33 @@ export default function ColorGameRoyale() {
       }
     });
 
+    // Check Umbra's bets (Campaign mode)
+    if (gameState.gameMode === 'normal' && gameState.umbraBets) {
+      Object.entries(gameState.umbraBets).forEach(([colorId, betAmount]) => {
+        const matches = colorCounts[colorId] || 0;
+        if (matches > 0) {
+          // Umbra regains shadow meter if he wins
+          shadowDamage -= matches * 8;
+        }
+      });
+    }
+
     // Umbra SOPHISTICATED AI interference
     let umbraAbility = null;
     let poisoned = [];
     let frozen = false;
     let isRageMode = false;
     let isFinalBoss = false;
-    
-    if (gameState.gameMode === 'normal' && gameState.round > 2) {
+
+    if (gameState.gameMode === 'normal') {
       const shadowPercent = gameState.shadowMeter;
       const champion = gameState.champion;
       
       // RAGE MODE: Shadow Meter below 30%
       isRageMode = shadowPercent <= 30;
       
-      // FINAL BOSS MODE: Last 2 rounds
-      isFinalBoss = gameState.round >= gameState.maxRounds - 1;
+      // FINAL BOSS MODE: Time running low
+      isFinalBoss = gameState.timer <= 20;
       
       // Base attack chance (reduced for easier gameplay)
       let attackChance = 0.15;
@@ -486,17 +523,18 @@ export default function ColorGameRoyale() {
 
     setGameState(prev => {
       const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
-      const newRound = prev.round + 1;
       const newScore = prev.score + pointsEarned;
+      const newTimer = Math.max(0, prev.timer + bonusTimeEarned);
       
-      // Check for ending conditions - win by depleting shadow OR reaching high score
-      const isVictory = newShadow <= 0 || newScore >= 500;
-      const isGameOver = isVictory || (prev.gameMode === 'normal' && newRound > prev.maxRounds);
+      // Check for ending conditions - win by depleting shadow OR time runs out
+      const isVictory = newShadow <= 0;
+      const isGameOver = isVictory || (prev.gameMode === 'normal' && newTimer <= 0);
       
       if (isGameOver) {
         return {
           ...prev,
           score: newScore,
+          timer: newTimer,
           phase: 'ending',
           ending: isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos',
         };
@@ -504,11 +542,12 @@ export default function ColorGameRoyale() {
 
       return {
         ...prev,
-        score: prev.score + pointsEarned,
+        score: newScore,
         coins: prev.coins + totalWin,
-        timer: Math.max(0, prev.timer + bonusTimeEarned),
+        timer: newTimer,
         streak: newStreak,
         bets: {},
+        umbraBets: {},
         droppedBalls: [],
         isDropping: false,
         canSkipResults: false,
@@ -523,7 +562,6 @@ export default function ColorGameRoyale() {
         umbraFinalBoss: isFinalBoss,
         poisonedSquares: poisoned,
         frozen,
-        round: newRound,
       };
     });
 
@@ -704,6 +742,10 @@ export default function ColorGameRoyale() {
             />
 
             <UmbraAIIndicator gameState={gameState} />
+
+            {gameState.gameMode === 'normal' && (
+              <UmbraDragon gameState={gameState} />
+            )}
 
             <PauseMenu
               isOpen={gameState.isPaused}

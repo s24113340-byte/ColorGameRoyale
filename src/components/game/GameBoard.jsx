@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults }) {
   const [betAmount, setBetAmount] = useState(10);
-  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults } = gameState;
+  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets } = gameState;
 
   const adjustBet = (delta) => {
     setBetAmount(Math.max(5, Math.min(50, betAmount + delta)));
@@ -42,33 +42,36 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             {/* Board container with betting panels on all sides */}
             <div className="relative bg-gradient-to-br from-pink-200 to-pink-300 p-6 rounded-3xl border-8 border-pink-400 shadow-2xl">
 
-              {/* Top betting panels */}
+              {/* Top betting panels - UMBRA'S BETS */}
               <div className="grid grid-cols-4 gap-2 mb-4">
                 {colors.filter(c => c && c.id).map((color) => {
-                  const currentBet = bets[color.id] || 0;
+                  const umbraBet = umbraBets?.[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
                   return (
-                    <button 
+                    <div
                       key={`top-${color.id}`}
-                      onClick={() => onPlaceBet(color.id, betAmount)}
-                      disabled={frozen || isDropping || coins < betAmount}
-                      className={`p-3 rounded-lg border-3 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      className="p-3 rounded-lg border-3 font-bold text-sm relative"
                       style={{
-                        background: color.hex,
-                        borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
-                        boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex}88)`,
+                        borderColor: umbraBet > 0 ? '#8B5CF6' : `${color.hex}dd`,
+                        boxShadow: umbraBet > 0 ? '0 0 15px rgba(139, 92, 246, 0.6)' : 'none',
+                        opacity: 0.9,
                       }}
                     >
                       <div className="text-white text-shadow-lg flex items-center justify-center gap-2">
                         {color.emoji} {color.name.toUpperCase()}
                       </div>
-                      {currentBet > 0 && (
-                        <div className="text-yellow-200 text-xs mt-1">💰 {currentBet}</div>
+                      {umbraBet > 0 && (
+                        <div className="text-purple-300 text-xs mt-1 font-bold flex items-center justify-center gap-1">
+                          🐉 {umbraBet}
+                        </div>
                       )}
                       {isPoisoned && (
                         <div className="text-purple-300 text-xs">☠️</div>
                       )}
-                    </button>
+                      {/* Umbra indicator */}
+                      <div className="absolute -top-1 -right-1 text-xs">👿</div>
+                    </div>
                   );
                 })}
               </div>
