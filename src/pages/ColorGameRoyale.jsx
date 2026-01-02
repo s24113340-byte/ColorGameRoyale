@@ -10,6 +10,7 @@ import UmbraAIIndicator from '@/components/game/UmbraAIIndicator';
 import UmbraDragon from '@/components/game/UmbraDragon';
 import ChampionDisplay from '@/components/game/ChampionDisplay';
 import EndingCinematic from '@/components/game/EndingCinematic';
+import BlackHoleTransition from '@/components/game/BlackHoleTransition';
 import ModeSelect from '@/components/game/ModeSelect';
 import PVPMode from '@/components/game/PVPMode';
 import PauseMenu from '@/components/game/PauseMenu';
@@ -94,7 +95,7 @@ const COLORS = [
 ];
 
 const INITIAL_STATE = {
-  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, ending
+  phase: 'title', // title, mode-select, campaign-map, upgrades, champion-select, playing, black-hole, ending
   gameMode: null, // normal, time-attack, pvp
   champion: null,
   selectedLevel: null,
@@ -177,7 +178,8 @@ export default function ColorGameRoyale() {
         setGameState(prev => {
           const newTimer = prev.timer - 1;
           if (newTimer <= 0) {
-            return { ...prev, phase: 'ending', ending: determineEnding(prev) };
+            const ending = determineEnding(prev);
+            return { ...prev, phase: ending === 'chaos' ? 'black-hole' : 'ending', ending };
           }
           return { ...prev, timer: newTimer };
         });
@@ -532,12 +534,13 @@ export default function ColorGameRoyale() {
       const isGameOver = isVictory || (prev.gameMode === 'normal' && newTimer <= 0);
       
       if (isGameOver) {
+        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
-          phase: 'ending',
-          ending: isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos',
+          phase: ending === 'chaos' ? 'black-hole' : 'ending',
+          ending,
         };
       }
 
@@ -775,6 +778,12 @@ export default function ColorGameRoyale() {
               onToggleSound={() => setGameState(prev => ({ ...prev, soundOn: !prev.soundOn }))}
             />
           </motion.div>
+        )}
+
+        {gameState.phase === 'black-hole' && (
+          <BlackHoleTransition 
+            onComplete={() => setGameState(prev => ({ ...prev, phase: 'ending' }))}
+          />
         )}
 
         {gameState.phase === 'ending' && (
