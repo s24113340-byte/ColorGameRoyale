@@ -133,7 +133,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             <div className="relative p-6 md:p-8">
               {/* Champion sprite */}
               <motion.div 
-                className={`text-center flex items-center ${champion.id === 'ren' ? 'justify-start pl-8 -mb-2' : champion.id === 'rei' ? 'justify-center -mb-2' : 'justify-center mb-4'}`}
+                className={`text-center flex items-center ${champion.id === 'ren' ? 'justify-start pl-8 -mb-2' : champion.id === 'rei' ? 'justify-start pl-8 -mb-2' : 'justify-center mb-4'}`}
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
