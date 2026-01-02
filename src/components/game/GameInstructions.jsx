@@ -28,18 +28,18 @@ export default function GameInstructions({ onStart, gameMode, champion }) {
       title: 'Match & Win',
       description: 'Win coins and time when balls match your bet colors:',
       extra: (
-        <div className="space-y-1 text-sm mt-3">
-          <div className="flex justify-between">
-            <span className="text-slate-400">1 Match:</span>
-            <span className="text-white">1:1 payout, +2s</span>
+        <div className="space-y-3 text-lg md:text-xl mt-3 bg-slate-800/50 rounded-xl p-6">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-300 font-medium">1 Match:</span>
+            <span className="text-white font-bold">1:1 payout, +2s</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">2 Match:</span>
-            <span className="text-white">2:1 payout, +5s</span>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-300 font-medium">2 Match:</span>
+            <span className="text-white font-bold">2:1 payout, +5s</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-yellow-400">3 Match (JACKPOT):</span>
-            <span className="text-yellow-400">3:1 payout, +10s</span>
+          <div className="flex justify-between items-center">
+            <span className="text-yellow-400 font-bold">3 Match (JACKPOT):</span>
+            <span className="text-yellow-400 font-bold">3:1 payout, +10s ⚡</span>
           </div>
         </div>
       ),
@@ -63,22 +63,22 @@ export default function GameInstructions({ onStart, gameMode, champion }) {
       title: '⚠️ Beware of Umbra',
       description: 'Umbra the dragon will interfere with your game! He can:',
       extra: (
-        <div>
-          <div className="grid grid-cols-1 gap-2 text-sm mt-3">
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">❄️</span>
-              <span className="text-slate-300">Freeze your bets</span>
+        <div className="mt-4">
+          <div className="grid grid-cols-1 gap-4 text-lg md:text-xl bg-slate-800/50 rounded-xl p-6">
+            <div className="flex items-center gap-3">
+              <span className="text-blue-400 text-2xl">❄️</span>
+              <span className="text-slate-200 font-medium">Freeze your bets</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-purple-400">☠️</span>
-              <span className="text-slate-300">Poison color tiles</span>
+            <div className="flex items-center gap-3">
+              <span className="text-purple-400 text-2xl">☠️</span>
+              <span className="text-slate-200 font-medium">Poison color tiles</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">⚡</span>
-              <span className="text-slate-300">Drain your score</span>
+            <div className="flex items-center gap-3">
+              <span className="text-red-400 text-2xl">⚡</span>
+              <span className="text-slate-200 font-medium">Drain your score</span>
             </div>
           </div>
-          <p className="text-purple-200 text-sm mt-3 font-bold">
+          <p className="text-purple-300 text-lg md:text-xl mt-6 font-bold bg-purple-900/30 rounded-xl p-4">
             💡 Tip: When Umbra's meter is low, he gets more aggressive!
           </p>
         </div>
@@ -153,26 +153,26 @@ export default function GameInstructions({ onStart, gameMode, champion }) {
       )}
 
       {/* Card Carousel */}
-      <div className="relative w-full max-w-2xl mb-8">
+      <div className="relative w-full max-w-4xl mb-12">
         {/* Navigation Arrows */}
         <button
           onClick={prevCard}
           disabled={currentCard === 0}
-          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-10 w-12 h-12 rounded-full bg-slate-800/80 backdrop-blur border border-slate-700 flex items-center justify-center transition-all ${
-            currentCard === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-700 hover:scale-110'
+          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-16 z-10 w-14 h-14 rounded-full bg-slate-800/90 backdrop-blur border-2 border-purple-500/50 flex items-center justify-center transition-all ${
+            currentCard === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-purple-600 hover:scale-110 hover:border-purple-400'
           }`}
         >
-          <ChevronLeft className="w-6 h-6 text-white" />
+          <ChevronLeft className="w-7 h-7 text-white" />
         </button>
 
         <button
           onClick={nextCard}
           disabled={currentCard === cards.length - 1}
-          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-10 w-12 h-12 rounded-full bg-slate-800/80 backdrop-blur border border-slate-700 flex items-center justify-center transition-all ${
-            currentCard === cards.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-700 hover:scale-110'
+          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-16 z-10 w-14 h-14 rounded-full bg-slate-800/90 backdrop-blur border-2 border-purple-500/50 flex items-center justify-center transition-all ${
+            currentCard === cards.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-purple-600 hover:scale-110 hover:border-purple-400'
           }`}
         >
-          <ChevronRight className="w-6 h-6 text-white" />
+          <ChevronRight className="w-7 h-7 text-white" />
         </button>
 
         {/* Card */}
@@ -182,25 +182,25 @@ export default function GameInstructions({ onStart, gameMode, champion }) {
             return (
               <motion.div
                 key={currentCard}
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -100, opacity: 0 }}
+                initial={{ x: 100, opacity: 0, scale: 0.95 }}
+                animate={{ x: 0, opacity: 1, scale: 1 }}
+                exit={{ x: -100, opacity: 0, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="bg-slate-900/50 backdrop-blur border border-purple-500/30 rounded-2xl p-8 md:p-12 min-h-[400px] flex flex-col"
+                className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl border-2 border-purple-500/40 rounded-3xl p-10 md:p-16 min-h-[500px] flex flex-col justify-center shadow-2xl shadow-purple-500/20"
               >
-                <div className="flex items-start gap-6 mb-6">
-                  <div className={`w-16 h-16 rounded-xl ${cards[currentCard].bgColor} flex items-center justify-center flex-shrink-0`}>
-                    <Icon className={`w-8 h-8 ${cards[currentCard].iconColor}`} />
+                <div className="flex flex-col items-center text-center gap-8">
+                  <div className={`w-24 h-24 md:w-28 md:h-28 rounded-2xl ${cards[currentCard].bgColor} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                    <Icon className={`w-14 h-14 md:w-16 md:h-16 ${cards[currentCard].iconColor}`} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                  <div className="flex-1 max-w-2xl">
+                    <h3 className="text-3xl md:text-5xl font-black text-white mb-6 tracking-tight">
                       {cards[currentCard].title}
                     </h3>
-                    <p className="text-slate-300 text-base md:text-lg leading-relaxed">
+                    <p className="text-slate-200 text-xl md:text-2xl leading-relaxed font-medium">
                       {cards[currentCard].description}
                     </p>
                     {cards[currentCard].extra && (
-                      <div className="mt-4">
+                      <div className="mt-8">
                         {cards[currentCard].extra}
                       </div>
                     )}
@@ -212,15 +212,15 @@ export default function GameInstructions({ onStart, gameMode, champion }) {
         </AnimatePresence>
 
         {/* Progress Dots */}
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="flex justify-center gap-3 mt-8">
           {cards.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentCard(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`h-3 rounded-full transition-all ${
                 index === currentCard 
-                  ? 'bg-purple-500 w-8' 
-                  : 'bg-slate-600 hover:bg-slate-500'
+                  ? 'bg-purple-500 w-12 shadow-lg shadow-purple-500/50' 
+                  : 'bg-slate-600 w-3 hover:bg-slate-500 hover:w-6'
               }`}
             />
           ))}
