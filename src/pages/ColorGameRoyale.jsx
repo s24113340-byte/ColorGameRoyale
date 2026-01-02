@@ -176,7 +176,7 @@ export default function ColorGameRoyale() {
 
   // Timer logic
   useEffect(() => {
-    if (gameState.phase === 'playing' && !gameState.frozen && !gameState.isDropping && !gameState.isPaused) {
+    if (gameState.phase === 'playing' && !gameState.frozen && !gameState.isDropping && !gameState.isPaused && !gameState.showTutorial) {
       timerRef.current = setInterval(() => {
         setGameState(prev => {
           const newTimer = prev.timer - 1;
@@ -189,7 +189,7 @@ export default function ColorGameRoyale() {
       }, 1000);
     }
     return () => clearInterval(timerRef.current);
-  }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused]);
+  }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused, gameState.showTutorial]);
 
   const determineEnding = (state) => {
     // Win if shadow meter is depleted OR score is high enough
