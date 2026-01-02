@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Zap, Shield, Snowflake, Skull, Trophy, Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PauseMenu from './PauseMenu';
+import PVPTutorial from './PVPTutorial';
 
 const INTERFERENCE_ATTACKS = {
   freeze: { name: 'Freeze Turn', icon: Snowflake, cost: 30, color: '#3B82F6' },
@@ -25,6 +26,8 @@ export default function PVPMode({ onBack, colors }) {
   const [isPaused, setIsPaused] = useState(false);
   const [musicOn, setMusicOn] = useState(true);
   const [soundOn, setSoundOn] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialCompleted, setTutorialCompleted] = useState(false);
   const audioRef = useRef(null);
 
   const playSound = useCallback((type) => {
@@ -44,7 +47,23 @@ export default function PVPMode({ onBack, colors }) {
   }, []);
 
   const startGame = () => {
+    const hasSeenTutorial = localStorage.getItem('pvpTutorialCompleted');
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+    }
     setGamePhase('playing');
+  };
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('pvpTutorialCompleted', 'true');
+    setShowTutorial(false);
+    setTutorialCompleted(true);
+  };
+
+  const handleTutorialSkip = () => {
+    localStorage.setItem('pvpTutorialCompleted', 'true');
+    setShowTutorial(false);
+    setTutorialCompleted(true);
   };
 
   const placeBet = (colorId) => {
@@ -407,6 +426,14 @@ export default function PVPMode({ onBack, colors }) {
         onToggleMusic={() => setMusicOn(!musicOn)}
         onToggleSound={() => setSoundOn(!soundOn)}
       />
+
+      {/* PVP Tutorial overlay */}
+      {showTutorial && (
+        <PVPTutorial
+          onComplete={handleTutorialComplete}
+          onSkip={handleTutorialSkip}
+        />
+      )}
     </motion.div>
   );
 }
