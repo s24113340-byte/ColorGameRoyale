@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Play, CircleDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults }) {
+export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults, onUseAbility }) {
   const [betAmount, setBetAmount] = useState(50);
-  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets } = gameState;
+  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets, champion, abilityCharges, abilityCooldown, streak } = gameState;
 
   const adjustBet = (delta) => {
     setBetAmount(Math.max(10, Math.min(100, betAmount + delta)));
@@ -471,6 +471,29 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             </Button>
           </div>
 
+          {/* Champion Ability Button */}
+          {champion && (
+            <motion.button
+              whileHover={{ scale: abilityCharges > 0 && abilityCooldown === 0 ? 1.05 : 1 }}
+              whileTap={{ scale: abilityCharges > 0 && abilityCooldown === 0 ? 0.95 : 1 }}
+              onClick={onUseAbility}
+              disabled={abilityCharges <= 0 || abilityCooldown > 0}
+              className={`px-6 py-4 rounded-xl font-bold text-sm flex items-center gap-2 border-2 ${
+                abilityCharges > 0 && abilityCooldown === 0
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50'
+                  : 'bg-slate-700/50 text-slate-500 border-slate-600 cursor-not-allowed'
+              }`}
+            >
+              <span className="text-lg">✨</span>
+              <div className="text-left">
+                <div className="text-xs opacity-70">ABILITY</div>
+                <div className="font-black">
+                  {abilityCooldown > 0 ? `COOLDOWN (${abilityCooldown})` : `CHARGES: ${abilityCharges}`}
+                </div>
+              </div>
+            </motion.button>
+          )}
+
           {/* Drop button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -497,6 +520,28 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             </span>
           </div>
         </motion.div>
+
+        {/* Streak Bonus Indicator */}
+        <AnimatePresence>
+          {streak >= 3 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-center mt-4"
+            >
+              <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/50">
+                <span className="text-2xl">🔥</span>
+                <div className="text-left">
+                  <p className="text-orange-400 font-bold text-sm">STREAK ACTIVE!</p>
+                  <p className="text-yellow-300 text-xs">
+                    +{Math.floor(streak * 5)} coins per win • +{streak * 2} Umbra damage
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Frozen overlay */}
         <AnimatePresence>

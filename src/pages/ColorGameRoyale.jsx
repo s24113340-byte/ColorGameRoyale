@@ -121,6 +121,8 @@ const INITIAL_STATE = {
   umbraFinalBoss: false,
   poisonedSquares: [],
   frozen: false,
+  abilityCharges: 3,
+  abilityCooldown: 0,
   round: 1,
   maxRounds: 10,
   factionBuffActive: null,
@@ -385,6 +387,10 @@ export default function ColorGameRoyale() {
       }
     });
 
+    // Streak bonuses
+    const streakCoinBonus = gameState.streak >= 3 ? Math.floor(gameState.streak * 5) : 0;
+    const streakDamageBonus = gameState.streak >= 5 ? gameState.streak * 2 : 0;
+
     // Check player bets
     Object.entries(gameState.bets).forEach(([colorId, betAmount]) => {
       const matches = colorCounts[colorId] || 0;
@@ -398,14 +404,17 @@ export default function ColorGameRoyale() {
         // Time bonus based on matches
         if (matches === 3) {
           bonusTimeEarned += 10; // Jackpot: +10 seconds
-          shadowDamage = 25;
+          shadowDamage = 25 + streakDamageBonus;
         } else if (matches === 2) {
           bonusTimeEarned += 5; // Combo: +5 seconds
-          shadowDamage = 15;
+          shadowDamage = 15 + streakDamageBonus;
         } else {
           bonusTimeEarned += 2; // Match: +2 seconds
-          shadowDamage = 5;
+          shadowDamage = 5 + streakDamageBonus;
         }
+
+        // Streak coin bonus
+        totalWin += streakCoinBonus;
 
         // Faction buff activation on jackpot
         if (matches === 3) {
@@ -813,6 +822,7 @@ export default function ColorGameRoyale() {
               onPlaceBet={placeBet}
               onDrop={dropBalls}
               onSkipResults={skipResults}
+              onUseAbility={useChampionAbility}
             />
 
             <UmbraOverlay 
