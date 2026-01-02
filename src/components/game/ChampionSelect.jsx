@@ -33,7 +33,7 @@ const CHAMPIONS = [
       secondary: '#8B5CF6',
       glow: 'rgba(59, 130, 246, 0.5)',
     },
-    sprite: '🧙',
+    sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/2ee233f82_Rei-removebg-preview.png',
   },
 ];
 
@@ -133,7 +133,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             <div className="relative p-6 md:p-8">
               {/* Champion sprite */}
               <motion.div 
-                className={`text-center flex items-center ${champion.id === 'ren' ? 'justify-start pl-8 -mb-2' : 'justify-center mb-4'}`}
+                className={`text-center flex items-center ${champion.id === 'ren' ? 'justify-start pl-8 -mb-2' : champion.id === 'rei' ? 'justify-center -mb-2' : 'justify-center mb-4'}`}
                 animate={hoveredChampion === champion.id ? { 
                   scale: [1, 1.1, 1],
                   rotate: [0, -5, 5, 0]
@@ -144,7 +144,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                   <motion.img 
                     src={champion.sprite} 
                     alt={champion.name}
-                    className={`object-contain ${champion.id === 'ren' ? 'w-80 h-80 md:w-96 md:h-96' : 'w-32 h-32 md:w-40 md:h-40'}`}
+                    className={`object-contain ${champion.id === 'ren' ? 'w-80 h-80 md:w-96 md:h-96' : champion.id === 'rei' ? 'w-80 h-80 md:w-96 md:h-96' : 'w-32 h-32 md:w-40 md:h-40'}`}
                     style={{ imageRendering: 'pixelated' }}
                     whileHover={{ scale: 1.15, y: -12 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -161,7 +161,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </motion.div>
 
               {/* Name & Title */}
-              <div className={`text-center mb-6 ${champion.id === 'ren' ? '-mt-4' : ''}`}>
+              <div className={`text-center mb-6 ${champion.id === 'ren' || champion.id === 'rei' ? '-mt-4' : ''}`}>
                 <h3 
                   className="text-3xl md:text-4xl font-black tracking-wider"
                   style={{ color: champion.colors.primary }}
@@ -182,7 +182,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
               </div>
 
               {/* Description */}
-              <p className={`text-slate-400 text-sm text-center leading-relaxed ${champion.id === 'ren' ? 'mb-3 mt-0' : 'mb-6'}`}>
+              <p className={`text-slate-400 text-sm text-center leading-relaxed ${champion.id === 'ren' || champion.id === 'rei' ? 'mb-3 mt-0' : 'mb-6'}`}>
                 {champion.description}
               </p>
 
