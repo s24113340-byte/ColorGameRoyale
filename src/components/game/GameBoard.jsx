@@ -164,16 +164,31 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
 
                   {/* Center Hopper */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                    <img 
-                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/b33a15b06_unnamed__4_-removebg-preview.png"
-                      alt="Hopper"
-                      className="w-56 h-56 object-contain"
-                    />
+                    <motion.div
+                      animate={{
+                        filter: [
+                          'drop-shadow(0 0 20px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 40px rgba(251, 191, 36, 0.4))',
+                          'drop-shadow(0 0 30px rgba(251, 191, 36, 0.6)) drop-shadow(0 0 50px rgba(59, 130, 246, 0.4))',
+                          'drop-shadow(0 0 20px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 40px rgba(251, 191, 36, 0.4))',
+                        ],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <img 
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/b33a15b06_unnamed__4_-removebg-preview.png"
+                        alt="Hopper"
+                        className="w-96 h-96 object-contain"
+                      />
+                    </motion.div>
                     
-                    {/* Spinning white glowing balls before drop */}
+                    {/* Spinning white glowing balls before drop - INSIDE the hopper */}
                     <AnimatePresence>
                       {!isDropping && Object.keys(bets).length > 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="absolute top-[35%] left-1/2 -translate-x-1/2 flex items-center justify-center">
                           {[0, 1, 2].map((i) => (
                             <motion.div
                               key={i}
@@ -192,10 +207,10 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                               }}
                             >
                               <motion.div
-                                className="w-8 h-8 rounded-full"
+                                className="w-10 h-10 rounded-full"
                                 animate={{
-                                  x: Math.cos((i * 120 * Math.PI) / 180) * 30,
-                                  y: Math.sin((i * 120 * Math.PI) / 180) * 30,
+                                  x: Math.cos((i * 120 * Math.PI) / 180) * 40,
+                                  y: Math.sin((i * 120 * Math.PI) / 180) * 40,
                                 }}
                                 style={{
                                   background: 'radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0)',
