@@ -11,12 +11,13 @@ const INTERFERENCE_ATTACKS = {
 };
 
 export default function PVPMode({ onBack, colors }) {
-  const [gamePhase, setGamePhase] = useState('waiting'); // waiting, playing, ended
+  const [gamePhase, setGamePhase] = useState('waiting'); // waiting, betting-p1, betting-p2, dropping, ended
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [players, setPlayers] = useState({
     1: { score: 0, coins: 100, integrity: 100, bets: {}, frozen: false, streak: 0 },
     2: { score: 0, coins: 100, integrity: 100, bets: {}, frozen: false, streak: 0 },
   });
+  const [lockedColors, setLockedColors] = useState([]);
   const [droppedBalls, setDroppedBalls] = useState([]);
   const [ballsWithSquares, setBallsWithSquares] = useState([]);
   const [isDropping, setIsDropping] = useState(false);
@@ -52,7 +53,8 @@ export default function PVPMode({ onBack, colors }) {
     if (!hasSeenTutorial) {
       setShowTutorial(true);
     }
-    setGamePhase('playing');
+    setGamePhase('betting-p1');
+    setCurrentPlayer(1);
   };
 
   const handleTutorialComplete = () => {
@@ -70,6 +72,15 @@ export default function PVPMode({ onBack, colors }) {
   const placeBet = (colorId) => {
     if (players[currentPlayer].frozen || isDropping) return;
     if (players[currentPlayer].coins < betAmount) return;
+    
+    // Check if color is locked by opponent
+    if (lockedColors.includes(colorId)) return;
+    
+    const currentBets = players[currentPlayer].bets;
+    const betCount = Object.keys(currentBets).length;
+    
+    // Limit to 2 colors max
+    if (betCount >= 2 && !currentBets[colorId]) return;
 
     playSound('bet');
     setPlayers(prev => ({
@@ -84,9 +95,24 @@ export default function PVPMode({ onBack, colors }) {
       },
     }));
   };
+  
+  const confirmBets = () => {
+    const currentBets = Object.keys(players[currentPlayer].bets);
+    if (currentBets.length === 0) return;
+    
+    // Lock the colors chosen by current player
+    setLockedColors(currentBets);
+    
+    if (gamePhase === 'betting-p1') {
+      setGamePhase('betting-p2');
+      setCurrentPlayer(2);
+    } else if (gamePhase === 'betting-p2') {
+      setGamePhase('dropping');
+    }
+  };
 
   const dropBalls = async () => {
-    if (Object.keys(players[currentPlayer].bets).length === 0 || isDropping) return;
+    if (gamePhase !== 'dropping' || isDropping) return;
     
     playSound('drop');
     setIsDropping(true);
@@ -122,82 +148,91 @@ export default function PVPMode({ onBack, colors }) {
       colorCounts[r.id] = (colorCounts[r.id] || 0) + 1;
     });
 
-    let totalWin = 0;
-    let pointsEarned = 0;
-    let newStreak = players[currentPlayer].streak;
+    // Calculate results for both players
+    const p1Results = { totalWin: 0, pointsEarned: 0 };
+    const p2Results = { totalWin: 0, pointsEarned: 0 };
 
-    Object.entries(players[currentPlayer].bets).forEach(([colorId, betAmount]) => {
+    Object.entries(players[1].bets).forEach(([colorId, betAmount]) => {
       const matches = colorCounts[colorId] || 0;
       if (matches > 0) {
         const payoutRates = { 1: 1, 2: 2, 3: 3 };
-        totalWin += betAmount * payoutRates[matches];
-        pointsEarned += matches === 3 ? 30 : 10 * matches;
-        newStreak++;
+        p1Results.totalWin += betAmount * payoutRates[matches];
+        p1Results.pointsEarned += matches === 3 ? 30 : 10 * matches;
         playSound('win');
-      } else {
-        newStreak = 0;
+      }
+    });
+
+    Object.entries(players[2].bets).forEach(([colorId, betAmount]) => {
+      const matches = colorCounts[colorId] || 0;
+      if (matches > 0) {
+        const payoutRates = { 1: 1, 2: 2, 3: 3 };
+        p2Results.totalWin += betAmount * payoutRates[matches];
+        p2Results.pointsEarned += matches === 3 ? 30 : 10 * matches;
+        playSound('win');
       }
     });
 
     setPlayers(prev => {
-      const updatedPlayer = {
-        ...prev[currentPlayer],
-        score: prev[currentPlayer].score + pointsEarned,
-        coins: prev[currentPlayer].coins + totalWin,
-        streak: newStreak,
+      const newP1 = {
+        ...prev[1],
+        score: prev[1].score + p1Results.pointsEarned,
+        coins: prev[1].coins + p1Results.totalWin,
+        bets: {},
+        frozen: false,
+      };
+      
+      const newP2 = {
+        ...prev[2],
+        score: prev[2].score + p2Results.pointsEarned,
+        coins: prev[2].coins + p2Results.totalWin,
         bets: {},
         frozen: false,
       };
 
-      const newPlayers = {
-        ...prev,
-        [currentPlayer]: updatedPlayer,
-      };
-
-      // Check for coin-based win condition
-      const p1 = currentPlayer === 1 ? updatedPlayer : prev[1];
-      const p2 = currentPlayer === 2 ? updatedPlayer : prev[2];
-
-      if (p1.coins <= 0 || p2.coins <= 0) {
+      // Check for coin-based win condition or max turns
+      if (newP1.coins <= 0 || newP2.coins <= 0 || turn >= maxTurns) {
         setTimeout(() => {
-          if (p1.coins > p2.coins) {
-            setWinner(1);
-          } else if (p2.coins > p1.coins) {
+          if (newP1.coins <= 0 && newP2.coins <= 0) {
+            setWinner(newP1.score > newP2.score ? 1 : newP2.score > newP1.score ? 2 : 0);
+          } else if (newP1.coins <= 0) {
             setWinner(2);
+          } else if (newP2.coins <= 0) {
+            setWinner(1);
           } else {
-            setWinner(0);
+            // Max turns reached
+            setWinner(newP1.score > newP2.score ? 1 : newP2.score > newP1.score ? 2 : 0);
           }
           setGamePhase('ended');
         }, 1500);
       }
 
-      return newPlayers;
+      return {
+        1: newP1,
+        2: newP2,
+      };
     });
 
-    // Next turn
+    // Next turn - winner of round goes first
     setTimeout(() => {
       setDroppedBalls([]);
       setBallsWithSquares([]);
       setIsDropping(false);
+      setLockedColors([]);
       
-      // Check if game should end due to coins
-      const p1 = currentPlayer === 1 ? players[currentPlayer] : players[1];
-      const p2 = currentPlayer === 2 ? players[currentPlayer] : players[2];
+      // Check if game should end
+      const p1 = players[1];
+      const p2 = players[2];
       
-      if (p1.coins <= 0 || p2.coins <= 0) {
-        return; // Game will end via the coin check above
+      if (p1.coins <= 0 || p2.coins <= 0 || turn >= maxTurns) {
+        return;
       }
       
-      if (currentPlayer === 2) {
-        if (turn >= maxTurns) {
-          endGame();
-        } else {
-          setTurn(t => t + 1);
-          setCurrentPlayer(1);
-        }
-      } else {
-        setCurrentPlayer(2);
-      }
+      setTurn(t => t + 1);
+      
+      // Winner of round (higher points this round) goes first
+      const nextFirst = p1Results.pointsEarned > p2Results.pointsEarned ? 1 : 2;
+      setCurrentPlayer(nextFirst);
+      setGamePhase('betting-p1');
     }, 1500);
   };
 
@@ -260,6 +295,7 @@ export default function PVPMode({ onBack, colors }) {
     setTurn(1);
     setCurrentPlayer(1);
     setWinner(null);
+    setLockedColors([]);
     setGamePhase('waiting');
   };
 
@@ -356,7 +392,7 @@ export default function PVPMode({ onBack, colors }) {
         <div className="text-center">
           <p className="text-slate-400 text-sm">Turn {turn} / {maxTurns}</p>
           <p className={`font-bold text-lg ${currentPlayer === 1 ? 'text-blue-400' : 'text-red-400'}`}>
-            PLAYER {currentPlayer}'S TURN
+            {gamePhase === 'betting-p1' ? 'PLAYER 1 CHOOSING' : gamePhase === 'betting-p2' ? 'PLAYER 2 CHOOSING' : 'DROPPING BALLS'}
           </p>
         </div>
         <div className="w-10" />
@@ -411,27 +447,37 @@ export default function PVPMode({ onBack, colors }) {
             {/* Top betting panels */}
             <div className="grid grid-cols-4 gap-3 mb-4 px-3">
               {colors.filter(c => c && c.id).map((color) => {
-                const currentBet = players[currentPlayer].bets[color.id] || 0;
+                const p1Bet = players[1].bets[color.id] || 0;
+                const p2Bet = players[2].bets[color.id] || 0;
+                const isLocked = lockedColors.includes(color.id);
                 return (
                   <div
                     key={`top-${color.id}`}
-                    className="p-4 rounded-xl font-bold text-sm relative backdrop-blur-sm"
+                    className={`p-4 rounded-xl font-bold text-sm relative backdrop-blur-sm ${isLocked ? 'opacity-50' : ''}`}
                     style={{
                       background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
-                      boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
+                      boxShadow: (p1Bet > 0 || p2Bet > 0) ? '0 0 15px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                     }}
                   >
                     <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
                       {color.emoji} {color.name.toUpperCase()}
                     </div>
-                    {currentBet > 0 && (
-                      <div className="text-yellow-200 text-xs mt-1 font-bold flex items-center justify-center gap-1">
-                        💰 {currentBet}
+                    {p1Bet > 0 && (
+                      <div className="text-blue-200 text-xs mt-1 font-bold flex items-center justify-center gap-1">
+                        P1: 💰{p1Bet}
                       </div>
+                    )}
+                    {p2Bet > 0 && (
+                      <div className="text-red-200 text-xs mt-1 font-bold flex items-center justify-center gap-1">
+                        P2: 💰{p2Bet}
+                      </div>
+                    )}
+                    {isLocked && (
+                      <div className="absolute top-1 right-1 text-xs">🔒</div>
                     )}
                   </div>
                 );
-              })}
+                })}
             </div>
 
             {/* Main grid with side betting panels */}
@@ -440,12 +486,14 @@ export default function PVPMode({ onBack, colors }) {
               <div className="flex flex-col gap-3">
                 {colors.filter(c => c && c.id).map((color) => {
                   const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  const isLocked = lockedColors.includes(color.id);
+                  const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
                   return (
                     <button 
                       key={`left-${color.id}`}
                       onClick={() => placeBet(color.id)}
-                      disabled={players[currentPlayer].frozen || isDropping}
-                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      disabled={!canBet}
+                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
                         background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
                         boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
@@ -456,6 +504,9 @@ export default function PVPMode({ onBack, colors }) {
                       </div>
                       {currentBet > 0 && (
                         <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
+                      )}
+                      {isLocked && (
+                        <div className="text-xs">🔒</div>
                       )}
                     </button>
                   );
@@ -634,12 +685,14 @@ export default function PVPMode({ onBack, colors }) {
               <div className="flex flex-col gap-3">
                 {colors.filter(c => c && c.id).map((color) => {
                   const currentBet = players[currentPlayer].bets[color.id] || 0;
+                  const isLocked = lockedColors.includes(color.id);
+                  const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
                   return (
                     <button 
                       key={`right-${color.id}`}
                       onClick={() => placeBet(color.id)}
-                      disabled={players[currentPlayer].frozen || isDropping}
-                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      disabled={!canBet}
+                      className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
                         background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
                         boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
@@ -651,6 +704,9 @@ export default function PVPMode({ onBack, colors }) {
                       {currentBet > 0 && (
                         <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
                       )}
+                      {isLocked && (
+                        <div className="text-xs">🔒</div>
+                      )}
                     </button>
                   );
                 })}
@@ -661,12 +717,14 @@ export default function PVPMode({ onBack, colors }) {
             <div className="grid grid-cols-4 gap-3 mt-4 px-3">
               {colors.filter(c => c && c.id).map((color) => {
                 const currentBet = players[currentPlayer].bets[color.id] || 0;
+                const isLocked = lockedColors.includes(color.id);
+                const canBet = gamePhase.startsWith('betting') && !isDropping && !isLocked;
                 return (
                   <button 
                     key={`bottom-${color.id}`}
                     onClick={() => placeBet(color.id)}
-                    disabled={players[currentPlayer].frozen || isDropping}
-                    className={`p-4 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${players[currentPlayer].frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                    disabled={!canBet}
+                    className={`p-4 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${!canBet ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                     style={{
                       background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
                       boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
@@ -678,6 +736,9 @@ export default function PVPMode({ onBack, colors }) {
                     {currentBet > 0 && (
                       <div className="text-yellow-200 text-xs mt-1 font-bold">💰 {currentBet}</div>
                     )}
+                    {isLocked && (
+                      <div className="text-xs">🔒</div>
+                    )}
                   </button>
                 );
               })}
@@ -688,26 +749,25 @@ export default function PVPMode({ onBack, colors }) {
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3 justify-center mb-6">
-        <Button
-          onClick={dropBalls}
-          disabled={Object.keys(players[currentPlayer].bets).length === 0 || isDropping}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          <Play className="w-4 h-4 mr-2" /> Drop Balls
-        </Button>
-
-        {Object.entries(INTERFERENCE_ATTACKS).map(([key, attack]) => (
+        {gamePhase.startsWith('betting') && (
           <Button
-            key={key}
-            onClick={() => useInterference(key)}
-            disabled={players[currentPlayer].coins < attack.cost || isDropping}
-            variant="outline"
-            className="border-purple-500 text-purple-400"
+            onClick={confirmBets}
+            disabled={Object.keys(players[currentPlayer].bets).length === 0}
+            className="bg-purple-600 hover:bg-purple-700"
           >
-            <attack.icon className="w-4 h-4 mr-2" />
-            {attack.name} ({attack.cost})
+            <Zap className="w-4 h-4 mr-2" /> Confirm Bets ({Object.keys(players[currentPlayer].bets).length}/2)
           </Button>
-        ))}
+        )}
+
+        {gamePhase === 'dropping' && (
+          <Button
+            onClick={dropBalls}
+            disabled={isDropping}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Play className="w-4 h-4 mr-2" /> Drop Balls
+          </Button>
+        )}
       </div>
 
       <PauseMenu
