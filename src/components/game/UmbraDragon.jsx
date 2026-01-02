@@ -44,7 +44,7 @@ export default function UmbraDragon({ gameState }) {
         transition={{ duration: 0.5, repeat: animState === 'attacking' ? 3 : 0 }}
         className="relative"
       >
-        {/* Dragon pixel art container */}
+        {/* Enemy sprite container */}
         <motion.div 
           className="relative w-48 h-48"
           animate={{
@@ -56,18 +56,29 @@ export default function UmbraDragon({ gameState }) {
             x: { duration: 4, repeat: Infinity, ease: "easeInOut" },
           }}
         >
-          {/* Actual pixel art dragon image */}
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/6b6773e3e_Umbra-removebg-preview.png"
-            alt="Umbra Dragon"
-            className="w-full h-full object-contain"
-            style={{
-              imageRendering: 'pixelated',
-              filter: umbraRageMode ? 'brightness(1.3) saturate(1.5) drop-shadow(0 0 20px #FF0000)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg) drop-shadow(0 0 20px #8B5CF6)' : 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))',
-              mixBlendMode: 'normal',
-            }}
-          />
-
+          {isUmbra ? (
+            /* Pixel art dragon for Umbra */
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/6b6773e3e_Umbra-removebg-preview.png"
+              alt="Umbra Dragon"
+              className="w-full h-full object-contain"
+              style={{
+                imageRendering: 'pixelated',
+                filter: umbraRageMode ? 'brightness(1.3) saturate(1.5) drop-shadow(0 0 20px #FF0000)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg) drop-shadow(0 0 20px #8B5CF6)' : 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))',
+                mixBlendMode: 'normal',
+              }}
+            />
+          ) : (
+            /* Emoji sprite for minions */
+            <div 
+              className="w-full h-full flex items-center justify-center text-9xl"
+              style={{
+                filter: `drop-shadow(0 0 20px ${enemy.color})`,
+              }}
+            >
+              {enemy.emoji}
+            </div>
+          )}
         </motion.div>
 
         {/* Ability effects */}
@@ -138,19 +149,28 @@ export default function UmbraDragon({ gameState }) {
           )}
         </AnimatePresence>
 
-        {/* Shadow meter bar under dragon */}
+        {/* HP/Shadow meter bar under enemy */}
         <div className="mt-2 w-48">
-          <div className="h-3 bg-slate-900 rounded-lg overflow-hidden border-2 border-purple-500/50">
+          <div 
+            className="h-3 bg-slate-900 rounded-lg overflow-hidden border-2"
+            style={{ borderColor: `${enemy.color}80` }}
+          >
             <motion.div
               animate={{ width: `${shadowMeter}%` }}
-              className="h-full bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600"
+              className="h-full"
               style={{
-                boxShadow: '0 0 15px rgba(139, 92, 246, 0.8)',
+                background: isUmbra 
+                  ? 'linear-gradient(to right, #9333ea, #ec4899, #9333ea)' 
+                  : `linear-gradient(to right, ${enemy.color}, ${enemy.color}aa)`,
+                boxShadow: `0 0 15px ${enemy.color}`,
               }}
             />
           </div>
-          <div className="text-center text-sm font-black text-purple-400 mt-1 tracking-wider">
-            UMBRA {shadowMeter}%
+          <div 
+            className="text-center text-sm font-black mt-1 tracking-wider"
+            style={{ color: enemy.color }}
+          >
+            {enemy.name.toUpperCase()} {shadowMeter}%
           </div>
         </div>
       </motion.div>
