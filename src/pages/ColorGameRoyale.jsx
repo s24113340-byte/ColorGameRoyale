@@ -683,27 +683,37 @@ export default function ColorGameRoyale() {
       const isGameOver = isVictory || isDefeat;
 
       if (isGameOver) {
-        // Show victory message before ending
+        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
+        
+        // Show victory message before ending (only if actually won)
         if (isVictory) {
           showFeedback('Paldo!', 'victory');
           setTimeout(() => {
-            const ending = determineEnding({ ...prev, shadowMeter: newShadow, score: newScore });
             setGameState(p => ({
               ...p,
-              phase: ending === 'chaos' ? 'black-hole' : 'ending',
+              phase: 'ending',
               ending,
             }));
           }, 2000);
+          return {
+            ...prev,
+            score: newScore,
+            timer: newTimer,
+            championHP: newHP,
+            coins: newCoins,
+            ending,
+          };
         }
         
-        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : 'chaos';
+        // Defeat - show black hole transition
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
           championHP: newHP,
-          phase: isVictory ? prev.phase : (ending === 'chaos' ? 'black-hole' : 'ending'),
-          ending,
+          coins: newCoins,
+          phase: 'black-hole',
+          ending: 'chaos',
         };
       }
 
