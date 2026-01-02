@@ -592,6 +592,20 @@ export default function ColorGameRoyale() {
     setGameState(INITIAL_STATE);
   };
 
+  const handleEndingRestart = () => {
+    // If in campaign mode, return to campaign map
+    if (gameState.gameMode === 'normal') {
+      setGameState({
+        ...INITIAL_STATE,
+        phase: 'campaign-map',
+        gameMode: 'normal',
+        hasInsertedCoin: true,
+      });
+    } else {
+      resetGame();
+    }
+  };
+
   const startGame = () => {
     if (!gameState.hasInsertedCoin) return;
     setGameState(prev => ({ ...prev, phase: 'mode-select' }));
@@ -765,7 +779,7 @@ export default function ColorGameRoyale() {
             ending={gameState.ending}
             score={gameState.score}
             champion={gameState.champion}
-            onRestart={resetGame}
+            onRestart={handleEndingRestart}
           />
         )}
       </AnimatePresence>
