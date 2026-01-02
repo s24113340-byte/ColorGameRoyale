@@ -14,23 +14,23 @@ const TUTORIAL_STEPS = [
     id: 'hud',
     title: 'Your Resources',
     description: 'Keep an eye on your Coins (for betting), Timer, and Score at the top.',
-    position: 'top',
-    arrow: 'down',
+    position: 'top-center',
+    arrow: 'up',
     highlightSelector: '.game-hud',
   },
   {
     id: 'shadow-meter',
     title: 'Umbra\'s Shadow Meter',
     description: 'Defeat Umbra by reducing his shadow meter to zero! Win matches to damage him.',
-    position: 'top-right',
-    arrow: 'down',
+    position: 'top-left',
+    arrow: 'up-left',
     highlightSelector: '.shadow-meter',
   },
   {
     id: 'betting',
     title: 'Place Your Bets',
     description: 'Click on any color panel around the board to place a bet. Each bet costs coins.',
-    position: 'left',
+    position: 'middle-right',
     arrow: 'right',
     highlightSelector: '.betting-panel',
   },
@@ -38,16 +38,16 @@ const TUTORIAL_STEPS = [
     id: 'bet-amount',
     title: 'Adjust Bet Amount',
     description: 'Use these buttons to increase or decrease your bet size (5-50 coins).',
-    position: 'bottom',
-    arrow: 'up',
+    position: 'bottom-center',
+    arrow: 'down',
     highlightSelector: '.bet-controls',
   },
   {
     id: 'drop',
     title: 'Drop the Balls',
     description: 'Once you\'ve placed bets, click DROP BALLS to see where they land!',
-    position: 'bottom',
-    arrow: 'up',
+    position: 'bottom-center',
+    arrow: 'down',
     highlightSelector: '.drop-button',
   },
   {
@@ -61,8 +61,8 @@ const TUTORIAL_STEPS = [
     id: 'umbra',
     title: 'Beware of Umbra',
     description: 'Umbra will interfere with freeze, poison, and score drain abilities. Stay sharp!',
-    position: 'bottom-left',
-    arrow: 'left',
+    position: 'top-left-corner',
+    arrow: 'up-left',
     highlightSelector: '.umbra-dragon',
   },
   {
@@ -79,6 +79,7 @@ const ARROW_COMPONENTS = {
   up: ArrowUp,
   left: ArrowLeft,
   right: ArrowRight,
+  'up-left': ArrowUp,
 };
 
 export default function InGameTutorial({ onComplete, onSkip }) {
@@ -109,16 +110,16 @@ export default function InGameTutorial({ onComplete, onSkip }) {
 
   const getPositionClasses = () => {
     switch (step.position) {
-      case 'top':
-        return 'top-40 left-1/2 -translate-x-1/2';
-      case 'top-right':
-        return 'top-40 right-12';
-      case 'bottom':
-        return 'bottom-48 left-1/2 -translate-x-1/2';
-      case 'bottom-left':
-        return 'bottom-32 left-32';
-      case 'left':
-        return 'left-64 top-[45%] -translate-y-1/2';
+      case 'top-center':
+        return 'top-[180px] left-1/2 -translate-x-1/2';
+      case 'top-left':
+        return 'top-[180px] left-[15%]';
+      case 'top-left-corner':
+        return 'top-[220px] left-[15%]';
+      case 'bottom-center':
+        return 'bottom-[200px] left-1/2 -translate-x-1/2';
+      case 'middle-right':
+        return 'top-[50%] right-[15%] -translate-y-1/2';
       case 'center':
       default:
         return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
@@ -128,13 +129,15 @@ export default function InGameTutorial({ onComplete, onSkip }) {
   const getArrowClasses = () => {
     switch (step.arrow) {
       case 'down':
-        return '-top-12 left-1/2 -translate-x-1/2';
+        return 'top-full mt-4 left-1/2 -translate-x-1/2';
       case 'up':
-        return '-bottom-12 left-1/2 -translate-x-1/2';
+        return 'bottom-full mb-4 left-1/2 -translate-x-1/2';
+      case 'up-left':
+        return 'bottom-full mb-4 left-1/4';
       case 'left':
-        return '-left-12 top-1/2 -translate-y-1/2';
+        return 'left-full ml-4 top-1/2 -translate-y-1/2';
       case 'right':
-        return '-right-12 top-1/2 -translate-y-1/2';
+        return 'right-full mr-4 top-1/2 -translate-y-1/2';
       default:
         return '';
     }
@@ -178,13 +181,13 @@ export default function InGameTutorial({ onComplete, onSkip }) {
             {Arrow && (
               <motion.div
                 animate={{ 
-                  y: step.arrow === 'down' ? [0, 12, 0] : step.arrow === 'up' ? [0, -12, 0] : 0,
+                  y: step.arrow === 'down' ? [0, 12, 0] : (step.arrow === 'up' || step.arrow === 'up-left') ? [0, -12, 0] : 0,
                   x: step.arrow === 'left' ? [0, -12, 0] : step.arrow === 'right' ? [0, 12, 0] : 0,
                 }}
                 transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute ${getArrowClasses()}`}
+                className={`absolute ${getArrowClasses()} z-10`}
               >
-                <Arrow className="w-10 h-10 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.9)]" strokeWidth={3} />
+                <Arrow className="w-12 h-12 text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,1)]" strokeWidth={3.5} />
               </motion.div>
             )}
 
