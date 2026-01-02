@@ -86,113 +86,177 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
         </div>
       </div>
 
-      {/* Campaign Path */}
-      <div className="max-w-4xl mx-auto">
-        <div className="relative">
-          {/* Connection lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-            {CAMPAIGN_LEVELS.slice(0, -1).map((level, i) => {
-              const next = CAMPAIGN_LEVELS[i + 1];
-              const status = getLevelStatus(level.id);
-              return (
-                <motion.line
-                  key={i}
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: status === 'completed' ? 1 : 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  x1={`${((i % 5) * 20 + 10)}%`}
-                  y1={`${(Math.floor(i / 5) * 50 + 25)}%`}
-                  x2={`${(((i + 1) % 5) * 20 + 10)}%`}
-                  y2={`${(Math.floor((i + 1) / 5) * 50 + 25)}%`}
-                  stroke={status === 'completed' ? level.color : '#334155'}
-                  strokeWidth="3"
-                  strokeDasharray={status === 'completed' ? '0' : '5,5'}
-                />
-              );
-            })}
-          </svg>
+      {/* Campaign Path - Horizontal Scrolling */}
+      <div className="overflow-x-auto pb-8">
+        <div className="min-w-max px-8">
+          <div className="relative h-[400px] w-[2000px]">
+            {/* Winding Path SVG */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+              <defs>
+                <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="30%" stopColor="#84CC16" />
+                  <stop offset="60%" stopColor="#F59E0B" />
+                  <stop offset="80%" stopColor="#06B6D4" />
+                  <stop offset="100%" stopColor="#1E1B4B" />
+                </linearGradient>
+              </defs>
+              
+              {/* Winding path through levels */}
+              <motion.path
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, delay: 0.5 }}
+                d="M 100 200 Q 200 150, 300 180 Q 400 210, 500 180 Q 600 150, 700 200 Q 800 250, 900 220 Q 1000 190, 1100 200 Q 1200 210, 1300 180 Q 1400 150, 1500 180 Q 1600 210, 1700 200 Q 1800 190, 1900 200"
+                stroke="url(#pathGradient)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                fill="none"
+                opacity="0.3"
+              />
+            </svg>
 
-          {/* Level nodes */}
-          <div className="grid grid-cols-5 gap-4 md:gap-8 relative" style={{ zIndex: 1 }}>
-            {CAMPAIGN_LEVELS.map((level, index) => {
-              const status = getLevelStatus(level.id);
-              const isCompleted = status === 'completed';
-              const isAvailable = status === 'available';
-              const isLocked = status === 'locked';
-              const isBoss = !!level.boss;
+            {/* Level nodes on path */}
+            <div className="relative h-full" style={{ zIndex: 1 }}>
+              {CAMPAIGN_LEVELS.map((level, index) => {
+                const status = getLevelStatus(level.id);
+                const isCompleted = status === 'completed';
+                const isAvailable = status === 'available';
+                const isLocked = status === 'locked';
+                const isBoss = !!level.boss;
+                
+                // Calculate position along winding path
+                const positions = [
+                  { x: 100, y: 200 },
+                  { x: 300, y: 180 },
+                  { x: 500, y: 180 },
+                  { x: 700, y: 200 },
+                  { x: 900, y: 220 },
+                  { x: 1100, y: 200 },
+                  { x: 1300, y: 180 },
+                  { x: 1500, y: 180 },
+                  { x: 1700, y: 200 },
+                  { x: 1900, y: 200 },
+                ];
 
-              return (
-                <motion.div
-                  key={level.id}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex flex-col items-center"
-                >
-                  {/* Level node */}
-                  <motion.button
-                    onClick={() => handleLevelClick(level)}
-                    disabled={isLocked}
-                    whileHover={!isLocked ? { scale: 1.1 } : {}}
-                    whileTap={!isLocked ? { scale: 0.95 } : {}}
-                    className={`
-                      relative w-16 h-16 md:w-20 md:h-20 rounded-full
-                      flex items-center justify-center
-                      transition-all duration-300
-                      ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                      ${selectedLevel?.id === level.id ? 'ring-4 ring-white' : ''}
-                    `}
+                return (
+                  <motion.div
+                    key={level.id}
+                    initial={{ opacity: 0, scale: 0, y: -50 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ delay: index * 0.15, type: "spring" }}
+                    className="absolute flex flex-col items-center"
                     style={{
-                      background: isLocked 
-                        ? 'linear-gradient(135deg, #1e293b, #0f172a)' 
-                        : `linear-gradient(135deg, ${level.color}, ${level.color}aa)`,
-                      boxShadow: isLocked 
-                        ? 'none' 
-                        : `0 0 20px ${level.color}50`,
+                      left: `${positions[index].x - 40}px`,
+                      top: `${positions[index].y - 40}px`,
                     }}
                   >
-                    {/* Boss indicator */}
-                    {isBoss && (
-                      <div 
-                        className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                        style={{ background: level.color }}
-                      >
-                        {level.id === 10 ? <Crown className="w-4 h-4 text-white" /> : <Skull className="w-3 h-3 text-white" />}
-                      </div>
-                    )}
+                    {/* Biome decoration above level */}
+                    <motion.div
+                      animate={{ y: [0, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                      className="text-4xl mb-2"
+                    >
+                      {level.emoji}
+                    </motion.div>
 
-                    {/* Status icon */}
-                    {isCompleted && (
-                      <CheckCircle2 className="w-8 h-8 text-white" />
-                    )}
-                    {isAvailable && !isCompleted && (
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="text-2xl md:text-3xl"
+                    {/* Level node */}
+                    <motion.button
+                      onClick={() => handleLevelClick(level)}
+                      disabled={isLocked}
+                      whileHover={!isLocked ? { scale: 1.15, rotate: [0, -5, 5, 0] } : {}}
+                      whileTap={!isLocked ? { scale: 0.95 } : {}}
+                      className={`
+                        relative w-20 h-20 rounded-full
+                        flex items-center justify-center
+                        transition-all duration-300 border-4 border-white
+                        ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                        ${selectedLevel?.id === level.id ? 'ring-4 ring-yellow-400' : ''}
+                      `}
+                      style={{
+                        background: isLocked 
+                          ? 'linear-gradient(135deg, #1e293b, #0f172a)' 
+                          : `linear-gradient(135deg, ${level.color}, ${level.color}aa)`,
+                        boxShadow: isLocked 
+                          ? 'none' 
+                          : `0 0 30px ${level.color}80, inset 0 0 20px rgba(255,255,255,0.3)`,
+                      }}
+                    >
+                      {/* Boss crown indicator */}
+                      {isBoss && (
+                        <motion.div 
+                          animate={{ rotate: [0, -10, 10, 0] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                          className="absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ background: level.color }}
+                        >
+                          {level.id === 10 ? <Crown className="w-5 h-5 text-white" /> : <Skull className="w-4 h-4 text-white" />}
+                        </motion.div>
+                      )}
+
+                      {/* Level number badge */}
+                      <div 
+                        className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-white border-2 flex items-center justify-center text-sm font-black shadow-lg"
+                        style={{ borderColor: level.color, color: level.color }}
                       >
-                        {level.emoji}
+                        {level.id}
+                      </div>
+
+                      {/* Status */}
+                      {isCompleted && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring" }}
+                        >
+                          <CheckCircle2 className="w-10 h-10 text-white" />
+                        </motion.div>
+                      )}
+                      {isAvailable && !isCompleted && (
+                        <motion.div
+                          animate={{ scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="text-3xl"
+                        >
+                          ⚔️
+                        </motion.div>
+                      )}
+                      {isLocked && (
+                        <Lock className="w-8 h-8 text-slate-600" />
+                      )}
+                    </motion.button>
+
+                    {/* Level name below */}
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.15 + 0.3 }}
+                      className="text-xs text-center mt-2 font-bold text-white px-2 py-1 rounded-lg"
+                      style={{ 
+                        background: `${level.color}40`,
+                        maxWidth: '100px'
+                      }}
+                    >
+                      {level.name}
+                    </motion.p>
+
+                    {/* Completion stars */}
+                    {isCompleted && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.15 + 0.5 }}
+                        className="flex gap-1 mt-1"
+                      >
+                        {[...Array(3)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        ))}
                       </motion.div>
                     )}
-                    {isLocked && (
-                      <Lock className="w-6 h-6 text-slate-600" />
-                    )}
-
-                    {/* Level number */}
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-slate-900 border-2 flex items-center justify-center text-xs font-bold text-white"
-                      style={{ borderColor: level.color }}
-                    >
-                      {level.id}
-                    </div>
-                  </motion.button>
-
-                  {/* Level name */}
-                  <p className="text-xs text-center mt-2 text-slate-400 font-medium">
-                    {level.name}
-                  </p>
-                </motion.div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
