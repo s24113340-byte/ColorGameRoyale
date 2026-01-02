@@ -43,7 +43,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             <div 
               className="relative p-6 rounded-3xl shadow-2xl"
               style={{
-                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/bc9d64f2e_image.png)',
+                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/a292c775b_unnamed__5_-removebg-preview.png)',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
