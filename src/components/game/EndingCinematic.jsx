@@ -234,8 +234,8 @@ export default function EndingCinematic({ ending, score, champion, onRestart }) 
                         />
                       ) : (
                         <img 
-                          src={champion.sprite} 
-                          alt={champion.name}
+                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/a210ab79a_reiwin.png"
+                          alt="Victorious Rei"
                           className="w-48 h-48 object-contain"
                           style={{ imageRendering: 'pixelated' }}
                         />
