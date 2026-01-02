@@ -181,13 +181,8 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                 </div>
               </div>
 
-              {/* Description - fixed height */}
-              <p className="text-slate-400 text-sm text-center leading-relaxed h-16 flex items-center justify-center px-2">
-                {champion.description}
-              </p>
-
               {/* Stats - fixed spacing */}
-              <div className="space-y-3 mb-6 mt-6">
+              <div className="space-y-3 mb-6 mt-8">
                 {Object.entries(upgradedChampion.stats).map(([stat, value]) => {
                   const baseValue = champion.stats[stat];
                   const upgradeBonus = value - baseValue;
@@ -214,24 +209,7 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Abilities - bottom aligned */}
-              <div className="flex flex-wrap gap-2 justify-center min-h-[60px] items-end">
-                {champion.abilities.map((ability) => (
-                  <span 
-                    key={ability}
-                    className="px-3 py-1 rounded-lg text-xs font-medium"
-                    style={{ 
-                      background: `${champion.colors.primary}20`,
-                      color: champion.colors.primary,
-                      border: `1px solid ${champion.colors.primary}40`
-                    }}
-                  >
-                    {ability}
-                  </span>
-                ))}
-              </div>
+                </div>
 
               {/* Select indicator */}
               {selectedChampion === champion.id && (
