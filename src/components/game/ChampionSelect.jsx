@@ -17,7 +17,7 @@ const CHAMPIONS = [
       secondary: '#F97316',
       glow: 'rgba(255, 59, 59, 0.5)',
     },
-    sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/3450faf08_Ren_c-removebg-preview.png',
+    sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/c9ad0b21c_image.png',
   },
   {
     id: 'rei',
