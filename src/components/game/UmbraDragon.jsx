@@ -42,7 +42,7 @@ export default function UmbraDragon({ gameState }) {
         >
           {/* Actual pixel art dragon image */}
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/ca5463876_image.png"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/6b6773e3e_Umbra-removebg-preview.png"
             alt="Umbra Dragon"
             className="w-full h-full object-contain"
             style={{
