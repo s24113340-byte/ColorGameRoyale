@@ -40,25 +40,31 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
         >
           <div className="relative mx-auto">
             {/* Board container with betting panels on all sides */}
-            <div className="relative bg-gradient-to-br from-pink-200 to-pink-300 p-6 rounded-3xl border-8 border-pink-400 shadow-2xl">
+            <div 
+              className="relative p-6 rounded-3xl shadow-2xl"
+              style={{
+                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/bc9d64f2e_image.png)',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+              }}
+            >
 
               {/* Top betting panels - UMBRA'S BETS */}
-              <div className="grid grid-cols-4 gap-2 mb-4">
+              <div className="grid grid-cols-4 gap-3 mb-4 px-3">
                 {colors.filter(c => c && c.id).map((color) => {
                   const umbraBet = umbraBets?.[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
                   return (
                     <div
                       key={`top-${color.id}`}
-                      className="p-3 rounded-lg border-3 font-bold text-sm relative"
+                      className="p-4 rounded-xl font-bold text-sm relative backdrop-blur-sm"
                       style={{
-                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex}88)`,
-                        borderColor: umbraBet > 0 ? '#8B5CF6' : `${color.hex}dd`,
-                        boxShadow: umbraBet > 0 ? '0 0 15px rgba(139, 92, 246, 0.6)' : 'none',
-                        opacity: 0.9,
+                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                        boxShadow: umbraBet > 0 ? '0 0 15px rgba(139, 92, 246, 0.6)' : `0 4px 10px ${color.hex}40`,
                       }}
                     >
-                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2">
+                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
                         {color.emoji} {color.name.toUpperCase()}
                       </div>
                       {umbraBet > 0 && (
@@ -77,9 +83,9 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
               </div>
 
               {/* Main grid with side betting panels */}
-              <div className="flex gap-3">
+              <div className="flex gap-4 px-3">
                 {/* Left betting panels */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {colors.filter(c => c && c.id).map((color) => {
                     const currentBet = bets[color.id] || 0;
                     const isPoisoned = poisonedSquares.includes(color.id);
@@ -88,18 +94,17 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         key={`left-${color.id}`}
                         onClick={() => onPlaceBet(color.id, betAmount)}
                         disabled={frozen || isDropping || coins < betAmount}
-                        className={`w-16 h-24 rounded-lg border-3 font-bold text-xs transition-all flex flex-col items-center justify-center ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                         style={{
-                          background: color.hex,
-                          borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
-                          boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                          background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                          boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                         }}
                       >
-                        <div className="text-white text-shadow-lg writing-mode-vertical text-2xl mb-1">
+                        <div className="text-white text-shadow-lg text-3xl mb-1">
                           {color.emoji}
                         </div>
                         {currentBet > 0 && (
-                          <div className="text-yellow-200 text-xs">💰{currentBet}</div>
+                          <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
                         )}
                         {isPoisoned && (
                           <div className="text-purple-300 text-xs">☠️</div>
@@ -110,8 +115,8 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                 </div>
 
                 {/* Center 6x6 Grid */}
-                <div className="relative bg-white/90 p-3 rounded-xl flex-1">
-                  <div className="grid grid-cols-6 gap-1.5 relative">
+                <div className="relative bg-gradient-to-br from-cyan-100/20 to-white/30 backdrop-blur-md p-4 rounded-2xl flex-1 border-2 border-white/50">
+                  <div className="grid grid-cols-6 gap-2 relative">
                     {[...Array(36)].map((_, i) => {
                       const colorIndex = i % colors.length;
                       const gridColor = colors[colorIndex];
@@ -123,10 +128,11 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                       return (
                         <div 
                           key={i}
-                          className="aspect-square rounded-md shadow-md relative overflow-hidden"
+                          className="aspect-square rounded-lg shadow-lg relative overflow-hidden"
                           style={{
                             background: `linear-gradient(135deg, ${gridColor.hex}, ${gridColor.hex}dd)`,
-                            border: `2px solid ${gridColor.hex}aa`,
+                            border: `3px solid white`,
+                            boxShadow: `0 2px 8px ${gridColor.hex}40, inset 0 0 20px ${gridColor.hex}20`,
                           }}
                         >
                           {/* Ball landing animation */}
@@ -318,7 +324,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                 </div>
 
                 {/* Right betting panels */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {colors.filter(c => c && c.id).map((color) => {
                     const currentBet = bets[color.id] || 0;
                     const isPoisoned = poisonedSquares.includes(color.id);
@@ -327,18 +333,17 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         key={`right-${color.id}`}
                         onClick={() => onPlaceBet(color.id, betAmount)}
                         disabled={frozen || isDropping || coins < betAmount}
-                        className={`w-16 h-24 rounded-lg border-3 font-bold text-xs transition-all flex flex-col items-center justify-center ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                         style={{
-                          background: color.hex,
-                          borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
-                          boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                          background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                          boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                         }}
                       >
-                        <div className="text-white text-shadow-lg text-2xl mb-1">
+                        <div className="text-white text-shadow-lg text-3xl mb-1">
                           {color.emoji}
                         </div>
                         {currentBet > 0 && (
-                          <div className="text-yellow-200 text-xs">💰{currentBet}</div>
+                          <div className="text-yellow-200 text-xs font-bold">💰{currentBet}</div>
                         )}
                         {isPoisoned && (
                           <div className="text-purple-300 text-xs">☠️</div>
@@ -350,7 +355,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
               </div>
 
               {/* Bottom betting panels */}
-              <div className="grid grid-cols-4 gap-2 mt-4">
+              <div className="grid grid-cols-4 gap-3 mt-4 px-3">
                 {colors.filter(c => c && c.id).map((color) => {
                   const currentBet = bets[color.id] || 0;
                   const isPoisoned = poisonedSquares.includes(color.id);
@@ -359,18 +364,17 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                       key={`bottom-${color.id}`}
                       onClick={() => onPlaceBet(color.id, betAmount)}
                       disabled={frozen || isDropping || coins < betAmount}
-                      className={`p-3 rounded-lg border-3 font-bold text-sm transition-all ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                      className={`p-4 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                       style={{
-                        background: color.hex,
-                        borderColor: currentBet > 0 ? '#FFD700' : `${color.hex}dd`,
-                        boxShadow: currentBet > 0 ? '0 0 15px rgba(255, 215, 0, 0.6)' : 'none',
+                        background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
+                        boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
                       }}
                     >
-                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2">
+                      <div className="text-white text-shadow-lg flex items-center justify-center gap-2 font-black tracking-wider">
                         {color.emoji} {color.name.toUpperCase()}
                       </div>
                       {currentBet > 0 && (
-                        <div className="text-yellow-200 text-xs mt-1">💰 {currentBet}</div>
+                        <div className="text-yellow-200 text-xs mt-1 font-bold">💰 {currentBet}</div>
                       )}
                       {isPoisoned && (
                         <div className="text-purple-300 text-xs">☠️</div>
