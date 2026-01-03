@@ -19,6 +19,8 @@ import InGameTutorial from '@/components/game/InGameTutorial';
 import TimeAttackInstructions from '@/components/game/TimeAttackInstructions';
 import TimeAttackLeaderboard from '@/components/game/TimeAttackLeaderboard';
 import GameFeedback from '@/components/game/GameFeedback';
+import ArcadeAudioManager, { getArcadeSoundEngine } from '@/components/game/ArcadeAudioManager';
+import { ScanlineOverlay, CRTEffect, ScreenFlash } from '@/components/game/ArcadeEffects';
 
 // Save/Load system
 const SAVE_KEY = 'colorGameRoyale_save';
@@ -163,9 +165,12 @@ const INITIAL_STATE = {
 export default function ColorGameRoyale() {
   const [gameState, setGameState] = useState(INITIAL_STATE);
   const [saveData, setSaveData] = useState(null);
+  const [showFlash, setShowFlash] = useState(false);
+  const [flashColor, setFlashColor] = useState('#ffffff');
   const timerRef = useRef(null);
   const audioContextRef = useRef(null);
   const idleTimerRef = useRef(null);
+  const soundEngineRef = useRef(null);
 
   // Load save data on mount
   useEffect(() => {
@@ -175,32 +180,21 @@ export default function ColorGameRoyale() {
     } else {
       setSaveData(getDefaultSaveData());
     }
+
+    // Initialize sound engine
+    soundEngineRef.current = getArcadeSoundEngine();
   }, []);
 
   const playSound = useCallback((type) => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (soundEngineRef.current && gameState.soundOn) {
+      soundEngineRef.current.playSound(type);
     }
-    const ctx = audioContextRef.current;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    const sounds = {
-      bet: { freq: 440, duration: 0.1 },
-      drop: { freq: 220, duration: 0.3 },
-      win: { freq: 880, duration: 0.5 },
-      jackpot: { freq: 1200, duration: 0.8 },
-      umbra: { freq: 110, duration: 0.6 },
-    };
-    
-    const s = sounds[type] || sounds.bet;
-    osc.frequency.value = s.freq;
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + s.duration);
-    osc.start();
-    osc.stop(ctx.currentTime + s.duration);
+  }, [gameState.soundOn]);
+
+  const triggerFlash = useCallback((color = '#ffffff') => {
+    setFlashColor(color);
+    setShowFlash(true);
+    setTimeout(() => setShowFlash(false), 200);
   }, []);
 
   // Timer logic
@@ -511,6 +505,8 @@ export default function ColorGameRoyale() {
           shadowDamage = 25 + streakDamageBonus;
           showFeedback('paldo', 'jackpot');
           triggerScreenShake();
+          triggerFlash('#fbbf24');
+          playSound('jackpot');
         } else if (matches === 2) {
           bonusTimeEarned += 5; // Combo: +5 seconds
           shadowDamage = 15 + streakDamageBonus;
@@ -529,7 +525,7 @@ export default function ColorGameRoyale() {
           multiplier = 3;
           newBalance[color.faction] = Math.min(100, newBalance[color.faction] + 10);
           playSound('jackpot');
-        } else {
+        } else if (matches > 0) {
           playSound('win');
         }
       } else {
@@ -623,6 +619,7 @@ export default function ColorGameRoyale() {
         umbraAbility = abilities[Math.floor(Math.random() * abilities.length)];
         playSound('umbra');
         triggerScreenShake();
+        triggerFlash('#9333ea');
         
         // Execute ability with Rage Mode power boost
         const ragePower = isRageMode ? 1.5 : 1;
@@ -630,6 +627,7 @@ export default function ColorGameRoyale() {
         if (umbraAbility === 'score-drain') {
           // Drain 5% of champion HP to restore Umbra's HP
           const hpDrain = 5;
+          playSound('damage');
           setGameState(prev => ({
             ...prev,
             championHP: Math.max(0, prev.championHP - hpDrain),
@@ -637,10 +635,12 @@ export default function ColorGameRoyale() {
           }));
         } else if (umbraAbility === 'freeze') {
           frozen = true;
+          playSound('freeze');
           setTimeout(() => {
             setGameState(prev => ({ ...prev, frozen: false }));
           }, 3000);
         } else if (umbraAbility === 'poison') {
+          playSound('poison');
           const poisonCount = Math.floor(Math.random() * 2) + 2; // 2-3 tiles
           for (let i = 0; i < poisonCount; i++) {
             poisoned.push(COLORS[Math.floor(Math.random() * COLORS.length)].id);
@@ -727,6 +727,8 @@ export default function ColorGameRoyale() {
         // Show victory message before ending (only if actually won)
         if (isVictory) {
           showFeedback('Paldo!', 'victory');
+          playSound('victory');
+          triggerFlash('#10b981');
           setTimeout(() => {
             setGameState(p => ({
               ...p,
@@ -745,6 +747,8 @@ export default function ColorGameRoyale() {
         }
 
         // Defeat - show black hole transition for all defeats
+        playSound('defeat');
+        triggerFlash('#ef4444');
         return {
           ...prev,
           score: newScore,
@@ -993,6 +997,13 @@ export default function ColorGameRoyale() {
             exit={{ opacity: 0 }}
             className="relative z-10 min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950"
           >
+            {/* Arcade Audio */}
+            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} />
+
+            {/* Arcade Visual Effects */}
+            <ScanlineOverlay />
+            <CRTEffect />
+            {showFlash && <ScreenFlash color={flashColor} />}
             {/* Animated background particles */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
               {[...Array(50)].map((_, i) => {
