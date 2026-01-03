@@ -5,7 +5,18 @@ import { Brain, Target, Zap, TrendingUp } from 'lucide-react';
 export default function UmbraAIIndicator({ gameState }) {
   if (!gameState.champion || gameState.gameMode !== 'normal') return null;
 
-  const { champion, score, streak, shadowMeter, elementalBalance } = gameState;
+  const { champion, score, streak, shadowMeter, elementalBalance, selectedLevel } = gameState;
+  
+  // Get enemy name based on level
+  const enemyName = selectedLevel === 1 ? 'Goblin' :
+                    selectedLevel === 2 ? 'Fairies' :
+                    selectedLevel === 3 ? 'Knights' :
+                    selectedLevel === 4 ? 'Ogres' :
+                    selectedLevel === 5 ? 'Rukh' :
+                    selectedLevel === 6 ? 'Magi' :
+                    selectedLevel === 7 ? 'Fire Lizard' :
+                    selectedLevel === 8 ? 'Ice Guardian' :
+                    selectedLevel === 9 ? 'Ice Queen' : 'Umbra';
   
   // Determine Umbra's likely next move based on AI logic
   const getUmbraStrategy = () => {
@@ -15,7 +26,7 @@ export default function UmbraAIIndicator({ gameState }) {
     
     if (isFinal) {
       return {
-        title: 'FINAL BOSS MODE',
+        title: `${enemyName.toUpperCase()} FINAL PHASE`,
         threat: 'MAXIMUM',
         color: '#DC2626',
         icon: Zap,
@@ -25,7 +36,7 @@ export default function UmbraAIIndicator({ gameState }) {
     
     if (isRage) {
       return {
-        title: 'RAGE MODE ACTIVE',
+        title: `${enemyName.toUpperCase()} RAGE MODE`,
         threat: 'CRITICAL',
         color: '#EF4444',
         icon: TrendingUp,
@@ -54,7 +65,7 @@ export default function UmbraAIIndicator({ gameState }) {
     }
     
     return {
-      title: 'UMBRA AI ADAPTING',
+      title: `${enemyName.toUpperCase()} AI ADAPTING`,
       threat: shadowPercent > 60 ? 'MODERATE' : 'HIGH',
       color: shadowPercent > 60 ? '#A855F7' : '#F97316',
       icon: Brain,

@@ -101,7 +101,7 @@ export default function GameHUD({ gameState, colors }) {
           )}
         </div>
 
-        {/* Shadow Meter (Umbra health) - below timer */}
+        {/* Enemy HP - below timer */}
         {gameMode === 'normal' && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
@@ -110,7 +110,17 @@ export default function GameHUD({ gameState, colors }) {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-purple-300 font-medium flex items-center gap-1">
-                <Shield className="w-3 h-3" /> UMBRA'S SHADOW
+                <Shield className="w-3 h-3" /> 
+                {gameState.selectedLevel === 10 ? "UMBRA'S SHADOW" : 
+                 gameState.selectedLevel === 1 ? "GOBLIN'S HP" :
+                 gameState.selectedLevel === 2 ? "FAIRIES' HP" :
+                 gameState.selectedLevel === 3 ? "KNIGHTS' HP" :
+                 gameState.selectedLevel === 4 ? "OGRES' HP" :
+                 gameState.selectedLevel === 5 ? "RUKH'S HP" :
+                 gameState.selectedLevel === 6 ? "MAGI'S HP" :
+                 gameState.selectedLevel === 7 ? "FIRE LIZARD'S HP" :
+                 gameState.selectedLevel === 8 ? "ICE GUARDIAN'S HP" :
+                 gameState.selectedLevel === 9 ? "ICE QUEEN'S HP" : "ENEMY HP"}
               </span>
               <span className="text-xs text-purple-400">{shadowMeter}%</span>
             </div>

@@ -41,8 +41,9 @@ const UMBRA_ABILITIES = {
   },
 };
 
-export default function UmbraOverlay({ active, ability, shadowMeter, rageMode, finalBoss }) {
+export default function UmbraOverlay({ active, ability, shadowMeter, rageMode, finalBoss, enemyName }) {
   const abilityData = ability ? UMBRA_ABILITIES[ability] : null;
+  const displayName = enemyName || 'Umbra';
 
   return (
     <>
@@ -174,7 +175,7 @@ export default function UmbraOverlay({ active, ability, shadowMeter, rageMode, f
               </motion.div>
               <div>
                 <p className="text-red-300 font-black text-sm">⚠️ RAGE MODE</p>
-                <p className="text-red-400 text-xs">Umbra's power increased!</p>
+                <p className="text-red-400 text-xs">{displayName}'s power increased!</p>
               </div>
             </motion.div>
           </motion.div>
@@ -195,7 +196,7 @@ export default function UmbraOverlay({ active, ability, shadowMeter, rageMode, f
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-900/90 to-red-900/90 border-2 border-purple-500 backdrop-blur"
             >
               <p className="text-center font-black text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-red-300">
-                ⚡ FINAL ARC - UMBRA UNLEASHED ⚡
+               ⚡ FINAL ARC - {displayName.toUpperCase()} UNLEASHED ⚡
               </p>
             </motion.div>
           </motion.div>
