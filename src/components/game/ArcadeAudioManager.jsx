@@ -96,7 +96,7 @@ class ArcadeSoundEngine {
       if (!this.musicOn) return;
       
       const now = this.audioContext.currentTime;
-      const tempo = 0.12; // Faster tempo for excitement
+      const tempo = 0.18; // Calmer, steady tempo
       
       // Epic battle melody - fast-paced and heroic
       const melody = [
