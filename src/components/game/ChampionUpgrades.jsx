@@ -51,7 +51,7 @@ export default function ChampionUpgrades({ champion, upgrades, coins, onUpgrade,
     const currentLevel = upgrades[stat] || 0;
     const upgrade = UPGRADES[stat];
     if (currentLevel >= upgrade.maxLevel) return false;
-    if (upgradePoints < upgrade.cost(currentLevel + 1)) return false;
+    if (coins < upgrade.cost(currentLevel + 1)) return false;
     return true;
   };
 
@@ -82,12 +82,12 @@ export default function ChampionUpgrades({ champion, upgrades, coins, onUpgrade,
             <ArrowLeft className="w-5 h-5 mr-2" /> Back to Map
           </Button>
 
-          {/* Upgrade points */}
-          <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50">
-            <Star className="w-6 h-6 text-yellow-400" />
+          {/* Coins */}
+          <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/50">
+            <span className="text-3xl">💰</span>
             <div>
-              <p className="text-xs text-yellow-300">Upgrade Points</p>
-              <p className="text-2xl font-black text-yellow-400">{upgradePoints}</p>
+              <p className="text-xs text-yellow-400">Your Coins</p>
+              <p className="text-2xl font-black text-yellow-400">{coins}</p>
             </div>
           </div>
         </div>
@@ -224,7 +224,7 @@ export default function ChampionUpgrades({ champion, upgrades, coins, onUpgrade,
                     ) : (
                       <>
                         <Plus className="w-4 h-4 mr-2" />
-                        Upgrade ({upgrade.cost(currentLevel + 1)} pts)
+                        Upgrade ({upgrade.cost(currentLevel + 1)} coins)
                       </>
                     )}
                   </Button>
@@ -242,7 +242,7 @@ export default function ChampionUpgrades({ champion, upgrades, coins, onUpgrade,
           className="mt-8 p-4 rounded-xl bg-purple-900/20 border border-purple-500/30"
         >
           <p className="text-sm text-purple-300 text-center">
-            💡 Earn upgrade points by completing campaign levels. Upgrades are permanent and carry over between sessions!
+            💡 Earn coins by completing campaign levels. Harder levels give bigger rewards! Upgrades are permanent and carry over between sessions.
           </p>
         </motion.div>
       </div>
