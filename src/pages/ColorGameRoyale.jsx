@@ -1019,6 +1019,45 @@ export default function ColorGameRoyale() {
               : 'linear-gradient(to bottom, #0f172a, #1e293b, #334155)'
             }}
           >
+            {/* Animated background particles based on level */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+              {[...Array(30)].map((_, i) => {
+                const particleColor = gameState.selectedLevel ? 
+                  gameState.selectedLevel === 1 ? '#22c55e' : 
+                  gameState.selectedLevel === 2 ? '#15803d' : 
+                  gameState.selectedLevel === 3 ? '#84cc16' : 
+                  gameState.selectedLevel === 4 ? '#78716c' : 
+                  gameState.selectedLevel === 5 ? '#d6d3d1' : 
+                  gameState.selectedLevel === 6 ? '#fbbf24' : 
+                  gameState.selectedLevel === 7 ? '#f59e0b' : 
+                  gameState.selectedLevel === 8 ? '#22d3ee' : 
+                  gameState.selectedLevel === 9 ? '#3b82f6' : 
+                  gameState.selectedLevel === 10 ? '#9333ea' : 
+                  '#8B5CF6' : '#8B5CF6';
+
+                return (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-full"
+                    style={{ background: particleColor }}
+                    initial={{
+                      x: Math.random() * window.innerWidth,
+                      y: Math.random() * window.innerHeight,
+                      opacity: 0,
+                    }}
+                    animate={{
+                      y: [null, Math.random() * -500],
+                      opacity: [0, 0.8, 0],
+                    }}
+                    transition={{
+                      duration: 5 + Math.random() * 5,
+                      repeat: Infinity,
+                      delay: Math.random() * 3,
+                    }}
+                  />
+                );
+              })}
+            </div>
             {/* Top right buttons */}
             <div className="fixed top-4 right-4 z-50 flex gap-2">
               {gameState.gameMode === 'time-attack' && (
