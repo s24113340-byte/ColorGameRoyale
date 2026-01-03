@@ -68,9 +68,16 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
           <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
             CAMPAIGN MAP
           </h1>
-          <p className="text-slate-400">
-            Progress: Level {highestUnlocked} / {CAMPAIGN_LEVELS.length}
-          </p>
+          <div className="flex items-center justify-center gap-6 text-slate-400">
+            <p>Progress: Level {highestUnlocked} / {CAMPAIGN_LEVELS.length}</p>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50">
+              <span className="text-2xl">💰</span>
+              <div>
+                <p className="text-xs text-yellow-400">Coins</p>
+                <p className="text-lg font-black text-yellow-400">{progress.coins || 500}</p>
+              </div>
+            </div>
+          </div>
           
           {/* Progress bar */}
           <div className="mt-4 max-w-md mx-auto">
@@ -312,16 +319,19 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
               <div className="grid md:grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-3 rounded-lg bg-slate-900/50">
                   <Trophy className="w-5 h-5 mx-auto mb-1 text-yellow-400" />
-                  <p className="text-xs text-slate-400">Reward</p>
+                  <p className="text-xs text-slate-400">Victory Reward</p>
                   <p className="text-sm font-bold text-white">
-                    {selectedLevel.id * 10} Upgrade Points
+                    {selectedLevel.id <= 3 ? selectedLevel.id * 50 :
+                     selectedLevel.id <= 5 ? selectedLevel.id * 75 :
+                     selectedLevel.id <= 7 ? selectedLevel.id * 100 :
+                     selectedLevel.id <= 9 ? selectedLevel.id * 125 : 2000} Coins
                   </p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-900/50">
                   <Star className="w-5 h-5 mx-auto mb-1 text-blue-400" />
-                  <p className="text-xs text-slate-400">Starting Coins</p>
+                  <p className="text-xs text-slate-400">Your Coins</p>
                   <p className="text-sm font-bold text-white">
-                    {100 + (selectedLevel.id - 1) * 10}
+                    {progress.coins || 500}
                   </p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-900/50">

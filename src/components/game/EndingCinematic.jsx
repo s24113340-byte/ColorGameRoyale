@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Flame, Droplets, Leaf, Sun, Skull, RefreshCw, Star } from 'lucide-react';
+import { Trophy, Flame, Droplets, Leaf, Sun, Skull, RefreshCw, Star, Coins } from 'lucide-react';
 
 const ENDINGS = {
   fire: {
@@ -59,13 +59,53 @@ const ENDINGS = {
   },
 };
 
-export default function EndingCinematic({ ending, score, champion, onRestart, gameMode, currentLevel, onNextLevel, onBackToMap }) {
+export default function EndingCinematic({ ending, score, champion, onRestart, gameMode, currentLevel, onNextLevel, onBackToMap, coinsRemaining, saveData, setSaveData }) {
   const [phase, setPhase] = useState('intro');
   const endingData = ENDINGS[ending] || ENDINGS.chaos;
   const isVictory = ending !== 'chaos' && ending !== 'fallen';
-  const isCampaignVictory = gameMode === 'normal' && isVictory && currentLevel < 10;
+  const isCampaignVictory = gameMode === 'normal' && isVictory;
   const isCampaignDefeat = gameMode === 'normal' && ending === 'fallen';
-  const rewardCoins = isCampaignVictory ? currentLevel * 50 : isCampaignDefeat ? 100 : 0;
+  
+  // Calculate coin rewards based on level difficulty
+  let coinReward = 0;
+  if (isCampaignVictory) {
+    if (currentLevel <= 3) coinReward = currentLevel * 50; // Easy: 50-150
+    else if (currentLevel <= 5) coinReward = currentLevel * 75; // Normal: 225-375
+    else if (currentLevel <= 7) coinReward = currentLevel * 100; // Hard: 600-700
+    else if (currentLevel <= 9) coinReward = currentLevel * 125; // Very hard: 1000-1125
+    else coinReward = 2000; // Umbra: 2000
+  } else if (isCampaignDefeat) {
+    coinReward = 100;
+  }
+  
+  // Save progress when ending is shown
+  useEffect(() => {
+    if (gameMode === 'normal' && saveData && currentLevel) {
+      const newSave = {
+        ...saveData,
+        campaignProgress: {
+          ...saveData.campaignProgress,
+          coins: coinsRemaining + coinReward,
+          totalScore: saveData.campaignProgress.totalScore + score,
+        }
+      };
+      
+      // Unlock next level if victory
+      if (isVictory && currentLevel >= newSave.campaignProgress.highestLevelUnlocked) {
+        newSave.campaignProgress.highestLevelUnlocked = currentLevel + 1;
+      }
+      
+      // Mark level as completed
+      if (isVictory && !newSave.campaignProgress.completedLevels.includes(currentLevel)) {
+        newSave.campaignProgress.completedLevels.push(currentLevel);
+      }
+      
+      setSaveData(newSave);
+      localStorage.setItem('colorGameRoyale_save', JSON.stringify(newSave));
+    }
+  }, []);
+  
+  const rewardCoins = coinReward;
 
   useEffect(() => {
     const timers = [
@@ -291,28 +331,42 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                   </div>
                 </div>
 
-                {/* Reward coins - for campaign victories and defeats */}
+                {/* Coin summary - for campaign mode */}
                 {(isCampaignVictory || isCampaignDefeat) && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className={`inline-flex items-center gap-4 px-8 py-4 rounded-2xl ${
-                      isCampaignVictory 
-                        ? 'bg-yellow-500/20 border-2 border-yellow-500/50' 
-                        : 'bg-slate-700/20 border-2 border-slate-500/50'
-                    }`}
-                  >
-                    <div className="text-5xl">💰</div>
-                    <div className="text-left">
-                      <p className={`text-sm font-bold ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-400'}`}>
-                        REWARD
+                  <div className="space-y-3">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className={`inline-flex items-center gap-4 px-8 py-4 rounded-2xl ${
+                        isCampaignVictory 
+                          ? 'bg-yellow-500/20 border-2 border-yellow-500/50' 
+                          : 'bg-slate-700/20 border-2 border-slate-500/50'
+                      }`}
+                    >
+                      <div className="text-5xl">💰</div>
+                      <div className="text-left">
+                        <p className={`text-sm font-bold ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-400'}`}>
+                          REWARD
+                        </p>
+                        <p className={`font-black text-4xl ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-300'}`}>
+                          +{rewardCoins} Coins
+                        </p>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 }}
+                      className="text-center text-sm text-slate-400"
+                    >
+                      <p>Remaining: {coinsRemaining} + Reward: {rewardCoins}</p>
+                      <p className="text-lg font-bold text-white mt-1">
+                        Total: {coinsRemaining + rewardCoins} Coins
                       </p>
-                      <p className={`font-black text-4xl ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-300'}`}>
-                        {rewardCoins} Coins
-                      </p>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  </div>
                 )}
 
                 {/* Rating */}

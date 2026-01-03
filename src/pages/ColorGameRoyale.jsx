@@ -55,7 +55,7 @@ const getDefaultSaveData = () => {
     campaignProgress: {
       highestLevelUnlocked: 1,
       completedLevels: [],
-      upgradePoints: 0,
+      coins: 500,
       totalScore: 0,
     },
     championUpgrades: {
@@ -69,7 +69,7 @@ const getDefaultSaveData = () => {
   };
 };
 
-const updateCampaignProgress = (currentSave, levelCompleted, scoreEarned) => {
+const updateCampaignProgress = (currentSave, levelCompleted, scoreEarned, coinsRemaining, isVictory) => {
   const newSave = { ...currentSave };
   if (levelCompleted >= newSave.campaignProgress.highestLevelUnlocked) {
     newSave.campaignProgress.highestLevelUnlocked = levelCompleted + 1;
@@ -77,7 +77,23 @@ const updateCampaignProgress = (currentSave, levelCompleted, scoreEarned) => {
   if (!newSave.campaignProgress.completedLevels.includes(levelCompleted)) {
     newSave.campaignProgress.completedLevels.push(levelCompleted);
   }
-  newSave.campaignProgress.upgradePoints += levelCompleted * 10;
+  
+  // Calculate coin rewards based on level difficulty
+  let coinReward = 0;
+  if (isVictory) {
+    // Victory rewards increase with level difficulty
+    if (levelCompleted <= 3) coinReward = levelCompleted * 50; // Easy levels: 50-150
+    else if (levelCompleted <= 5) coinReward = levelCompleted * 75; // Normal levels: 225-375
+    else if (levelCompleted <= 7) coinReward = levelCompleted * 100; // Hard levels: 600-700
+    else if (levelCompleted <= 9) coinReward = levelCompleted * 125; // Very hard: 1000-1125
+    else coinReward = 2000; // Umbra victory: 2000
+  } else {
+    // Defeat consolation
+    coinReward = 100;
+  }
+  
+  // Update coins: keep remaining coins + reward
+  newSave.campaignProgress.coins = coinsRemaining + coinReward;
   newSave.campaignProgress.totalScore += scoreEarned;
   return newSave;
 };
@@ -222,16 +238,9 @@ export default function ColorGameRoyale() {
       isVictory = state.shadowMeter <= 0 || state.score >= 500;
     }
 
-    // Save campaign progress for Normal mode
+    // Save campaign progress for Normal mode (will be done in ending cinematic with coin data)
     if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
-      const newSave = updateCampaignProgress(
-        saveData,
-        state.selectedLevel,
-        state.score,
-        state.champion?.id
-      );
-      setSaveData(newSave);
-      saveGame(newSave);
+      // Progress will be saved with coins after ending is shown
     }
 
     // Save time attack score to leaderboard
@@ -301,7 +310,7 @@ export default function ColorGameRoyale() {
       selectedLevel: levelId,
       phase: 'champion-select',
       maxRounds: 10, // Campaign has 10 rounds per level
-      coins: 300, // Starting coins
+      coins: saveData?.campaignProgress?.coins || 500, // Use saved coins
     }));
   };
 
@@ -314,7 +323,11 @@ export default function ColorGameRoyale() {
   const handleUpgrade = (stat, cost) => {
     if (!gameState.champion || !saveData) return;
     
+    // Deduct coins for upgrade
+    if (saveData.campaignProgress.coins < cost) return;
+    
     const newSave = applyUpgrade(saveData, gameState.champion.id, stat, cost);
+    newSave.campaignProgress.coins -= cost;
     setSaveData(newSave);
     saveGame(newSave);
   };
@@ -954,7 +967,7 @@ export default function ColorGameRoyale() {
           <ChampionUpgrades
             champion={gameState.champion || { id: 'ren', name: 'REN', title: 'The Disciplined Scholar', class: 'Warrior', sprite: '⚔️', stats: { power: 85, defense: 90, speed: 60, magic: 40 }, colors: { primary: '#FF3B3B', secondary: '#F97316' } }}
             upgrades={saveData.championUpgrades[gameState.champion?.id || 'ren'] || {}}
-            upgradePoints={saveData.campaignProgress.upgradePoints}
+            coins={saveData.campaignProgress.coins || 500}
             onUpgrade={handleUpgrade}
             onBack={() => setGameState(prev => ({ ...prev, phase: 'campaign-map' }))}
             onSave={handleSaveProgress}
@@ -1118,6 +1131,9 @@ export default function ColorGameRoyale() {
               currentLevel={gameState.selectedLevel}
               onNextLevel={handleNextLevel}
               onBackToMap={handleBackToMap}
+              coinsRemaining={gameState.coins}
+              saveData={saveData}
+              setSaveData={setSaveData}
             />
             {gameState.gameMode === 'time-attack' && (
               <TimeAttackLeaderboard

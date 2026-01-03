@@ -38,7 +38,7 @@ const UPGRADES = {
   },
 };
 
-export default function ChampionUpgrades({ champion, upgrades, upgradePoints, onUpgrade, onBack, onSave }) {
+export default function ChampionUpgrades({ champion, upgrades, coins, onUpgrade, onBack, onSave }) {
   const [selectedStat, setSelectedStat] = useState(null);
 
   const getStatValue = (stat) => {
