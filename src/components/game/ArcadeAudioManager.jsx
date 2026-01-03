@@ -96,46 +96,47 @@ class ArcadeSoundEngine {
       if (!this.musicOn) return;
       
       const now = this.audioContext.currentTime;
-      const tempo = 0.18; // Calmer, steady tempo
+      const tempo = 0.2; // Bouncy, cheerful tempo
       
-      // Epic battle melody - fast-paced and heroic
+      // Cute, playful melody - happy and bright
       const melody = [
-        784, 784, 880, 988, 1047, 988, 880, 784,
-        698, 698, 784, 880, 932, 880, 784, 698,
-        659, 784, 880, 988, 1047, 1175, 1047, 988,
-        880, 784, 698, 659, 587, 523, 587, 659
+        1047, 1175, 1319, 1175, 1047, 988, 880, 988,
+        1047, 1175, 1319, 1397, 1568, 1397, 1319, 1175,
+        1047, 1175, 1319, 1175, 1047, 880, 784, 880,
+        988, 1047, 1175, 1047, 988, 880, 784, 698
       ];
       
+      // Bright major chord progression
       const chordProgression = [
-        [392, 494, 587], [349, 440, 523], [330, 415, 494], [294, 370, 440]
+        [523, 659, 784], [587, 740, 880], [523, 659, 784], [494, 622, 740]
       ];
       
       melody.forEach((freq, i) => {
         const time = now + i * tempo;
         
-        // Lead melody (square wave - bright and sharp)
+        // Lead melody (triangle wave - soft and cute)
         const lead = this.audioContext.createOscillator();
         const leadGain = this.audioContext.createGain();
-        lead.type = 'square';
+        lead.type = 'triangle';
         lead.frequency.value = freq;
-        leadGain.gain.setValueAtTime(0.06, time);
-        leadGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.8);
+        leadGain.gain.setValueAtTime(0.05, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.9);
         lead.connect(leadGain);
         leadGain.connect(this.musicGain);
         lead.start(time);
-        lead.stop(time + tempo * 0.8);
+        lead.stop(time + tempo * 0.9);
         
-        // Harmony layer (triangle wave)
+        // Harmony layer (sine wave - smooth)
         const harmony = this.audioContext.createOscillator();
         const harmGain = this.audioContext.createGain();
-        harmony.type = 'triangle';
-        harmony.frequency.value = freq * 0.75;
-        harmGain.gain.setValueAtTime(0.04, time);
-        harmGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.8);
+        harmony.type = 'sine';
+        harmony.frequency.value = freq * 0.5;
+        harmGain.gain.setValueAtTime(0.03, time);
+        harmGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.9);
         harmony.connect(harmGain);
         harmGain.connect(this.musicGain);
         harmony.start(time);
-        harmony.stop(time + tempo * 0.8);
+        harmony.stop(time + tempo * 0.9);
         
         // Chord backing (every 4 notes)
         if (i % 4 === 0) {
@@ -145,9 +146,9 @@ class ArcadeSoundEngine {
           chord.forEach(chordFreq => {
             const chordOsc = this.audioContext.createOscillator();
             const chordGain = this.audioContext.createGain();
-            chordOsc.type = 'sawtooth';
+            chordOsc.type = 'triangle';
             chordOsc.frequency.value = chordFreq;
-            chordGain.gain.setValueAtTime(0.025, time);
+            chordGain.gain.setValueAtTime(0.02, time);
             chordGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 4);
             chordOsc.connect(chordGain);
             chordGain.connect(this.musicGain);
@@ -156,13 +157,13 @@ class ArcadeSoundEngine {
           });
         }
         
-        // Driving bass (every beat)
+        // Light bass (every other beat)
         if (i % 2 === 0) {
           const bass = this.audioContext.createOscillator();
           const bassGain = this.audioContext.createGain();
-          bass.type = 'sawtooth';
+          bass.type = 'sine';
           bass.frequency.value = melody[i] / 4;
-          bassGain.gain.setValueAtTime(0.12, time);
+          bassGain.gain.setValueAtTime(0.08, time);
           bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
           bass.connect(bassGain);
           bassGain.connect(this.musicGain);
