@@ -712,10 +712,15 @@ export default function ColorGameRoyale() {
         // Determine ending synchronously
         let ending;
         if (isVictory) {
-          // Get dominant element for victory
-          const dominant = Object.entries(newBalance)
-            .sort((a, b) => b[1] - a[1])[0][0];
-          ending = dominant; // fire, water, nature, or light
+          // Levels 1-9: Generic victory ending
+          if (prev.gameMode === 'normal' && prev.selectedLevel < 10) {
+            ending = 'victory';
+          } else {
+            // Level 10: Elemental ending based on dominant element
+            const dominant = Object.entries(newBalance)
+              .sort((a, b) => b[1] - a[1])[0][0];
+            ending = dominant; // fire, water, nature, or light
+          }
 
           // Save progress asynchronously (don't block on this)
           determineEnding({ ...prev, shadowMeter: newShadow, score: newScore });
