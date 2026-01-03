@@ -196,10 +196,10 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                 textShadow: `0 0 30px ${endingData.color}50`,
               }}
             >
-              {isCampaignVictory ? 'VICTORY!' : endingData.title}
+              {endingData.title}
             </h1>
             <p className="text-2xl text-slate-300 mt-2 tracking-widest">
-              {isCampaignVictory ? 'Level Completed' : endingData.subtitle}
+              {endingData.subtitle}
             </p>
           </motion.div>
         )}
@@ -236,23 +236,20 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
               className="text-3xl md:text-5xl font-black mb-2"
               style={{ color: endingData.color }}
             >
-              {isCampaignVictory ? 'VICTORY!' : endingData.title}
+              {endingData.title}
             </h1>
             <p className="text-xl text-slate-400 mb-8">
-              {isCampaignVictory ? 'Level Completed' : endingData.subtitle}
+              {endingData.subtitle}
             </p>
 
-            {/* Description - custom for campaign victories, normal for others */}
+            {/* Description */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
               className="text-lg text-slate-300 leading-relaxed mb-12 px-4"
             >
-              {isCampaignVictory 
-                ? `You have conquered Level ${currentLevel} with the power of ${endingData.title.toLowerCase().replace('the ', '').replace(' ending', '')}! Your champion grows stronger with each victory.`
-                : endingData.description
-              }
+              {endingData.description}
             </motion.p>
 
             {/* Stats - only show in stats phase */}
