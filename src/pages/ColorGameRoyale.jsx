@@ -737,15 +737,14 @@ export default function ColorGameRoyale() {
           };
         }
 
-        // Defeat - show black hole transition only for Umbra (level 10) or other game modes
-        const shouldShowBlackHole = prev.gameMode !== 'normal' || prev.selectedLevel === 10;
+        // Defeat - show black hole transition for all defeats
         return {
           ...prev,
           score: newScore,
           timer: newTimer,
           championHP: newHP,
           coins: newCoins,
-          phase: shouldShowBlackHole ? 'black-hole' : 'ending',
+          phase: 'black-hole',
           ending,
         };
       }
