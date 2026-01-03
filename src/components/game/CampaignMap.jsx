@@ -48,36 +48,33 @@ export default function CampaignMap({ progress, onSelectLevel, onBack, onUpgrade
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center justify-between mb-4">
-          <Button
-            onClick={onBack}
-            variant="ghost"
-            className="text-slate-300 hover:text-white"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" /> Back
-          </Button>
-          
-          <Button
-            onClick={onUpgrades}
-            className="bg-gradient-to-r from-purple-600 to-pink-600"
-          >
-            <Star className="w-5 h-5 mr-2" /> Champion Upgrades
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={onBack}
+              variant="ghost"
+              className="text-slate-300 hover:text-white"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" /> Back
+            </Button>
+
+            {/* Coins display */}
+            <div className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-500/20 border border-yellow-500/50">
+              <span className="text-3xl">💰</span>
+              <div>
+                <p className="text-xs text-yellow-400 font-medium">Coins</p>
+                <p className="text-2xl font-black text-yellow-400">{progress.coins || 500}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
             CAMPAIGN MAP
           </h1>
-          <div className="flex items-center justify-center gap-6 text-slate-400">
-            <p>Progress: Level {highestUnlocked} / {CAMPAIGN_LEVELS.length}</p>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50">
-              <span className="text-2xl">💰</span>
-              <div>
-                <p className="text-xs text-yellow-400">Coins</p>
-                <p className="text-lg font-black text-yellow-400">{progress.coins || 500}</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-slate-400">
+            Progress: Level {highestUnlocked} / {CAMPAIGN_LEVELS.length}
+          </p>
           
           {/* Progress bar */}
           <div className="mt-4 max-w-md mx-auto">
