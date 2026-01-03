@@ -501,17 +501,17 @@ export default function ColorGameRoyale() {
 
         // Time bonus based on matches
         if (matches === 3) {
-          bonusTimeEarned += 10; // Jackpot: +10 seconds
+          bonusTimeEarned += 3; // Jackpot: +3 seconds
           shadowDamage = 25 + streakDamageBonus;
           showFeedback('paldo', 'jackpot');
           triggerScreenShake();
           triggerFlash('#fbbf24');
           playSound('jackpot');
         } else if (matches === 2) {
-          bonusTimeEarned += 5; // Combo: +5 seconds
+          bonusTimeEarned += 1; // Combo: +1 second
           shadowDamage = 15 + streakDamageBonus;
         } else {
-          bonusTimeEarned += 2; // Match: +2 seconds
+          bonusTimeEarned += 1; // Match: +1 second
           shadowDamage = 5 + streakDamageBonus;
         }
 
