@@ -689,7 +689,20 @@ export default function ColorGameRoyale() {
       const isGameOver = isVictory || isDefeat;
 
       if (isGameOver) {
-        const ending = isVictory ? determineEnding({ ...prev, shadowMeter: newShadow, score: newScore }) : (prev.gameMode === 'normal' && prev.selectedLevel < 10 ? 'fallen' : 'chaos');
+        // Determine ending synchronously
+        let ending;
+        if (isVictory) {
+          // Get dominant element for victory
+          const dominant = Object.entries(newBalance)
+            .sort((a, b) => b[1] - a[1])[0][0];
+          ending = dominant; // fire, water, nature, or light
+
+          // Save progress asynchronously (don't block on this)
+          determineEnding({ ...prev, shadowMeter: newShadow, score: newScore });
+        } else {
+          // Defeat endings
+          ending = prev.gameMode === 'normal' && prev.selectedLevel < 10 ? 'fallen' : 'chaos';
+        }
 
         // Show victory message before ending (only if actually won)
         if (isVictory) {

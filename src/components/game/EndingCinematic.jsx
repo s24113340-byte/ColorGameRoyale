@@ -201,17 +201,18 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
               {isCampaignVictory ? 'Level Completed' : endingData.subtitle}
             </p>
 
-            {/* Description - skip for campaign victories */}
-            {!isCampaignVictory && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-lg text-slate-300 leading-relaxed mb-12 px-4"
-              >
-                {endingData.description}
-              </motion.p>
-            )}
+            {/* Description - custom for campaign victories, normal for others */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-lg text-slate-300 leading-relaxed mb-12 px-4"
+            >
+              {isCampaignVictory 
+                ? `You have conquered Level ${currentLevel} with the power of ${endingData.title.toLowerCase().replace('the ', '').replace(' ending', '')}! Your champion grows stronger with each victory.`
+                : endingData.description
+              }
+            </motion.p>
 
             {/* Stats - only show in stats phase */}
             {phase === 'stats' && (
