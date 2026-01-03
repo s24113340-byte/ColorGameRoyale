@@ -638,16 +638,22 @@ export default function ColorGameRoyale() {
           frozen = true;
           setTimeout(() => {
             setGameState(prev => ({ ...prev, frozen: false }));
-          }, 5000);
+          }, 3000);
         } else if (umbraAbility === 'poison') {
           const poisonCount = Math.floor(Math.random() * 2) + 2; // 2-3 tiles
           for (let i = 0; i < poisonCount; i++) {
             poisoned.push(COLORS[Math.floor(Math.random() * COLORS.length)].id);
           }
-          // Clear poison after 5 seconds
+          // Poison damages HP immediately
+          const poisonDamage = poisonCount * 3; // 3% per poisoned tile
+          setGameState(prev => ({
+            ...prev,
+            championHP: Math.max(0, prev.championHP - poisonDamage),
+          }));
+          // Clear poison after 8 seconds
           setTimeout(() => {
             setGameState(prev => ({ ...prev, poisonedSquares: [] }));
-          }, 5000);
+          }, 8000);
         } else if (umbraAbility === 'shadow-surge') {
           // FINAL BOSS: Massive score drain + time penalty
           totalWin = Math.floor(totalWin * 0.3);
@@ -671,9 +677,9 @@ export default function ColorGameRoyale() {
         // Check for poison damage - if ball lands on poisoned tile user bet on
         let poisonDamage = 0;
         results.forEach(r => {
-        if (r && r.id && gameState.poisonedSquares.includes(r.id) && gameState.bets[r.id]) {
-        poisonDamage += 5; // 5% HP per poisoned hit
-        }
+          if (r && r.id && gameState.poisonedSquares.includes(r.id) && gameState.bets[r.id]) {
+            poisonDamage += 8; // 8% HP per poisoned hit
+          }
         });
 
     setGameState(prev => {
