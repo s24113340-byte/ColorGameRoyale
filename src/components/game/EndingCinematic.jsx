@@ -306,7 +306,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                     <div className="text-5xl">💰</div>
                     <div className="text-left">
                       <p className={`text-sm font-bold ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-400'}`}>
-                        {isCampaignVictory ? 'REWARD' : 'CONSOLATION'}
+                        REWARD
                       </p>
                       <p className={`font-black text-4xl ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-300'}`}>
                         {rewardCoins} Coins
