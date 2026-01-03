@@ -279,7 +279,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                         />
                       )
                     ) : champion.id === 'rei' ? (
-                      !isVictory ? (
+                      (ending === 'chaos' || ending === 'fallen') ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
                           alt="Defeated Rei"
