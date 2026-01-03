@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowDown, ArrowUp, ArrowLeft, ArrowRight } from 'lucide-react';
 
-const TUTORIAL_STEPS = [
+const getTutorialSteps = (enemyName) => [
   {
     id: 'welcome',
     title: 'Welcome to Color Game Royale!',
@@ -11,8 +11,8 @@ const TUTORIAL_STEPS = [
   },
   {
     id: 'shadow-meter',
-    title: 'Umbra\'s Shadow Meter',
-    description: 'Defeat Umbra by reducing his shadow meter to zero! Win matches to damage him.',
+    title: `${enemyName}'s HP`,
+    description: `Defeat the ${enemyName} by reducing their HP to zero! Win matches to damage them.`,
     position: 'top-left',
   },
   {
@@ -40,15 +40,15 @@ const TUTORIAL_STEPS = [
     position: 'center',
   },
   {
-    id: 'umbra',
-    title: 'Beware of Umbra',
-    description: 'Umbra will interfere with freeze, poison, and score drain abilities. Stay sharp!',
+    id: 'enemy',
+    title: `Beware of ${enemyName}`,
+    description: `The ${enemyName} will interfere with freeze, poison, and score drain abilities. Stay sharp!`,
     position: 'top-right',
   },
   {
     id: 'ready',
     title: 'You\'re Ready!',
-    description: 'Win by depleting Umbra\'s shadow meter before time runs out. Good luck!',
+    description: `Win by depleting ${enemyName}'s HP before time runs out. Good luck!`,
     position: 'center',
   },
 ];
@@ -62,8 +62,9 @@ const ARROW_COMPONENTS = {
   'down-left': ArrowDown,
 };
 
-export default function InGameTutorial({ onComplete, onSkip }) {
+export default function InGameTutorial({ onComplete, onSkip, enemyName = 'Goblin' }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const TUTORIAL_STEPS = getTutorialSteps(enemyName);
   const step = TUTORIAL_STEPS[currentStep];
 
   useEffect(() => {

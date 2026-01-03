@@ -1094,6 +1094,18 @@ export default function ColorGameRoyale() {
               <InGameTutorial
                 onComplete={handleTutorialComplete}
                 onSkip={handleTutorialSkip}
+                enemyName={
+                  gameState.selectedLevel === 1 ? 'Goblin' :
+                  gameState.selectedLevel === 2 ? 'Little Fairies' :
+                  gameState.selectedLevel === 3 ? 'Dark Knights' :
+                  gameState.selectedLevel === 4 ? 'Ogres' :
+                  gameState.selectedLevel === 5 ? 'Rukh' :
+                  gameState.selectedLevel === 6 ? 'Mystical Magi' :
+                  gameState.selectedLevel === 7 ? 'Giant Fire Lizard' :
+                  gameState.selectedLevel === 8 ? 'Huge Ice Guardian' :
+                  gameState.selectedLevel === 9 ? 'Ice Queen' :
+                  'Umbra'
+                }
               />
             )}
 
