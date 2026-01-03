@@ -90,16 +90,13 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                     const currentBet = bets[color.id] || 0;
                     const isPoisoned = poisonedSquares.includes(color.id);
                     return (
-                      <button 
+                      <motion.button 
                         key={`left-${color.id}`}
+                        whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => onPlaceBet(color.id, betAmount)}
                         disabled={frozen || isDropping || coins < betAmount}
                         className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      >
-                      <motion.div
-                        whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full h-full flex flex-col items-center justify-center"
                         style={{
                           background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
                           boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
@@ -114,7 +111,7 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         {isPoisoned && (
                           <div className="text-purple-300 text-xs">☠️</div>
                         )}
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
