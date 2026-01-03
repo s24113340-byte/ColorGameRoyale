@@ -1045,6 +1045,17 @@ export default function ColorGameRoyale() {
               shadowMeter={gameState.shadowMeter}
               rageMode={gameState.umbraRageMode}
               finalBoss={gameState.umbraFinalBoss}
+              enemyName={
+                gameState.selectedLevel === 1 ? 'Goblin' :
+                gameState.selectedLevel === 2 ? 'Fairies' :
+                gameState.selectedLevel === 3 ? 'Knights' :
+                gameState.selectedLevel === 4 ? 'Ogres' :
+                gameState.selectedLevel === 5 ? 'Rukh' :
+                gameState.selectedLevel === 6 ? 'Magi' :
+                gameState.selectedLevel === 7 ? 'Fire Lizard' :
+                gameState.selectedLevel === 8 ? 'Ice Guardian' :
+                gameState.selectedLevel === 9 ? 'Ice Queen' : null
+              }
             />
 
             <UmbraAIIndicator gameState={gameState} />
