@@ -1006,27 +1006,41 @@ export default function ColorGameRoyale() {
           >
             {/* Animated background particles */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-              {[...Array(30)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 rounded-full"
-                  style={{ background: '#9333ea' }}
-                  initial={{
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    opacity: 0,
-                  }}
-                  animate={{
-                    y: [null, Math.random() * -500],
-                    opacity: [0, 0.8, 0],
-                  }}
-                  transition={{
-                    duration: 5 + Math.random() * 5,
-                    repeat: Infinity,
-                    delay: Math.random() * 3,
-                  }}
-                />
-              ))}
+              {[...Array(50)].map((_, i) => {
+                const size = Math.random() * 4 + 1;
+                const colors = ['#9333ea', '#ec4899', '#8b5cf6', '#a855f7', '#c084fc'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                return (
+                  <motion.div
+                    key={i}
+                    className="absolute rounded-full"
+                    style={{ 
+                      width: size,
+                      height: size,
+                      background: color,
+                      boxShadow: `0 0 ${size * 2}px ${color}`,
+                    }}
+                    initial={{
+                      x: Math.random() * window.innerWidth,
+                      y: Math.random() * window.innerHeight,
+                      opacity: 0,
+                    }}
+                    animate={{
+                      x: [null, Math.random() * window.innerWidth],
+                      y: [null, Math.random() * -500],
+                      opacity: [0, 0.6, 0],
+                      scale: [1, 1.5, 0.5],
+                    }}
+                    transition={{
+                      duration: 5 + Math.random() * 10,
+                      repeat: Infinity,
+                      delay: Math.random() * 5,
+                      ease: "easeInOut",
+                    }}
+                  />
+                );
+              })}
             </div>
             {/* Top right buttons */}
             <div className="fixed top-4 right-4 z-50 flex gap-2">
