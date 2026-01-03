@@ -263,7 +263,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                 {champion && (
                   <div className="flex items-center justify-center gap-4 mb-6">
                     {champion.id === 'ren' ? (
-                      (ending === 'chaos' || ending === 'fallen') ? (
+                      !isVictory ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
                           alt="Defeated Ren"
@@ -279,7 +279,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                         />
                       )
                     ) : champion.id === 'rei' ? (
-                      (ending === 'chaos' || ending === 'fallen') ? (
+                      !isVictory ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
                           alt="Defeated Rei"
