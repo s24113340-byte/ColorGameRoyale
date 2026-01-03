@@ -63,6 +63,8 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
   const [phase, setPhase] = useState('intro');
   const endingData = ENDINGS[ending] || ENDINGS.chaos;
   const isVictory = ending !== 'chaos' && ending !== 'fallen';
+  const isCampaignVictory = gameMode === 'normal' && isVictory && currentLevel < 10;
+  const rewardCoins = isCampaignVictory ? currentLevel * 50 : 0;
 
   useEffect(() => {
     const timers = [
@@ -153,10 +155,10 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                 textShadow: `0 0 30px ${endingData.color}50`,
               }}
             >
-              {endingData.title}
+              {isCampaignVictory ? 'VICTORY!' : endingData.title}
             </h1>
             <p className="text-2xl text-slate-300 mt-2 tracking-widest">
-              {endingData.subtitle}
+              {isCampaignVictory ? 'Level Completed' : endingData.subtitle}
             </p>
           </motion.div>
         )}
@@ -193,19 +195,23 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
               className="text-3xl md:text-5xl font-black mb-2"
               style={{ color: endingData.color }}
             >
-              {endingData.title}
+              {isCampaignVictory ? 'VICTORY!' : endingData.title}
             </h1>
-            <p className="text-xl text-slate-400 mb-8">{endingData.subtitle}</p>
+            <p className="text-xl text-slate-400 mb-8">
+              {isCampaignVictory ? 'Level Completed' : endingData.subtitle}
+            </p>
 
-            {/* Description */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-lg text-slate-300 leading-relaxed mb-12 px-4"
-            >
-              {endingData.description}
-            </motion.p>
+            {/* Description - skip for campaign victories */}
+            {!isCampaignVictory && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-lg text-slate-300 leading-relaxed mb-12 px-4"
+              >
+                {endingData.description}
+              </motion.p>
+            )}
 
             {/* Stats - only show in stats phase */}
             {phase === 'stats' && (
@@ -283,6 +289,24 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                   </div>
                 </div>
 
+                {/* Reward coins - only for campaign victories */}
+                {isCampaignVictory && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-yellow-500/20 border-2 border-yellow-500/50"
+                  >
+                    <div className="text-5xl">💰</div>
+                    <div className="text-left">
+                      <p className="text-yellow-400 text-sm font-bold">REWARD</p>
+                      <p className="font-black text-4xl text-yellow-400">
+                        {rewardCoins} Coins
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Rating */}
                 <div className="flex justify-center gap-2">
                   {[...Array(5)].map((_, i) => (
@@ -315,13 +339,13 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={onNextLevel}
-                        className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3"
+                        className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3 text-white"
                         style={{
                           background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
                           boxShadow: `0 10px 30px ${endingData.color}40`,
                         }}
                       >
-                        NEXT LEVEL
+                        PROCEED TO NEXT LEVEL
                       </motion.button>
                       <motion.button
                         initial={{ opacity: 0 }}
@@ -330,9 +354,9 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={onBackToMap}
-                        className="px-8 py-4 rounded-xl font-bold text-lg bg-slate-800/80 hover:bg-slate-700/80 text-white"
+                        className="px-8 py-4 rounded-xl font-bold text-lg bg-slate-700/80 hover:bg-slate-600/80 text-white border-2 border-slate-500/50"
                       >
-                        BACK TO MAP
+                        BACK TO CAMPAIGN MAP
                       </motion.button>
                     </>
                   )}
