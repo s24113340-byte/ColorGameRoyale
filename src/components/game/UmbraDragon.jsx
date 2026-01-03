@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skull, Zap, Snowflake } from 'lucide-react';
 
 const ENEMY_SPRITES = {
-  1: { emoji: '👺', name: 'Goblin', color: '#10B981' },
+  1: { sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/c46751887_goblin.png', name: 'Goblin', color: '#10B981' },
   2: { emoji: '🧚', name: 'Little Fairies', color: '#22C55E' },
   3: { emoji: '⚔️', name: 'Dark Knights', color: '#84CC16' },
   4: { emoji: '👹', name: 'Ogres', color: '#78716C' },
@@ -66,6 +66,17 @@ export default function UmbraDragon({ gameState }) {
                 imageRendering: 'pixelated',
                 filter: umbraRageMode ? 'brightness(1.3) saturate(1.5) drop-shadow(0 0 20px #FF0000)' : umbraFinalBoss ? 'brightness(1.2) hue-rotate(20deg) drop-shadow(0 0 20px #8B5CF6)' : 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.5))',
                 mixBlendMode: 'normal',
+              }}
+            />
+          ) : enemy.sprite ? (
+            /* Image sprite for enemies with custom assets */
+            <img 
+              src={enemy.sprite}
+              alt={enemy.name}
+              className="w-full h-full object-contain"
+              style={{
+                imageRendering: 'pixelated',
+                filter: `drop-shadow(0 0 20px ${enemy.color})`,
               }}
             />
           ) : (
