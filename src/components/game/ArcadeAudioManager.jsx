@@ -96,45 +96,82 @@ class ArcadeSoundEngine {
       if (!this.musicOn) return;
       
       const now = this.audioContext.currentTime;
-      const tempo = 0.2;
+      const tempo = 0.12; // Faster tempo for excitement
       
-      // Battle theme pattern
-      const pattern = [
-        [523, 587, 659], [494, 554, 622], 
-        [440, 523, 587], [392, 466, 523],
+      // Epic battle melody - fast-paced and heroic
+      const melody = [
+        784, 784, 880, 988, 1047, 988, 880, 784,
+        698, 698, 784, 880, 932, 880, 784, 698,
+        659, 784, 880, 988, 1047, 1175, 1047, 988,
+        880, 784, 698, 659, 587, 523, 587, 659
       ];
       
-      let time = now;
-      pattern.forEach((chord, i) => {
-        chord.forEach(freq => {
-          const osc = this.audioContext.createOscillator();
-          const gain = this.audioContext.createGain();
-          osc.type = 'square';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.04, time);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 2);
-          osc.connect(gain);
-          gain.connect(this.musicGain);
-          osc.start(time);
-          osc.stop(time + tempo * 2);
-        });
+      const chordProgression = [
+        [392, 494, 587], [349, 440, 523], [330, 415, 494], [294, 370, 440]
+      ];
+      
+      melody.forEach((freq, i) => {
+        const time = now + i * tempo;
         
-        // Driving bass
-        const bass = this.audioContext.createOscillator();
-        const bassGain = this.audioContext.createGain();
-        bass.type = 'sawtooth';
-        bass.frequency.value = chord[0] / 2;
-        bassGain.gain.setValueAtTime(0.1, time);
-        bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
-        bass.connect(bassGain);
-        bassGain.connect(this.musicGain);
-        bass.start(time);
-        bass.stop(time + tempo);
+        // Lead melody (square wave - bright and sharp)
+        const lead = this.audioContext.createOscillator();
+        const leadGain = this.audioContext.createGain();
+        lead.type = 'square';
+        lead.frequency.value = freq;
+        leadGain.gain.setValueAtTime(0.06, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.8);
+        lead.connect(leadGain);
+        leadGain.connect(this.musicGain);
+        lead.start(time);
+        lead.stop(time + tempo * 0.8);
         
-        time += tempo * 2;
+        // Harmony layer (triangle wave)
+        const harmony = this.audioContext.createOscillator();
+        const harmGain = this.audioContext.createGain();
+        harmony.type = 'triangle';
+        harmony.frequency.value = freq * 0.75;
+        harmGain.gain.setValueAtTime(0.04, time);
+        harmGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 0.8);
+        harmony.connect(harmGain);
+        harmGain.connect(this.musicGain);
+        harmony.start(time);
+        harmony.stop(time + tempo * 0.8);
+        
+        // Chord backing (every 4 notes)
+        if (i % 4 === 0) {
+          const chordIndex = Math.floor(i / 8) % chordProgression.length;
+          const chord = chordProgression[chordIndex];
+          
+          chord.forEach(chordFreq => {
+            const chordOsc = this.audioContext.createOscillator();
+            const chordGain = this.audioContext.createGain();
+            chordOsc.type = 'sawtooth';
+            chordOsc.frequency.value = chordFreq;
+            chordGain.gain.setValueAtTime(0.025, time);
+            chordGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 4);
+            chordOsc.connect(chordGain);
+            chordGain.connect(this.musicGain);
+            chordOsc.start(time);
+            chordOsc.stop(time + tempo * 4);
+          });
+        }
+        
+        // Driving bass (every beat)
+        if (i % 2 === 0) {
+          const bass = this.audioContext.createOscillator();
+          const bassGain = this.audioContext.createGain();
+          bass.type = 'sawtooth';
+          bass.frequency.value = melody[i] / 4;
+          bassGain.gain.setValueAtTime(0.12, time);
+          bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+          bass.connect(bassGain);
+          bassGain.connect(this.musicGain);
+          bass.start(time);
+          bass.stop(time + tempo);
+        }
       });
       
-      this.currentMusic = setTimeout(playLoop, tempo * 8 * 1000);
+      this.currentMusic = setTimeout(playLoop, melody.length * tempo * 1000);
     };
     
     playLoop();
