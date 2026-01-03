@@ -141,9 +141,8 @@ const INITIAL_STATE = {
   umbraFinalBoss: false,
   poisonedSquares: [],
   frozen: false,
-  abilityCharges: 3,
-  abilityCooldown: 0,
   round: 1,
+  screenShake: false,
   maxRounds: 10,
   factionBuffActive: null,
   payoutMultiplier: 1,
@@ -511,6 +510,7 @@ export default function ColorGameRoyale() {
           bonusTimeEarned += 10; // Jackpot: +10 seconds
           shadowDamage = 25 + streakDamageBonus;
           showFeedback('paldo', 'jackpot');
+          triggerScreenShake();
         } else if (matches === 2) {
           bonusTimeEarned += 5; // Combo: +5 seconds
           shadowDamage = 15 + streakDamageBonus;
@@ -622,6 +622,7 @@ export default function ColorGameRoyale() {
         
         umbraAbility = abilities[Math.floor(Math.random() * abilities.length)];
         playSound('umbra');
+        triggerScreenShake();
         
         // Execute ability with Rage Mode power boost
         const ragePower = isRageMode ? 1.5 : 1;
@@ -881,29 +882,11 @@ export default function ColorGameRoyale() {
     resetGame();
   };
 
-  const useChampionAbility = () => {
-    if (gameState.abilityCharges <= 0 || gameState.abilityCooldown > 0) return;
-    
-    playSound('win');
-    setGameState(prev => ({
-      ...prev,
-      abilityCharges: prev.abilityCharges - 1,
-      abilityCooldown: 3, // 3 rounds cooldown
-      poisonedSquares: [], // Cleanse poison
-      frozen: false, // Break freeze
-      championHP: Math.min(100, prev.championHP + 15), // Heal 15% HP
-      shadowMeter: Math.max(0, prev.shadowMeter - 10), // Deal 10 damage to Umbra
-    }));
-
-    // Clear cooldown after 3 drops
-    let dropCount = 0;
-    const cooldownInterval = setInterval(() => {
-      dropCount++;
-      if (dropCount >= 3) {
-        setGameState(prev => ({ ...prev, abilityCooldown: 0 }));
-        clearInterval(cooldownInterval);
-      }
-    }, 1000);
+  const triggerScreenShake = () => {
+    setGameState(prev => ({ ...prev, screenShake: true }));
+    setTimeout(() => {
+      setGameState(prev => ({ ...prev, screenShake: false }));
+    }, 500);
   };
 
   // Don't render until save data is loaded
@@ -1071,14 +1054,21 @@ export default function ColorGameRoyale() {
               colors={COLORS}
             />
 
-            <GameBoard 
-              gameState={gameState}
-              colors={COLORS}
-              onPlaceBet={placeBet}
-              onDrop={dropBalls}
-              onSkipResults={skipResults}
-              onUseAbility={useChampionAbility}
-            />
+            <motion.div
+              animate={gameState.screenShake ? {
+                x: [0, -10, 10, -10, 10, 0],
+                y: [0, -5, 5, -5, 5, 0],
+              } : {}}
+              transition={{ duration: 0.5 }}
+            >
+              <GameBoard 
+                gameState={gameState}
+                colors={COLORS}
+                onPlaceBet={placeBet}
+                onDrop={dropBalls}
+                onSkipResults={skipResults}
+              />
+            </motion.div>
 
             <UmbraOverlay 
               active={gameState.umbraActive}

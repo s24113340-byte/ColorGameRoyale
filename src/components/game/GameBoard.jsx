@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Play, CircleDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults, onUseAbility }) {
+export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSkipResults }) {
   const [betAmount, setBetAmount] = useState(50);
-  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets, champion, abilityCharges, abilityCooldown, streak } = gameState;
+  const { bets, droppedBalls, isDropping, coins, frozen, poisonedSquares, canSkipResults, umbraBets, champion, streak } = gameState;
 
   const adjustBet = (delta) => {
     setBetAmount(Math.max(10, Math.min(100, betAmount + delta)));
@@ -94,7 +94,12 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
                         key={`left-${color.id}`}
                         onClick={() => onPlaceBet(color.id, betAmount)}
                         disabled={frozen || isDropping || coins < betAmount}
-                        className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        className={`w-20 h-28 rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center backdrop-blur-sm ${frozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                      <motion.div
+                        whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full h-full flex flex-col items-center justify-center"
                         style={{
                           background: `linear-gradient(135deg, ${color.hex}dd, ${color.hex})`,
                           boxShadow: currentBet > 0 ? '0 0 20px rgba(255, 215, 0, 0.8)' : `0 4px 10px ${color.hex}40`,
@@ -471,33 +476,18 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
             </Button>
           </div>
 
-          {/* Champion Ability Button */}
-          {champion && (
-            <motion.button
-              whileHover={{ scale: abilityCharges > 0 && abilityCooldown === 0 ? 1.05 : 1 }}
-              whileTap={{ scale: abilityCharges > 0 && abilityCooldown === 0 ? 0.95 : 1 }}
-              onClick={onUseAbility}
-              disabled={abilityCharges <= 0 || abilityCooldown > 0}
-              className={`px-6 py-4 rounded-xl font-bold text-sm flex items-center gap-2 border-2 ${
-                abilityCharges > 0 && abilityCooldown === 0
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50'
-                  : 'bg-slate-700/50 text-slate-500 border-slate-600 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-lg">✨</span>
-              <div className="text-left">
-                <div className="text-xs opacity-70">ABILITY</div>
-                <div className="font-black">
-                  {abilityCooldown > 0 ? `COOLDOWN (${abilityCooldown})` : `CHARGES: ${abilityCharges}`}
-                </div>
-              </div>
-            </motion.button>
-          )}
-
           {/* Drop button */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
             whileTap={{ scale: 0.95 }}
+            animate={Object.keys(bets).length > 0 && !isDropping && !frozen ? {
+              boxShadow: [
+                '0 0 20px rgba(34, 197, 94, 0.3)',
+                '0 0 40px rgba(34, 197, 94, 0.6)',
+                '0 0 20px rgba(34, 197, 94, 0.3)',
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity }}
             onClick={onDrop}
             disabled={Object.keys(bets).length === 0 || isDropping || frozen}
             className={`drop-button 
@@ -508,7 +498,12 @@ export default function GameBoard({ gameState, colors, onPlaceBet, onDrop, onSki
               }
             `}
           >
-            <Play className="w-5 h-5" />
+            <motion.div
+              animate={!isDropping && Object.keys(bets).length > 0 ? { rotate: 360 } : {}}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <Play className="w-5 h-5" />
+            </motion.div>
             {isDropping ? 'DROPPING...' : 'DROP BALLS'}
           </motion.button>
 

@@ -153,7 +153,15 @@ export default function GameHUD({ gameState, colors }) {
                 <Trophy className="w-5 h-5 text-yellow-400" />
                 <div>
                   <p className="text-xs text-slate-400">Score</p>
-                  <p className="font-bold text-white text-lg">{score.toLocaleString()}</p>
+                  <motion.p 
+                    key={score}
+                    initial={{ scale: 1.3, color: '#fbbf24' }}
+                    animate={{ scale: 1, color: '#ffffff' }}
+                    transition={{ duration: 0.3 }}
+                    className="font-bold text-lg"
+                  >
+                    {score.toLocaleString()}
+                  </motion.p>
                 </div>
               </motion.div>
 
@@ -166,7 +174,15 @@ export default function GameHUD({ gameState, colors }) {
                 <Coins className="w-5 h-5 text-yellow-400" />
                 <div>
                   <p className="text-xs text-slate-400">Coins</p>
-                  <p className="font-bold text-yellow-400 text-lg">{coins}</p>
+                  <motion.p 
+                    key={coins}
+                    initial={{ scale: 1.3, y: -5 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="font-bold text-yellow-400 text-lg"
+                  >
+                    {coins}
+                  </motion.p>
                 </div>
               </motion.div>
             </div>
