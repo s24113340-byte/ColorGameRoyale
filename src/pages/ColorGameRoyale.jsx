@@ -1002,61 +1002,31 @@ export default function ColorGameRoyale() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="relative z-10 min-h-screen"
-            style={{
-              background: gameState.selectedLevel ? 
-                gameState.selectedLevel === 1 ? 'linear-gradient(to bottom, #86efac, #4ade80, #22c55e)' : // village - green
-                gameState.selectedLevel === 2 ? 'linear-gradient(to bottom, #4ade80, #22c55e, #15803d)' : // forest - dark green
-                gameState.selectedLevel === 3 ? 'linear-gradient(to bottom, #bef264, #84cc16, #65a30d)' : // grassland - lime
-                gameState.selectedLevel === 4 ? 'linear-gradient(to bottom, #a8a29e, #78716c, #57534e)' : // mountain - gray
-                gameState.selectedLevel === 5 ? 'linear-gradient(to bottom, #f5f5f4, #d6d3d1, #a8a29e)' : // mountain peak - light gray
-                gameState.selectedLevel === 6 ? 'linear-gradient(to bottom, #fcd34d, #fbbf24, #f59e0b)' : // desert - yellow
-                gameState.selectedLevel === 7 ? 'linear-gradient(to bottom, #fbbf24, #f59e0b, #d97706)' : // dunes - orange
-                gameState.selectedLevel === 8 ? 'linear-gradient(to bottom, #67e8f9, #22d3ee, #06b6d4)' : // lake - cyan
-                gameState.selectedLevel === 9 ? 'linear-gradient(to bottom, #dbeafe, #93c5fd, #3b82f6)' : // snow - blue
-                gameState.selectedLevel === 10 ? 'linear-gradient(to bottom, #2e1065, #1e1b4b, #0f172a)' : // castle - dark purple
-                'linear-gradient(to bottom, #0f172a, #1e293b, #334155)' // default
-              : 'linear-gradient(to bottom, #0f172a, #1e293b, #334155)'
-            }}
+            className="relative z-10 min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950"
           >
-            {/* Animated background particles based on level */}
+            {/* Animated background particles */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-              {[...Array(30)].map((_, i) => {
-                const particleColor = gameState.selectedLevel ? 
-                  gameState.selectedLevel === 1 ? '#22c55e' : 
-                  gameState.selectedLevel === 2 ? '#15803d' : 
-                  gameState.selectedLevel === 3 ? '#84cc16' : 
-                  gameState.selectedLevel === 4 ? '#78716c' : 
-                  gameState.selectedLevel === 5 ? '#d6d3d1' : 
-                  gameState.selectedLevel === 6 ? '#fbbf24' : 
-                  gameState.selectedLevel === 7 ? '#f59e0b' : 
-                  gameState.selectedLevel === 8 ? '#22d3ee' : 
-                  gameState.selectedLevel === 9 ? '#3b82f6' : 
-                  gameState.selectedLevel === 10 ? '#9333ea' : 
-                  '#8B5CF6' : '#8B5CF6';
-
-                return (
-                  <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 rounded-full"
-                    style={{ background: particleColor }}
-                    initial={{
-                      x: Math.random() * window.innerWidth,
-                      y: Math.random() * window.innerHeight,
-                      opacity: 0,
-                    }}
-                    animate={{
-                      y: [null, Math.random() * -500],
-                      opacity: [0, 0.8, 0],
-                    }}
-                    transition={{
-                      duration: 5 + Math.random() * 5,
-                      repeat: Infinity,
-                      delay: Math.random() * 3,
-                    }}
-                  />
-                );
-              })}
+              {[...Array(30)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{ background: '#9333ea' }}
+                  initial={{
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    y: [null, Math.random() * -500],
+                    opacity: [0, 0.8, 0],
+                  }}
+                  transition={{
+                    duration: 5 + Math.random() * 5,
+                    repeat: Infinity,
+                    delay: Math.random() * 3,
+                  }}
+                />
+              ))}
             </div>
             {/* Top right buttons */}
             <div className="fixed top-4 right-4 z-50 flex gap-2">
