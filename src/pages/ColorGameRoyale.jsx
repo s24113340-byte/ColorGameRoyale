@@ -238,11 +238,6 @@ export default function ColorGameRoyale() {
       isVictory = state.shadowMeter <= 0 || state.score >= 500;
     }
 
-    // Save campaign progress for Normal mode (will be done in ending cinematic with coin data)
-    if (state.gameMode === 'normal' && saveData && state.selectedLevel) {
-      // Progress will be saved with coins after ending is shown
-    }
-
     // Save time attack score to leaderboard
     if (state.gameMode === 'time-attack') {
       try {
@@ -259,12 +254,17 @@ export default function ColorGameRoyale() {
     }
 
     if (isVictory) {
+      // Levels 1-9: Generic victory ending
+      if (state.gameMode === 'normal' && state.selectedLevel < 10) {
+        return 'victory';
+      }
+      // Level 10: Elemental ending based on dominant element
       const dominant = Object.entries(state.elementalBalance)
         .sort((a, b) => b[1] - a[1])[0][0];
       return dominant;
     }
 
-    // For campaign levels 1-9, return 'fallen' instead of 'chaos'
+    // Defeat: 'fallen' for levels 1-9, 'chaos' for level 10
     if (state.gameMode === 'normal' && state.selectedLevel < 10) {
       return 'fallen';
     }

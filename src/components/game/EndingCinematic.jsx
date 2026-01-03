@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Flame, Droplets, Leaf, Sun, Skull, RefreshCw, Star, Coins } from 'lucide-react';
 
 const ENDINGS = {
+  victory: {
+    title: 'VICTORY!',
+    subtitle: 'Enemy Defeated',
+    description: 'You have successfully defeated your foe! Your skill and determination have proven victorious. The road ahead grows more challenging, but with each victory, you grow stronger.',
+    icon: Trophy,
+    color: '#10B981',
+    bgGradient: 'from-green-950 via-emerald-950 to-teal-950',
+    emoji: '🏆',
+  },
   fire: {
     title: 'THE FIRE ENDING',
     subtitle: 'Blaze of Glory',
