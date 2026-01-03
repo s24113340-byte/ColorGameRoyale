@@ -54,8 +54,8 @@ const ENDINGS = {
     description: 'The enemy has proven too strong... Your champion has fallen in battle. But do not despair - rise again and face the challenge with renewed determination!',
     icon: Skull,
     color: '#EF4444',
-    bgGradient: 'from-red-950 via-slate-950 to-gray-950',
-    emoji: '⚔️',
+    bgGradient: 'from-purple-950 via-slate-950 to-black',
+    emoji: '💀',
   },
 };
 
@@ -64,7 +64,8 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
   const endingData = ENDINGS[ending] || ENDINGS.chaos;
   const isVictory = ending !== 'chaos' && ending !== 'fallen';
   const isCampaignVictory = gameMode === 'normal' && isVictory && currentLevel < 10;
-  const rewardCoins = isCampaignVictory ? currentLevel * 50 : 0;
+  const isCampaignDefeat = gameMode === 'normal' && ending === 'fallen';
+  const rewardCoins = isCampaignVictory ? currentLevel * 50 : isCampaignDefeat ? 100 : 0;
 
   useEffect(() => {
     const timers = [
@@ -225,7 +226,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                 {champion && (
                   <div className="flex items-center justify-center gap-4 mb-6">
                     {champion.id === 'ren' ? (
-                      ending === 'chaos' ? (
+                      (ending === 'chaos' || ending === 'fallen') ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
                           alt="Defeated Ren"
@@ -241,7 +242,7 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                         />
                       )
                     ) : champion.id === 'rei' ? (
-                      ending === 'chaos' ? (
+                      (ending === 'chaos' || ending === 'fallen') ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
                           alt="Defeated Rei"
@@ -290,18 +291,24 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                   </div>
                 </div>
 
-                {/* Reward coins - only for campaign victories */}
-                {isCampaignVictory && (
+                {/* Reward coins - for campaign victories and defeats */}
+                {(isCampaignVictory || isCampaignDefeat) && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-yellow-500/20 border-2 border-yellow-500/50"
+                    className={`inline-flex items-center gap-4 px-8 py-4 rounded-2xl ${
+                      isCampaignVictory 
+                        ? 'bg-yellow-500/20 border-2 border-yellow-500/50' 
+                        : 'bg-slate-700/20 border-2 border-slate-500/50'
+                    }`}
                   >
                     <div className="text-5xl">💰</div>
                     <div className="text-left">
-                      <p className="text-yellow-400 text-sm font-bold">REWARD</p>
-                      <p className="font-black text-4xl text-yellow-400">
+                      <p className={`text-sm font-bold ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-400'}`}>
+                        {isCampaignVictory ? 'REWARD' : 'CONSOLATION'}
+                      </p>
+                      <p className={`font-black text-4xl ${isCampaignVictory ? 'text-yellow-400' : 'text-slate-300'}`}>
                         {rewardCoins} Coins
                       </p>
                     </div>
@@ -371,13 +378,13 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={onBackToMap}
-                      className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3"
+                      className="px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3 text-white"
                       style={{
                         background: `linear-gradient(135deg, ${endingData.color}, ${endingData.color}aa)`,
                         boxShadow: `0 10px 30px ${endingData.color}40`,
                       }}
                     >
-                      BACK TO MAP
+                      BACK TO CAMPAIGN MAP
                     </motion.button>
                   )}
                   
