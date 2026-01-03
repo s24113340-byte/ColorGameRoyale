@@ -29,51 +29,102 @@ class ArcadeSoundEngine {
     this.sfxGain.gain.value = 0.5;
   }
 
-  // Retro arcade background music
-  playBackgroundMusic() {
+  // FF IV-inspired BGM themes
+  playBackgroundMusic(theme = 'battle') {
     if (!this.musicOn || !this.audioContext) return;
     this.stopBackgroundMusic();
     
+    const themes = {
+      title: this.playTitleTheme.bind(this),
+      battle: this.playBattleTheme.bind(this),
+      town: this.playTownTheme.bind(this),
+      boss: this.playBossTheme.bind(this),
+    };
+    
+    if (themes[theme]) {
+      themes[theme]();
+    }
+  }
+
+  playTitleTheme() {
     const playLoop = () => {
       if (!this.musicOn) return;
       
       const now = this.audioContext.currentTime;
-      const tempo = 0.3;
+      const tempo = 0.25;
       
-      // Chord progression: C-Am-F-G
-      const progression = [
-        [261.63, 329.63, 392.00], // C major
-        [220.00, 261.63, 329.63], // A minor
-        [174.61, 220.00, 261.63], // F major
-        [196.00, 246.94, 293.66], // G major
+      // Heroic melody: G-A-B-D-E-D-B-A
+      const melody = [392, 440, 494, 587, 659, 587, 494, 440];
+      const harmony = [196, 220, 247, 294, 330, 294, 247, 220];
+      
+      melody.forEach((freq, i) => {
+        const time = now + i * tempo;
+        
+        // Lead melody (square wave)
+        const lead = this.audioContext.createOscillator();
+        const leadGain = this.audioContext.createGain();
+        lead.type = 'square';
+        lead.frequency.value = freq;
+        leadGain.gain.setValueAtTime(0.05, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+        lead.connect(leadGain);
+        leadGain.connect(this.musicGain);
+        lead.start(time);
+        lead.stop(time + tempo);
+        
+        // Harmony (triangle wave)
+        const harm = this.audioContext.createOscillator();
+        const harmGain = this.audioContext.createGain();
+        harm.type = 'triangle';
+        harm.frequency.value = harmony[i];
+        harmGain.gain.setValueAtTime(0.03, time);
+        harmGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+        harm.connect(harmGain);
+        harmGain.connect(this.musicGain);
+        harm.start(time);
+        harm.stop(time + tempo);
+      });
+      
+      this.currentMusic = setTimeout(playLoop, melody.length * tempo * 1000);
+    };
+    
+    playLoop();
+  }
+
+  playBattleTheme() {
+    const playLoop = () => {
+      if (!this.musicOn) return;
+      
+      const now = this.audioContext.currentTime;
+      const tempo = 0.2;
+      
+      // Battle theme pattern
+      const pattern = [
+        [523, 587, 659], [494, 554, 622], 
+        [440, 523, 587], [392, 466, 523],
       ];
       
       let time = now;
-      for (let i = 0; i < 4; i++) {
-        const chord = progression[i];
-        chord.forEach((freq, idx) => {
+      pattern.forEach((chord, i) => {
+        chord.forEach(freq => {
           const osc = this.audioContext.createOscillator();
           const gain = this.audioContext.createGain();
-          
           osc.type = 'square';
           osc.frequency.value = freq;
-          
-          gain.gain.setValueAtTime(0.03, time);
+          gain.gain.setValueAtTime(0.04, time);
           gain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 2);
-          
           osc.connect(gain);
           gain.connect(this.musicGain);
-          
           osc.start(time);
           osc.stop(time + tempo * 2);
         });
         
-        // Bassline
+        // Driving bass
         const bass = this.audioContext.createOscillator();
         const bassGain = this.audioContext.createGain();
         bass.type = 'sawtooth';
         bass.frequency.value = chord[0] / 2;
-        bassGain.gain.setValueAtTime(0.08, time);
+        bassGain.gain.setValueAtTime(0.1, time);
         bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
         bass.connect(bassGain);
         bassGain.connect(this.musicGain);
@@ -81,9 +132,103 @@ class ArcadeSoundEngine {
         bass.stop(time + tempo);
         
         time += tempo * 2;
-      }
+      });
       
       this.currentMusic = setTimeout(playLoop, tempo * 8 * 1000);
+    };
+    
+    playLoop();
+  }
+
+  playTownTheme() {
+    const playLoop = () => {
+      if (!this.musicOn) return;
+      
+      const now = this.audioContext.currentTime;
+      const tempo = 0.3;
+      
+      // Peaceful town melody
+      const melody = [523, 587, 659, 698, 784, 698, 659, 587];
+      
+      melody.forEach((freq, i) => {
+        const time = now + i * tempo;
+        
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.04, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 1.5);
+        osc.connect(gain);
+        gain.connect(this.musicGain);
+        osc.start(time);
+        osc.stop(time + tempo * 1.5);
+        
+        // Soft bass
+        if (i % 2 === 0) {
+          const bass = this.audioContext.createOscillator();
+          const bassGain = this.audioContext.createGain();
+          bass.type = 'sine';
+          bass.frequency.value = freq / 2;
+          bassGain.gain.setValueAtTime(0.03, time);
+          bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+          bass.connect(bassGain);
+          bassGain.connect(this.musicGain);
+          bass.start(time);
+          bass.stop(time + tempo);
+        }
+      });
+      
+      this.currentMusic = setTimeout(playLoop, melody.length * tempo * 1000);
+    };
+    
+    playLoop();
+  }
+
+  playBossTheme() {
+    const playLoop = () => {
+      if (!this.musicOn) return;
+      
+      const now = this.audioContext.currentTime;
+      const tempo = 0.15;
+      
+      // Intense boss theme
+      const pattern = [
+        [392, 466, 523], [370, 440, 494],
+        [349, 415, 466], [330, 392, 440],
+      ];
+      
+      let time = now;
+      pattern.forEach(chord => {
+        chord.forEach(freq => {
+          const osc = this.audioContext.createOscillator();
+          const gain = this.audioContext.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.05, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+          osc.connect(gain);
+          gain.connect(this.musicGain);
+          osc.start(time);
+          osc.stop(time + tempo);
+        });
+        
+        // Heavy bass
+        const bass = this.audioContext.createOscillator();
+        const bassGain = this.audioContext.createGain();
+        bass.type = 'square';
+        bass.frequency.value = chord[0] / 2;
+        bassGain.gain.setValueAtTime(0.12, time);
+        bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo);
+        bass.connect(bassGain);
+        bassGain.connect(this.musicGain);
+        bass.start(time);
+        bass.stop(time + tempo);
+        
+        time += tempo;
+      });
+      
+      this.currentMusic = setTimeout(playLoop, tempo * pattern.length * 1000);
     };
     
     playLoop();
@@ -284,12 +429,12 @@ class ArcadeSoundEngine {
     osc.stop(this.audioContext.currentTime + duration);
   }
 
-  setMusicVolume(enabled) {
+  setMusicVolume(enabled, theme) {
     this.musicOn = enabled;
     if (!enabled) {
       this.stopBackgroundMusic();
-    } else {
-      this.playBackgroundMusic();
+    } else if (theme) {
+      this.playBackgroundMusic(theme);
     }
   }
 
@@ -308,7 +453,7 @@ export function getArcadeSoundEngine() {
   return soundEngine;
 }
 
-export default function ArcadeAudioManager({ musicOn, soundOn }) {
+export default function ArcadeAudioManager({ musicOn, soundOn, theme = 'battle' }) {
   const engineRef = useRef(null);
 
   useEffect(() => {
@@ -322,9 +467,9 @@ export default function ArcadeAudioManager({ musicOn, soundOn }) {
 
   useEffect(() => {
     if (engineRef.current) {
-      engineRef.current.setMusicVolume(musicOn);
+      engineRef.current.setMusicVolume(musicOn, theme);
     }
-  }, [musicOn]);
+  }, [musicOn, theme]);
 
   useEffect(() => {
     if (engineRef.current) {

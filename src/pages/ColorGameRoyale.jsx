@@ -935,24 +935,33 @@ export default function ColorGameRoyale() {
 
       <AnimatePresence mode="wait">
         {gameState.phase === 'title' && (
-          <TitleScreen onStart={startGame} onInsertCoin={insertCoin} hasInsertedCoin={gameState.hasInsertedCoin} />
+          <>
+            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} theme="title" />
+            <TitleScreen onStart={startGame} onInsertCoin={insertCoin} hasInsertedCoin={gameState.hasInsertedCoin} />
+          </>
         )}
 
         {gameState.phase === 'mode-select' && (
-          <ModeSelect 
-            onSelectMode={selectMode} 
-            onBack={resetGame}
-            hasCampaignSave={saveData.campaignProgress.highestLevelUnlocked > 1}
-          />
+          <>
+            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} theme="town" />
+            <ModeSelect 
+              onSelectMode={selectMode} 
+              onBack={resetGame}
+              hasCampaignSave={saveData.campaignProgress.highestLevelUnlocked > 1}
+            />
+          </>
         )}
 
         {gameState.phase === 'campaign-map' && (
-          <CampaignMap 
-            progress={saveData.campaignProgress}
-            onSelectLevel={selectCampaignLevel}
-            onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))}
-            onUpgrades={() => setGameState(prev => ({ ...prev, phase: 'upgrades' }))}
-          />
+          <>
+            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} theme="town" />
+            <CampaignMap 
+              progress={saveData.campaignProgress}
+              onSelectLevel={selectCampaignLevel}
+              onBack={() => setGameState(prev => ({ ...prev, phase: 'mode-select' }))}
+              onUpgrades={() => setGameState(prev => ({ ...prev, phase: 'upgrades' }))}
+            />
+          </>
         )}
 
         {gameState.phase === 'upgrades' && (
@@ -974,14 +983,17 @@ export default function ColorGameRoyale() {
         )}
 
         {gameState.phase === 'champion-select' && (
-          <ChampionSelect 
-            onSelect={selectChampion} 
-            onBack={() => setGameState(prev => ({ 
-              ...prev, 
-              phase: prev.gameMode === 'normal' ? 'campaign-map' : prev.gameMode === 'time-attack' ? 'time-attack-instructions' : 'mode-select' 
-            }))}
-            championUpgrades={saveData.championUpgrades}
-          />
+          <>
+            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} theme="town" />
+            <ChampionSelect 
+              onSelect={selectChampion} 
+              onBack={() => setGameState(prev => ({ 
+                ...prev, 
+                phase: prev.gameMode === 'normal' ? 'campaign-map' : prev.gameMode === 'time-attack' ? 'time-attack-instructions' : 'mode-select' 
+              }))}
+              championUpgrades={saveData.championUpgrades}
+            />
+          </>
         )}
 
 
@@ -998,7 +1010,11 @@ export default function ColorGameRoyale() {
             className="relative z-10 min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950"
           >
             {/* Arcade Audio */}
-            <ArcadeAudioManager musicOn={gameState.musicOn} soundOn={gameState.soundOn} />
+            <ArcadeAudioManager 
+              musicOn={gameState.musicOn} 
+              soundOn={gameState.soundOn} 
+              theme={gameState.selectedLevel === 10 ? 'boss' : 'battle'} 
+            />
 
             {/* Arcade Visual Effects */}
             <ScanlineOverlay />
