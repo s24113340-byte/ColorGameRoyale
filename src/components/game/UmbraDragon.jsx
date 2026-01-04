@@ -46,7 +46,7 @@ export default function UmbraDragon({ gameState }) {
       >
         {/* Enemy sprite container */}
         <motion.div 
-          className={`relative ${currentLevel === 1 || currentLevel === 3 ? 'w-58 h-58' : 'w-48 h-48'}`}
+          className={`relative ${currentLevel === 1 ? 'w-58 h-58' : currentLevel === 3 ? 'w-52 h-52' : 'w-48 h-48'}`}
           animate={{
             y: animState === 'idle' ? [0, -8, 0] : animState === 'attacking' ? [0, -12, 0] : [0, -10, 0],
             x: animState === 'idle' ? [0, 3, 0, -3, 0] : 0,
