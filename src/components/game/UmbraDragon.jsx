@@ -5,7 +5,7 @@ import { Skull, Zap, Snowflake } from 'lucide-react';
 const ENEMY_SPRITES = {
   1: { sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/c46751887_goblin.png', name: 'Goblin', color: '#10B981' },
   2: { emoji: '🧚', name: 'Little Fairies', color: '#22C55E' },
-  3: { emoji: '⚔️', name: 'Dark Knights', color: '#84CC16' },
+  3: { sprite: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/bef80c8da_darkknight.png', name: 'Dark Knights', color: '#84CC16' },
   4: { emoji: '👹', name: 'Ogres', color: '#78716C' },
   5: { emoji: '🦅', name: 'Rukh', color: '#57534E' },
   6: { emoji: '🧙', name: 'Mystical Magi', color: '#F59E0B' },
@@ -46,7 +46,7 @@ export default function UmbraDragon({ gameState }) {
       >
         {/* Enemy sprite container */}
         <motion.div 
-          className={`relative ${currentLevel === 1 ? 'w-58 h-58' : 'w-48 h-48'}`}
+          className={`relative ${currentLevel === 1 || currentLevel === 3 ? 'w-58 h-58' : 'w-48 h-48'}`}
           animate={{
             y: animState === 'idle' ? [0, -8, 0] : animState === 'attacking' ? [0, -12, 0] : [0, -10, 0],
             x: animState === 'idle' ? [0, 3, 0, -3, 0] : 0,
