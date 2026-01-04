@@ -275,34 +275,34 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
                 {champion && (
                   <div className="flex items-center justify-center gap-4 mb-6">
                     {champion.id === 'ren' ? (
-                      (ending === 'chaos' || ending === 'fallen') ? (
-                        <img 
-                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
-                          alt="Defeated Ren"
-                          className="w-48 h-48 object-contain"
-                          style={{ imageRendering: 'pixelated' }}
-                        />
-                      ) : (
+                      isVictory ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/dff47c1de_win_red-removebg-preview.png"
                           alt="Victorious Ren"
                           className="w-48 h-48 object-contain"
                           style={{ imageRendering: 'pixelated' }}
                         />
-                      )
-                    ) : champion.id === 'rei' ? (
-                      (ending === 'chaos' || ending === 'fallen') ? (
+                      ) : (
                         <img 
-                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
-                          alt="Defeated Rei"
-                          className="w-64 h-64 object-contain"
+                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/d7e7f976c_unnamed__2_-removebg-preview.png"
+                          alt="Defeated Ren"
+                          className="w-48 h-48 object-contain"
                           style={{ imageRendering: 'pixelated' }}
                         />
-                      ) : (
+                      )
+                    ) : champion.id === 'rei' ? (
+                      isVictory ? (
                         <img 
                           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/a210ab79a_reiwin.png"
                           alt="Victorious Rei"
                           className="w-48 h-48 object-contain"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                      ) : (
+                        <img 
+                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6938e9ea648f1673c86a0d24/fccff93f0_rei_defeat-removebg-preview.png"
+                          alt="Defeated Rei"
+                          className="w-64 h-64 object-contain"
                           style={{ imageRendering: 'pixelated' }}
                         />
                       )
