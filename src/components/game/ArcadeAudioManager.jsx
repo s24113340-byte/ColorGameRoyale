@@ -40,6 +40,7 @@ class ArcadeSoundEngine {
       town: this.playTownTheme.bind(this),
       boss: this.playBossTheme.bind(this),
       victory: this.playVictoryTheme.bind(this),
+      defeat: this.playDefeatTheme.bind(this),
     };
     
     if (themes[theme]) {
@@ -338,9 +339,68 @@ class ArcadeSoundEngine {
     };
     
     playLoop();
-  }
+    }
 
-  stopBackgroundMusic() {
+    playDefeatTheme() {
+    const playLoop = () => {
+      if (!this.musicOn) return;
+
+      const now = this.audioContext.currentTime;
+      const tempo = 0.4;
+
+      // Sad, descending melody
+      const melody = [392, 349, 329, 293, 261, 233, 196, 174];
+      const harmony = [196, 174, 164, 146, 130, 116, 98, 87];
+
+      melody.forEach((freq, i) => {
+        const time = now + i * tempo;
+
+        // Lead melody (triangle wave - somber)
+        const lead = this.audioContext.createOscillator();
+        const leadGain = this.audioContext.createGain();
+        lead.type = 'triangle';
+        lead.frequency.value = freq;
+        leadGain.gain.setValueAtTime(0.06, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 1.5);
+        lead.connect(leadGain);
+        leadGain.connect(this.musicGain);
+        lead.start(time);
+        lead.stop(time + tempo * 1.5);
+
+        // Harmony (sine wave - melancholic)
+        const harm = this.audioContext.createOscillator();
+        const harmGain = this.audioContext.createGain();
+        harm.type = 'sine';
+        harm.frequency.value = harmony[i];
+        harmGain.gain.setValueAtTime(0.04, time);
+        harmGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 1.5);
+        harm.connect(harmGain);
+        harmGain.connect(this.musicGain);
+        harm.start(time);
+        harm.stop(time + tempo * 1.5);
+
+        // Deep bass (every other note)
+        if (i % 2 === 0) {
+          const bass = this.audioContext.createOscillator();
+          const bassGain = this.audioContext.createGain();
+          bass.type = 'sine';
+          bass.frequency.value = freq / 4;
+          bassGain.gain.setValueAtTime(0.08, time);
+          bassGain.gain.exponentialRampToValueAtTime(0.01, time + tempo * 2);
+          bass.connect(bassGain);
+          bassGain.connect(this.musicGain);
+          bass.start(time);
+          bass.stop(time + tempo * 2);
+        }
+      });
+
+      this.currentMusic = setTimeout(playLoop, melody.length * tempo * 1000);
+    };
+
+    playLoop();
+    }
+
+    stopBackgroundMusic() {
     if (this.currentMusic) {
       clearTimeout(this.currentMusic);
       this.currentMusic = null;

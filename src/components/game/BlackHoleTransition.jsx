@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import ArcadeAudioManager from '@/components/game/ArcadeAudioManager';
 
 export default function BlackHoleTransition({ onComplete }) {
   useEffect(() => {
