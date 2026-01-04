@@ -454,10 +454,11 @@ export default function ColorGameRoyale() {
     let totalWin = 0;
     let pointsEarned = 0;
     let bonusTimeEarned = 0;
-    let newStreak = gameState.streak;
-    let factionBuff = null;
-    let multiplier = 1;
-    let shadowDamage = 0;
+    let hadMatchThisRound = false;
+    let factionBuffDetected = null;
+    let factionPayoutMultiplier = 1;
+    let shadowDamageDealtByPlayer = 0;
+    let umbraHealingFromBets = 0;
     const newBalance = { ...gameState.elementalBalance };
 
     // Count matches per color
@@ -469,57 +470,61 @@ export default function ColorGameRoyale() {
     });
 
     // Streak bonuses
-    const streakCoinBonus = gameState.streak >= 3 ? Math.floor(gameState.streak * 5) : 0;
     const streakDamageBonus = gameState.streak >= 5 ? gameState.streak * 2 : 0;
+    const streakCoinMultiplier = gameState.streak + 1;
 
     // Check player bets
-    let hadMatch = false;
     Object.entries(gameState.bets).forEach(([colorId, betAmount]) => {
       const matches = colorCounts[colorId] || 0;
       if (matches > 0) {
-        hadMatch = true;
-        const payoutRates = { 1: 1, 2: 2, 3: 3 };
-        const payout = betAmount * payoutRates[matches] * multiplier;
-        totalWin += payout;
-        pointsEarned += matches === 3 ? 30 : 10 * matches;
-        newStreak++;
+        hadMatchThisRound = true;
+        
+        let basePayoutMultiplierPerMatch = 0;
+        if (matches === 1) {
+          basePayoutMultiplierPerMatch = 2;
+        } else if (matches === 2) {
+          basePayoutMultiplierPerMatch = 4;
+        } else if (matches === 3) {
+          basePayoutMultiplierPerMatch = 10;
+        }
+
+        let currentBetWin = betAmount * basePayoutMultiplierPerMatch;
+        currentBetWin *= streakCoinMultiplier;
+        totalWin += currentBetWin;
 
         // Time bonus based on matches
         if (matches === 3) {
-          bonusTimeEarned += 3; // Jackpot: +3 seconds
-          shadowDamage = 25 + streakDamageBonus;
+          pointsEarned += 30;
+          bonusTimeEarned += 3;
+          shadowDamageDealtByPlayer += 25;
           showFeedback('paldo', 'jackpot');
           triggerScreenShake();
           triggerFlash('#fbbf24');
           playSound('jackpot');
-        } else if (matches === 2) {
-          bonusTimeEarned += 1; // Combo: +1 second
-          shadowDamage = 15 + streakDamageBonus;
-        } else {
-          bonusTimeEarned += 1; // Match: +1 second
-          shadowDamage = 5 + streakDamageBonus;
-        }
-
-        // Streak coin bonus
-        totalWin += streakCoinBonus;
-
-        // Faction buff activation on jackpot
-        if (matches === 3) {
+          
           const color = COLORS.find(c => c.id === colorId);
-          factionBuff = color.faction;
-          multiplier = 3;
+          factionBuffDetected = color.faction;
+          factionPayoutMultiplier = 3;
           newBalance[color.faction] = Math.min(100, newBalance[color.faction] + 10);
-          playSound('jackpot');
-        } else if (matches > 0) {
+        } else if (matches === 2) {
+          pointsEarned += 20;
+          bonusTimeEarned += 1;
+          shadowDamageDealtByPlayer += 15;
+          playSound('win');
+        } else {
+          pointsEarned += 10;
+          bonusTimeEarned += 1;
+          shadowDamageDealtByPlayer += 5;
           playSound('win');
         }
-      } else {
-        newStreak = 0;
       }
     });
 
+    shadowDamageDealtByPlayer += streakDamageBonus;
+    const newStreak = hadMatchThisRound ? gameState.streak + 1 : 0;
+
     // Negative feedback if no matches
-    if (!hadMatch && Object.keys(gameState.bets).length > 0) {
+    if (!hadMatchThisRound && Object.keys(gameState.bets).length > 0) {
       const negativeMessages = ['kasayang!', 'bawi lang', 'ok ra na'];
       const randomNegative = negativeMessages[Math.floor(Math.random() * negativeMessages.length)];
       showFeedback(randomNegative, 'negative');
@@ -537,8 +542,7 @@ export default function ColorGameRoyale() {
       Object.entries(gameState.umbraBets).forEach(([colorId, betAmount]) => {
         const matches = colorCounts[colorId] || 0;
         if (matches > 0) {
-          // Umbra regains shadow meter if he wins
-          shadowDamage -= matches * 8;
+          umbraHealingFromBets += matches * 8;
         }
       });
     }
@@ -614,7 +618,7 @@ export default function ColorGameRoyale() {
           // Drain champion HP and restore Umbra's HP
           abilityDamage = Math.floor(8 * ragePower);
           playSound('damage');
-          shadowDamage -= abilityDamage; // Umbra heals
+          umbraHealingFromBets += abilityDamage; // Umbra heals
         } else if (umbraAbility === 'freeze') {
           frozen = true;
           abilityDamage = Math.floor(5 * ragePower);
@@ -671,7 +675,7 @@ export default function ColorGameRoyale() {
         });
 
     setGameState(prev => {
-      const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
+      const newShadow = Math.max(0, prev.shadowMeter - shadowDamageDealtByPlayer + umbraHealingFromBets);
       const newScore = prev.score + pointsEarned;
       const newTimer = Math.max(0, prev.timer + bonusTimeEarned);
       const totalDamage = poisonDamage + (typeof abilityDamage !== 'undefined' ? abilityDamage : 0);
@@ -737,6 +741,9 @@ export default function ColorGameRoyale() {
             championHP: newHP,
             coins: newCoins,
             ending,
+            streak: newStreak,
+            factionBuffActive: factionBuffDetected,
+            payoutMultiplier: factionBuffDetected ? factionPayoutMultiplier : 1,
           };
         }
 
@@ -751,6 +758,9 @@ export default function ColorGameRoyale() {
           coins: newCoins,
           phase: 'black-hole',
           ending,
+          streak: newStreak,
+          factionBuffActive: factionBuffDetected,
+          payoutMultiplier: factionBuffDetected ? factionPayoutMultiplier : 1,
         };
       }
 
@@ -769,8 +779,8 @@ export default function ColorGameRoyale() {
         resultsTimer: null,
         shadowMeter: newShadow,
         elementalBalance: newBalance,
-        factionBuffActive: factionBuff,
-        payoutMultiplier: multiplier,
+        factionBuffActive: factionBuffDetected,
+        payoutMultiplier: factionBuffDetected ? factionPayoutMultiplier : 1,
         umbraActive: !!umbraAbility,
         umbraAbility,
         umbraRageMode: isRageMode,
@@ -781,7 +791,7 @@ export default function ColorGameRoyale() {
     });
 
     // Clear faction buff after delay
-    if (factionBuff) {
+    if (factionBuffDetected) {
       setTimeout(() => {
         setGameState(prev => ({
           ...prev,
