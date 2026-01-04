@@ -4,15 +4,37 @@ import { Trophy, Medal, Award, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
-export default function TimeAttackLeaderboard({ isOpen, onClose, currentScore = null }) {
+export default function TimeAttackLeaderboard({ isOpen, onClose, currentScore = null, autoSaveScore = false, playerName = 'Player', coins = 0, timeSurvived = 0 }) {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savedScoreId, setSavedScoreId] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
       loadLeaderboard();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && autoSaveScore && currentScore && !savedScoreId) {
+      saveScore();
+    }
+  }, [isOpen, autoSaveScore, currentScore, savedScoreId]);
+
+  const saveScore = async () => {
+    try {
+      const newScore = await base44.entities.TimeAttackScore.create({
+        player_name: playerName,
+        score: currentScore,
+        coins: coins,
+        time_survived: timeSurvived,
+      });
+      setSavedScoreId(newScore.id);
+      loadLeaderboard();
+    } catch (error) {
+      console.error('Failed to save score:', error);
+    }
+  };
 
   const loadLeaderboard = async () => {
     setLoading(true);
@@ -81,7 +103,7 @@ export default function TimeAttackLeaderboard({ isOpen, onClose, currentScore = 
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: index * 0.05 }}
                     className={`p-4 rounded-xl flex items-center gap-4 ${
-                      isCurrentScore
+                      score.id === savedScoreId
                         ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500'
                         : 'bg-slate-800/50 border border-slate-700'
                     }`}

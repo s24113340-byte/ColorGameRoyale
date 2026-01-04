@@ -1201,6 +1201,10 @@ export default function ColorGameRoyale() {
                 isOpen={true}
                 onClose={handleEndingRestart}
                 currentScore={gameState.score}
+                autoSaveScore={true}
+                playerName={gameState.champion?.name || 'Player'}
+                coins={gameState.coins}
+                timeSurvived={60 - gameState.timer}
               />
             )}
           </>
