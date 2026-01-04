@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Flame, Droplets, Leaf, Sun, Skull, RefreshCw, Star, Coins } from 'lucide-react';
+import ArcadeAudioManager from '@/components/game/ArcadeAudioManager';
 
 const ENDINGS = {
   victory: {
@@ -131,6 +132,8 @@ export default function EndingCinematic({ ending, score, champion, onRestart, ga
       animate={{ opacity: 1 }}
       className={`min-h-screen bg-gradient-to-b ${endingData.bgGradient} flex flex-col items-center justify-center px-4 py-8`}
     >
+      {/* Victory BGM */}
+      {isVictory && <ArcadeAudioManager musicOn={true} soundOn={false} theme="victory" />}
       {/* Animated background particles */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {[...Array(30)].map((_, i) => (
