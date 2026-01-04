@@ -205,7 +205,7 @@ export default function ColorGameRoyale() {
           const newTimer = prev.timer - 1;
           if (newTimer <= 0) {
             const ending = determineEnding(prev);
-            return { ...prev, phase: ending === 'chaos' ? 'black-hole' : 'ending', ending };
+            return { ...prev, phase: 'black-hole', ending };
           }
           return { ...prev, timer: newTimer };
         });
@@ -233,7 +233,7 @@ export default function ColorGameRoyale() {
 
     if (isVictory) {
       // Levels 1-9: Generic victory ending
-      if (state.gameMode === 'normal' && state.selectedLevel < 10) {
+      if (state.gameMode === 'normal' && state.selectedLevel && state.selectedLevel < 10) {
         return 'victory';
       }
       // Level 10: Elemental ending based on dominant element
@@ -242,8 +242,8 @@ export default function ColorGameRoyale() {
       return dominant;
     }
 
-    // Defeat: 'fallen' for levels 1-9, 'chaos' for level 10
-    if (state.gameMode === 'normal' && state.selectedLevel < 10) {
+    // Defeat: 'fallen' for campaign levels 1-9, 'chaos' for level 10 or other modes
+    if (state.gameMode === 'normal' && state.selectedLevel && state.selectedLevel >= 1 && state.selectedLevel <= 9) {
       return 'fallen';
     }
 
@@ -707,8 +707,8 @@ export default function ColorGameRoyale() {
             ending = dominant; // fire, water, nature, or light
           }
         } else {
-          // Defeat endings
-          ending = prev.gameMode === 'normal' && prev.selectedLevel < 10 ? 'fallen' : 'chaos';
+          // Defeat endings - use determineEnding for consistency
+          ending = determineEnding({ ...prev, shadowMeter: newShadow, championHP: newHP });
         }
 
         // Show victory message before ending (only if actually won)
