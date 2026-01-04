@@ -4,7 +4,13 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.VITE_BASE_PATH || '/',
+  base: (() => {
+    const fromEnv = process.env.VITE_BASE_PATH;
+    const isGitHubPages = process.env.GITHUB_PAGES === 'true' || (process.env.GITHUB_REPOSITORY || '').endsWith('/ColorGameRoyale');
+    if (fromEnv) return fromEnv;
+    if (isGitHubPages) return '/ColorGameRoyale/';
+    return '/';
+  })(),
   logLevel: 'error', // Suppress warnings, only show errors
   plugins: [
     base44({
