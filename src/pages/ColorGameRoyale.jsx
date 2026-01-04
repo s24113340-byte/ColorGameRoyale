@@ -698,7 +698,7 @@ export default function ColorGameRoyale() {
         let ending;
         if (isVictory) {
           // Levels 1-9: Generic victory ending
-          if (prev.gameMode === 'normal' && prev.selectedLevel < 10) {
+          if (prev.gameMode === 'normal' && prev.selectedLevel && prev.selectedLevel < 10) {
             ending = 'victory';
           } else {
             // Level 10: Elemental ending based on dominant element
@@ -707,8 +707,12 @@ export default function ColorGameRoyale() {
             ending = dominant; // fire, water, nature, or light
           }
         } else {
-          // Defeat endings - use determineEnding for consistency
-          ending = determineEnding({ ...prev, shadowMeter: newShadow, championHP: newHP });
+          // Defeat: 'fallen' for campaign levels 1-9
+          if (prev.gameMode === 'normal' && prev.selectedLevel && prev.selectedLevel >= 1 && prev.selectedLevel <= 9) {
+            ending = 'fallen';
+          } else {
+            ending = 'chaos';
+          }
         }
 
         // Show victory message before ending (only if actually won)
