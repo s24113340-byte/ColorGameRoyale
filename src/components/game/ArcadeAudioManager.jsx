@@ -39,6 +39,7 @@ class ArcadeSoundEngine {
       battle: this.playBattleTheme.bind(this),
       town: this.playTownTheme.bind(this),
       boss: this.playBossTheme.bind(this),
+      victory: this.playVictoryTheme.bind(this),
     };
     
     if (themes[theme]) {
@@ -267,6 +268,73 @@ class ArcadeSoundEngine {
       });
       
       this.currentMusic = setTimeout(playLoop, tempo * pattern.length * 1000);
+    };
+    
+    playLoop();
+  }
+
+  playVictoryTheme() {
+    const playLoop = () => {
+      if (!this.musicOn) return;
+      
+      const now = this.audioContext.currentTime;
+      
+      // Victory Fanfare - Final Fantasy inspired
+      const victorySequence = [
+        // Opening fanfare
+        { freq: 523.25, duration: 0.2, delay: 0 },
+        { freq: 523.25, duration: 0.2, delay: 0.2 },
+        { freq: 523.25, duration: 0.2, delay: 0.4 },
+        { freq: 659.25, duration: 0.6, delay: 0.6 },
+        { freq: 587.33, duration: 0.4, delay: 1.2 },
+        { freq: 659.25, duration: 0.4, delay: 1.6 },
+        { freq: 783.99, duration: 0.8, delay: 2.0 },
+        
+        // Ascending arpeggio
+        { freq: 523.25, duration: 0.15, delay: 2.8 },
+        { freq: 659.25, duration: 0.15, delay: 2.95 },
+        { freq: 783.99, duration: 0.15, delay: 3.1 },
+        { freq: 1046.5, duration: 0.4, delay: 3.25 },
+        
+        // Triumphant resolution
+        { freq: 987.77, duration: 0.3, delay: 3.65 },
+        { freq: 880, duration: 0.3, delay: 3.95 },
+        { freq: 783.99, duration: 0.6, delay: 4.25 },
+        { freq: 659.25, duration: 0.3, delay: 4.85 },
+        { freq: 783.99, duration: 0.3, delay: 5.15 },
+        { freq: 1046.5, duration: 1.2, delay: 5.45 },
+      ];
+      
+      victorySequence.forEach(note => {
+        const time = now + note.delay;
+        
+        // Lead melody (triangle wave - bright)
+        const lead = this.audioContext.createOscillator();
+        const leadGain = this.audioContext.createGain();
+        lead.type = 'triangle';
+        lead.frequency.value = note.freq;
+        leadGain.gain.setValueAtTime(0.15, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
+        lead.connect(leadGain);
+        leadGain.connect(this.musicGain);
+        lead.start(time);
+        lead.stop(time + note.duration);
+        
+        // Harmony (octave down)
+        const harmony = this.audioContext.createOscillator();
+        const harmGain = this.audioContext.createGain();
+        harmony.type = 'sine';
+        harmony.frequency.value = note.freq / 2;
+        harmGain.gain.setValueAtTime(0.08, time);
+        harmGain.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
+        harmony.connect(harmGain);
+        harmGain.connect(this.musicGain);
+        harmony.start(time);
+        harmony.stop(time + note.duration);
+      });
+      
+      // Loop after full sequence
+      this.currentMusic = setTimeout(playLoop, 6700);
     };
     
     playLoop();
