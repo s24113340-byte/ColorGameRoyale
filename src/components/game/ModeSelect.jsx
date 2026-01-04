@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Swords, Clock, Users, ArrowLeft, Shield, Zap, Trophy } from 'lucide-react';
+import { getArcadeSoundEngine } from '@/components/game/ArcadeAudioManager';
 
 const MODES = [
   {
@@ -33,6 +34,8 @@ const MODES = [
 ];
 
 export default function ModeSelect({ onSelectMode, onBack, hasCampaignSave }) {
+  const soundEngine = getArcadeSoundEngine();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -72,6 +75,7 @@ export default function ModeSelect({ onSelectMode, onBack, hasCampaignSave }) {
             transition={{ delay: 0.1 + index * 0.1 }}
             whileHover={{ scale: 1.03, y: -5 }}
             whileTap={{ scale: 0.98 }}
+            onMouseEnter={() => soundEngine.playSound('bet')}
             onClick={() => onSelectMode(mode.id)}
             className="relative group rounded-2xl overflow-hidden text-left"
             style={{

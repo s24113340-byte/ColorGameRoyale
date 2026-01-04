@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sword, Sparkles, Shield, Wand2, ArrowLeft, Star } from 'lucide-react';
+import { getArcadeSoundEngine } from '@/components/game/ArcadeAudioManager';
 
 const CHAMPIONS = [
   {
@@ -40,6 +41,7 @@ const CHAMPIONS = [
 export default function ChampionSelect({ onSelect, onBack, championUpgrades = {} }) {
   const [hoveredChampion, setHoveredChampion] = useState(null);
   const [selectedChampion, setSelectedChampion] = useState(null);
+  const soundEngine = getArcadeSoundEngine();
 
   const getUpgradedChampion = (champion) => {
     const upgrades = championUpgrades[champion.id] || {};
@@ -101,7 +103,10 @@ export default function ChampionSelect({ onSelect, onBack, championUpgrades = {}
             initial={{ x: index === 0 ? -100 : 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 + index * 0.1 }}
-            onMouseEnter={() => setHoveredChampion(upgradedChampion.id)}
+            onMouseEnter={() => {
+              setHoveredChampion(upgradedChampion.id);
+              soundEngine.playSound('bet');
+            }}
             onMouseLeave={() => setHoveredChampion(null)}
             onClick={() => handleSelect(upgradedChampion)}
             className={`
