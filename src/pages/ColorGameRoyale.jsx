@@ -214,7 +214,7 @@ export default function ColorGameRoyale() {
     return () => clearInterval(timerRef.current);
   }, [gameState.phase, gameState.frozen, gameState.isDropping, gameState.isPaused, gameState.showTutorial]);
 
-  const determineEnding = async (state) => {
+  const determineEnding = (state) => {
     // Win conditions based on level
     let isVictory = false;
     if (state.gameMode === 'normal' && state.selectedLevel) {
@@ -229,21 +229,6 @@ export default function ColorGameRoyale() {
     } else {
       // Other modes: Win if shadow meter is depleted OR score is high enough
       isVictory = state.shadowMeter <= 0 || state.score >= 500;
-    }
-
-    // Save time attack score to leaderboard
-    if (state.gameMode === 'time-attack') {
-      try {
-        const user = await base44.auth.me();
-        await base44.entities.TimeAttackScore.create({
-          player_name: user.full_name || user.email,
-          score: state.score,
-          coins: state.coins,
-          time_survived: 30 - state.timer,
-        });
-      } catch (error) {
-        console.error('Failed to save time attack score:', error);
-      }
     }
 
     if (isVictory) {
@@ -721,9 +706,6 @@ export default function ColorGameRoyale() {
               .sort((a, b) => b[1] - a[1])[0][0];
             ending = dominant; // fire, water, nature, or light
           }
-
-          // Save progress asynchronously (don't block on this)
-          determineEnding({ ...prev, shadowMeter: newShadow, score: newScore });
         } else {
           // Defeat endings
           ending = prev.gameMode === 'normal' && prev.selectedLevel < 10 ? 'fallen' : 'chaos';
