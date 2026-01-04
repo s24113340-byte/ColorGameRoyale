@@ -605,21 +605,19 @@ export default function ColorGameRoyale() {
         playSound('umbra');
         triggerScreenShake();
         triggerFlash('#9333ea');
-        
+
         // Execute ability with Rage Mode power boost
         const ragePower = isRageMode ? 1.5 : 1;
-        
+        let abilityDamage = 0;
+
         if (umbraAbility === 'score-drain') {
-          // Drain 5% of champion HP to restore Umbra's HP
-          const hpDrain = 5;
+          // Drain champion HP and restore Umbra's HP
+          abilityDamage = Math.floor(8 * ragePower);
           playSound('damage');
-          setGameState(prev => ({
-            ...prev,
-            championHP: Math.max(0, prev.championHP - hpDrain),
-            shadowMeter: Math.min(100, prev.shadowMeter + hpDrain),
-          }));
+          shadowDamage -= abilityDamage; // Umbra heals
         } else if (umbraAbility === 'freeze') {
           frozen = true;
+          abilityDamage = Math.floor(5 * ragePower);
           playSound('freeze');
           setTimeout(() => {
             setGameState(prev => ({ ...prev, frozen: false }));
@@ -631,31 +629,35 @@ export default function ColorGameRoyale() {
             poisoned.push(COLORS[Math.floor(Math.random() * COLORS.length)].id);
           }
           // Poison damages HP immediately
-          const poisonDamage = poisonCount * 3; // 3% per poisoned tile
-          setGameState(prev => ({
-            ...prev,
-            championHP: Math.max(0, prev.championHP - poisonDamage),
-          }));
+          abilityDamage = Math.floor(poisonCount * 4 * ragePower);
           // Clear poison after 8 seconds
           setTimeout(() => {
             setGameState(prev => ({ ...prev, poisonedSquares: [] }));
           }, 8000);
         } else if (umbraAbility === 'shadow-surge') {
-          // FINAL BOSS: Massive score drain + time penalty
+          // FINAL BOSS: Massive damage + score drain + time penalty
+          abilityDamage = Math.floor(15 * ragePower);
           totalWin = Math.floor(totalWin * 0.3);
           pointsEarned = Math.floor(pointsEarned * 0.3);
           bonusTimeEarned -= 10;
         } else if (umbraAbility === 'elemental-drain') {
-          // FINAL BOSS: Drains all elemental balance
+          // FINAL BOSS: Drains elemental balance + damage
+          abilityDamage = Math.floor(12 * ragePower);
           Object.keys(newBalance).forEach(key => {
             newBalance[key] = Math.max(15, newBalance[key] - 15);
           });
         } else if (umbraAbility === 'corruption') {
-          // FINAL BOSS: All squares poisoned briefly
+          // FINAL BOSS: All squares poisoned + massive damage
+          abilityDamage = Math.floor(20 * ragePower);
           poisoned = COLORS.map(c => c.id);
           setTimeout(() => {
             setGameState(prev => ({ ...prev, poisonedSquares: [] }));
           }, 2000);
+        }
+
+        // Apply ability damage
+        if (abilityDamage > 0) {
+          playSound('damage');
         }
         }
         }
@@ -672,7 +674,8 @@ export default function ColorGameRoyale() {
       const newShadow = Math.max(0, prev.shadowMeter - shadowDamage);
       const newScore = prev.score + pointsEarned;
       const newTimer = Math.max(0, prev.timer + bonusTimeEarned);
-      const newHP = Math.max(0, prev.championHP - poisonDamage);
+      const totalDamage = poisonDamage + (typeof abilityDamage !== 'undefined' ? abilityDamage : 0);
+      const newHP = Math.max(0, prev.championHP - totalDamage);
       const newCoins = prev.coins + totalWin;
 
       // Check for ending conditions based on level
