@@ -1,0 +1,26 @@
+{
+  "name": "TimeAttackScore",
+  "type": "object",
+  "properties": {
+    "player_name": {
+      "type": "string",
+      "description": "Player name"
+    },
+    "score": {
+      "type": "number",
+      "description": "Final score achieved"
+    },
+    "coins": {
+      "type": "number",
+      "description": "Coins at end"
+    },
+    "time_survived": {
+      "type": "number",
+      "description": "Seconds survived"
+    }
+  },
+  "required": [
+    "player_name",
+    "score"
+  ]
+}
